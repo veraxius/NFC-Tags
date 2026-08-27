@@ -1,14 +1,14 @@
 // Beaurity JourneyPort™ / Earthy Doings™ — MVP data model
-// Implements TRS v1.0 sections 7-22. SQLite for MVP; field types chosen to
-// migrate cleanly to PostgreSQL (UUID PKs, JSON as serialized text).
-// Enum-like fields use String + application-level constants (SQLite has no enums).
+// Implements TRS v1.0 sections 7-22. PostgreSQL (Railway); JSON stored as
+// serialized text for portability.
+// Enum-like fields use String + application-level constants.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
