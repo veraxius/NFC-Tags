@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSessionUser, isBeaurityAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Reveal } from "@/components/Reveal";
@@ -59,9 +60,20 @@ export default async function Home() {
     <main>
       {/* Nav */}
       <header className="glass-nav sticky top-0 z-50">
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3.5">
-          <Link href="/" className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
-            JourneyPort<span className="text-[#86868b]">™</span>
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/beaurity-overlay-small.png"
+              alt="Beaurity"
+              width={240}
+              height={47}
+              priority
+              className="h-6 w-auto"
+            />
+            <span className="hidden h-4 w-px bg-black/10 sm:block" />
+            <span className="hidden text-[15px] font-semibold tracking-tight text-[#1d1d1f] sm:inline">
+              JourneyPort<span className="text-[#86868b]">™</span>
+            </span>
           </Link>
           <nav className="ml-2 hidden gap-6 text-[13px] text-[#1d1d1f]/80 sm:flex">
             <a href="#impact" className="transition-colors hover:text-[#0071e3]">Triple Impact</a>
@@ -248,7 +260,14 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t px-6 py-10" style={{ borderColor: "var(--color-divider)" }}>
         <div className="mx-auto max-w-6xl">
-          <p className="text-[12px] leading-[1.6] text-[#86868b]">
+          <Image
+            src="/beaurity-overlay-small.png"
+            alt="Beaurity"
+            width={240}
+            height={47}
+            className="h-5 w-auto opacity-80"
+          />
+          <p className="mt-3 text-[12px] leading-[1.6] text-[#86868b]">
             Beaurity JourneyPort™ — Your Trusted Journey Through Life.
           </p>
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-[12px] text-[#86868b]" style={{ borderColor: "var(--color-divider)" }}>

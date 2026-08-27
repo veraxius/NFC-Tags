@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 
@@ -124,10 +125,20 @@ export function NavBar({
 
   return (
     <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3.5">
-        <Link href="/" className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
-          JourneyPort<span className="text-[#86868b]">™</span>
-          <span className="ml-2 text-xs font-normal text-[#86868b]">{title}</span>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-6 py-3">
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/beaurity-overlay-small.png"
+            alt="Beaurity"
+            width={240}
+            height={47}
+            className="h-5 w-auto"
+          />
+          <span className="hidden h-4 w-px bg-black/10 sm:block" />
+          <span className="hidden text-[15px] font-semibold tracking-tight text-[#1d1d1f] sm:inline">
+            JourneyPort<span className="text-[#86868b]">™</span>
+            <span className="ml-2 text-xs font-normal text-[#86868b]">{title}</span>
+          </span>
         </Link>
         <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[#1d1d1f]/80">
           {links.map((l) => (

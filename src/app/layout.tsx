@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Beaurity JourneyPort™ — Earthy Doings™",
   description:
     "Record. Verify. Grow. Every meaningful action becomes part of your trusted Journey.",
+  icons: {
+    icon: "/beaurity-imagen.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
