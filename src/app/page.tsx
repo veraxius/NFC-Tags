@@ -61,19 +61,15 @@ export default async function Home() {
       {/* Nav */}
       <header className="glass-nav sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center">
             <Image
               src="/beaurity-overlay-small.png"
               alt="Beaurity"
               width={240}
               height={47}
               priority
-              className="h-6 w-auto"
+              className="-my-2 h-10 w-auto"
             />
-            <span className="hidden h-4 w-px bg-black/10 sm:block" />
-            <span className="hidden text-[15px] font-semibold tracking-tight text-[#1d1d1f] sm:inline">
-              JourneyPort<span className="text-[#86868b]">™</span>
-            </span>
           </Link>
           <nav className="ml-2 hidden gap-6 text-[13px] text-[#1d1d1f]/80 sm:flex">
             <a href="#impact" className="transition-colors hover:text-[#0071e3]">Triple Impact</a>

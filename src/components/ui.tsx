@@ -132,13 +132,10 @@ export function NavBar({
             alt="Beaurity"
             width={240}
             height={47}
-            className="h-5 w-auto"
+            className="-my-2 h-9 w-auto"
           />
           <span className="hidden h-4 w-px bg-black/10 sm:block" />
-          <span className="hidden text-[15px] font-semibold tracking-tight text-[#1d1d1f] sm:inline">
-            JourneyPort<span className="text-[#86868b]">™</span>
-            <span className="ml-2 text-xs font-normal text-[#86868b]">{title}</span>
-          </span>
+          <span className="hidden text-xs font-normal text-[#86868b] sm:inline">{title}</span>
         </Link>
         <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[#1d1d1f]/80">
           {links.map((l) => (
