@@ -31,3 +31,18 @@ export function generateNfcToken(): { token: string; tokenHash: string } {
 export function hashNfcToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
+
+export const programPublicId = () => `PRG-${randomCode(6)}`;
+export const disputePublicId = () => `DSP-${randomCode(6)}`;
+export const verificationPolicyPublicId = () => `VPOL-${randomCode(6)}`;
+
+// Single-use tokens for password reset / email verification (TRS 27).
+// Same rule as NFC tokens: only the hash is ever stored.
+export function generateOpaqueToken(): { token: string; tokenHash: string } {
+  const token = crypto.randomBytes(32).toString("base64url");
+  return { token, tokenHash: hashOpaqueToken(token) };
+}
+
+export function hashOpaqueToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}

@@ -216,7 +216,108 @@ export async function approveVerification(params: {
     newState: { status: milestone.status },
   });
 
+  // Architecture doc §3 (Layer 3) — in-platform notification. The MVP does
+  // not send email; TRS §3 keeps external channels out of scope.
+  await db.notification.create({
+    data: {
+      userId: v.participation.userId,
+      type: credible ? "milestone_verified" : "verification_pending",
+      title: credible ? "New verified Earthy Doing" : "Your participation is under review",
+      body: credible
+        ? "Your participation has been verified and added to your Journey."
+        : "Your participation needs an additional review before it can be verified.",
+      objectType: "journey_milestone",
+      objectId: milestone.id,
+    },
+  });
+
   return { verification: updated, assessment, milestone };
+}
+
+// TRS 31 — POST /participations/{id}/cancel
+export async function cancelParticipation(params: {
+  participationId: string;
+  actorId: string;
+  actorType: string;
+  reason?: string;
+}) {
+  const p = await db.participation.findUniqueOrThrow({
+    where: { id: params.participationId },
+    include: { verification: true },
+  });
+  if (["completed", "cancelled", "invalid"].includes(p.status)) {
+    throw new FlowError(
+      "INVALID_STATE",
+      `Participation cannot be cancelled from status '${p.status}'.`,
+      409
+    );
+  }
+  if (p.verification && p.verification.status === "verified") {
+    throw new FlowError(
+      "ALREADY_VERIFIED",
+      "A verified participation cannot be cancelled; revoke the verification instead.",
+      409
+    );
+  }
+
+  const updated = await db.participation.update({
+    where: { id: p.id },
+    data: { status: "cancelled" },
+  });
+
+  await audit({
+    actorType: params.actorType,
+    actorId: params.actorId,
+    action: "participation.cancelled",
+    objectType: "participation",
+    objectId: p.id,
+    previousState: { status: p.status },
+    newState: { status: "cancelled" },
+    reason: params.reason,
+  });
+
+  return updated;
+}
+
+// TRS 32 — POST /verifications/{id}/review
+// Moves a verification into the NEEDS REVIEW queue (TRS §36 state machine)
+// without approving or rejecting it.
+export async function reviewVerification(params: {
+  verificationId: string;
+  actorId: string;
+  actorType: string;
+  reasonCode?: string;
+  notes?: string;
+}) {
+  const v = await db.verification.findUniqueOrThrow({ where: { id: params.verificationId } });
+  if (!["pending", "review"].includes(v.status)) {
+    throw new FlowError(
+      "INVALID_STATE",
+      `Verification cannot be moved to review from status '${v.status}'.`,
+      409
+    );
+  }
+
+  const updated = await db.verification.update({
+    where: { id: v.id },
+    data: {
+      status: "review",
+      reasonCode: params.reasonCode ?? "MANUAL_REVIEW_REQUESTED",
+      notes: params.notes ?? v.notes,
+    },
+  });
+
+  await audit({
+    actorType: params.actorType,
+    actorId: params.actorId,
+    action: "verification.needs_review",
+    objectType: "verification",
+    objectId: v.id,
+    previousState: { status: v.status },
+    newState: { status: "review", reasonCode: updated.reasonCode },
+  });
+
+  return updated;
 }
 
 export async function rejectVerification(params: {

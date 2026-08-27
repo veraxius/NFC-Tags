@@ -20,6 +20,21 @@ const DEMO_TOKENS = {
 async function main() {
   const password = await bcrypt.hash("Password123!", 12);
 
+  // ---- Verification policy (TRS §37 / Architecture §11) ----
+  // The pilot uses a single policy: NFC + partner confirmation + AIM.
+  const policy = await db.verificationPolicy.create({
+    data: {
+      publicId: "VPOL-PILOT1",
+      name: "Pilot Standard Verification",
+      version: "1.0",
+      requiresNfc: true,
+      requiresPartnerConfirm: true,
+      requiresAim: true,
+      minAimConfidence: 1.0,
+      isDefault: true,
+    },
+  });
+
   // ---- Platform staff ----
   const superAdmin = await db.user.create({
     data: {
@@ -168,12 +183,25 @@ async function main() {
     ],
   });
 
+  // ---- Program (Architecture doc §22) ----
+  const program = await db.program.create({
+    data: {
+      publicId: "PRG-OCEAN1",
+      partnerId: partner.id,
+      name: "Coastal Regeneration 2026",
+      description: "Year-long program of coastal cleanups, workshops and wellness activities.",
+      status: "active",
+      createdBy: partnerAdmin.id,
+    },
+  });
+
   // ---- Earthy Doings ----
   const now = Date.now();
   const cleanup = await db.earthyDoing.create({
     data: {
       publicId: "ED-2026-MBC001",
       partnerId: partner.id,
+      programId: program.id,
       title: "Miami Beach Cleanup",
       description: "Community beach cleanup — remove plastics and debris from the 5th Street access.",
       category: "environmental",
@@ -182,6 +210,7 @@ async function main() {
       endAt: new Date(now + 6 * 3600e3),
       locationId: location.id,
       capacity: 100,
+      verificationPolicyId: policy.id,
       createdBy: partnerAdmin.id,
       classifications: { create: [{ dimension: "ENVIRONMENTAL_EQUITY" }] },
     },
@@ -190,6 +219,7 @@ async function main() {
     data: {
       publicId: "ED-2026-WEL001",
       partnerId: partner.id,
+      programId: program.id,
       title: "Community Wellness Walk",
       description: "Guided group walk focused on wellbeing and connection.",
       category: "health",
@@ -197,6 +227,7 @@ async function main() {
       startAt: new Date(now + 1 * 3600e3),
       endAt: new Date(now + 5 * 3600e3),
       locationId: location.id,
+      verificationPolicyId: policy.id,
       createdBy: partnerAdmin.id,
       classifications: {
         create: [{ dimension: "SELF_SUSTAINABILITY" }, { dimension: "EMOTIONAL_PROSPERITY" }],
@@ -207,6 +238,7 @@ async function main() {
     data: {
       publicId: "ED-2026-EDU001",
       partnerId: partner.id,
+      programId: program.id,
       title: "Ocean Literacy Workshop",
       description: "Educational workshop on marine ecosystems and plastic reduction.",
       category: "education",
@@ -214,6 +246,7 @@ async function main() {
       startAt: new Date(now + 7 * 864e5),
       endAt: new Date(now + 7 * 864e5 + 3 * 3600e3),
       locationId: location.id,
+      verificationPolicyId: policy.id,
       createdBy: partnerAdmin.id,
       classifications: {
         create: [{ dimension: "SELF_SUSTAINABILITY" }, { dimension: "ENVIRONMENTAL_EQUITY" }],

@@ -21,7 +21,9 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
           { href: "/ops/aim", label: "AIM Trust" },
           { href: "/ops/impact", label: "Impact" },
           { href: "/ops/disputes", label: "Disputes" },
+          { href: "/ops/reports", label: "Reports" },
           { href: "/ops/audit", label: "Audit" },
+          { href: "/ops/system", label: "System" },
         ]}
       />
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>

@@ -111,3 +111,16 @@ export function canActForPartner(u: SessionUser, partnerId: string): boolean {
 export function isPartnerAdmin(u: SessionUser, partnerId: string): boolean {
   return isBeaurityAdmin(u) || partnerRole(u, partnerId) === "administrator";
 }
+
+// Audit actor type for a session (TRS 22 actor_type enum). When a partner
+// scope is given, partner roles take precedence over the plain member role.
+export function actorTypeFor(u: SessionUser, partnerId?: string): string {
+  if (u.platformRole === "super_admin") return "super_admin";
+  if (u.platformRole === "beaurity_admin") return "beaurity_admin";
+  if (partnerId) {
+    const role = partnerRole(u, partnerId);
+    if (role === "administrator") return "partner_admin";
+    if (role === "operator") return "partner_operator";
+  }
+  return "member";
+}

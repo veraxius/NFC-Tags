@@ -30,15 +30,83 @@ model User {
   // global role: member | beaurity_admin | super_admin (partner roles live in PartnerUser)
   platformRole String @default("member") @map("platform_role")
 
-  journeyIdentity JourneyIdentity?
-  devices         JourneyPortDevice[]
-  partnerUsers    PartnerUser[]
-  participations  Participation[]
-  milestones      JourneyMilestone[]
-  consents        Consent[]
-  disputesOpened  Dispute[]           @relation("DisputeOpener")
+  journeyIdentity    JourneyIdentity?
+  devices            JourneyPortDevice[]
+  partnerUsers       PartnerUser[]
+  participations     Participation[]
+  milestones         JourneyMilestone[]
+  consents           Consent[]
+  disputesOpened     Dispute[]            @relation("DisputeOpener")
+  privacyPreferences PrivacyPreference[]
+  notifications      Notification[]
+  passwordTokens     PasswordResetToken[]
+  emailTokens        EmailVerificationToken[]
 
   @@map("users")
+}
+
+// Architecture doc §22 PRIVACY PREFERENCE — user-controlled visibility of
+// their own record, stored per preference key so new controls can be added
+// without a migration (Architecture doc §25).
+model PrivacyPreference {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  key       String // milestone_visibility | show_partner_name | allow_partner_lookup
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, key])
+  @@map("privacy_preferences")
+}
+
+// Architecture doc §22 NOTIFICATION — in-platform notifications (the MVP
+// does not send email; TRS §3 keeps external channels out of scope).
+model Notification {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  type       String // milestone_verified | verification_pending | dispute_resolved | device_activated
+  title      String
+  body       String
+  objectType String?   @map("object_type")
+  objectId   String?   @map("object_id")
+  readAt     DateTime? @map("read_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// TRS 27 — POST /auth/forgot-password + /auth/reset-password
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("password_reset_tokens")
+}
+
+// TRS 27 — POST /auth/verify-email
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("email_verification_tokens")
 }
 
 // TRS 8 JOURNEY IDENTITIES
@@ -95,6 +163,7 @@ model Partner {
 
   partnerUsers   PartnerUser[]
   locations      Location[]
+  programs       Program[]
   earthyDoings   EarthyDoing[]
   participations Participation[]
   verifications  Verification[]
@@ -137,29 +206,73 @@ model Location {
   @@map("locations")
 }
 
+// Architecture doc §22 PROGRAM — a partner's program groups related Earthy
+// Doings (TRS §2.1 item 9: "Event/program management").
+model Program {
+  id          String   @id @default(uuid())
+  publicId    String   @unique @map("public_id") // e.g. PRG-A1B2C3
+  partnerId   String   @map("partner_id")
+  name        String
+  description String?
+  status      String   @default("active") // active | paused | archived
+  startAt     DateTime? @map("start_at")
+  endAt       DateTime? @map("end_at")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  partner      Partner       @relation(fields: [partnerId], references: [id])
+  earthyDoings EarthyDoing[]
+
+  @@map("programs")
+}
+
+// TRS 13 / TRS 37 VERIFICATION POLICIES — the verification model must stay
+// configurable rather than hard-coded (Architecture doc §11).
+model VerificationPolicy {
+  id                     String   @id @default(uuid())
+  publicId               String   @unique @map("public_id") // e.g. VPOL-PILOT1
+  name                   String
+  version                String   @default("1.0")
+  requiresNfc            Boolean  @default(true) @map("requires_nfc")
+  requiresPartnerConfirm Boolean  @default(true) @map("requires_partner_confirmation")
+  requiresAim            Boolean  @default(true) @map("requires_aim")
+  minAimConfidence       Float?   @map("min_aim_confidence")
+  isDefault              Boolean  @default(false) @map("is_default")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  earthyDoings EarthyDoing[]
+
+  @@map("verification_policies")
+}
+
 // TRS 13 EARTHY DOINGS
 model EarthyDoing {
   id                   String   @id @default(uuid())
   publicId             String   @unique @map("public_id") // e.g. ED-2026-MBC001
   partnerId            String   @map("partner_id")
+  programId            String?  @map("program_id")
   title                String
   description          String
   category             String
-  status               String   @default("draft") // draft|published|active|completed|cancelled|archived
+  status               String   @default("draft") // draft|published|active|paused|completed|cancelled|archived
   startAt              DateTime @map("start_at")
   endAt                DateTime @map("end_at")
   locationId           String?  @map("location_id")
   capacity             Int?
-  verificationPolicy   String   @default("nfc+partner+aim") @map("verification_policy")
+  verificationPolicyId String?  @map("verification_policy_id")
   createdBy            String   @map("created_by")
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
 
-  partner         Partner                    @relation(fields: [partnerId], references: [id])
-  location        Location?                  @relation(fields: [locationId], references: [id])
-  classifications TriSilienceClassification[]
-  participations  Participation[]
-  milestones      JourneyMilestone[]
+  partner            Partner                    @relation(fields: [partnerId], references: [id])
+  program            Program?                   @relation(fields: [programId], references: [id])
+  location           Location?                  @relation(fields: [locationId], references: [id])
+  verificationPolicy VerificationPolicy?        @relation(fields: [verificationPolicyId], references: [id])
+  classifications    TriSilienceClassification[]
+  participations     Participation[]
+  milestones         JourneyMilestone[]
 
   @@map("earthy_doings")
 }
@@ -307,18 +420,22 @@ model Consent {
   @@map("consents")
 }
 
-// TRS 21 DISPUTES
+// TRS 21 DISPUTES — workflow OPEN -> UNDER REVIEW -> RESOLVED (TRS §49)
 model Dispute {
-  id          String    @id @default(uuid())
-  milestoneId String    @map("milestone_id")
-  openedBy    String    @map("opened_by")
-  reason      String
-  description String
-  status      String    @default("open") // open | under_review | resolved
-  resolution  String?
-  resolvedBy  String?   @map("resolved_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  resolvedAt  DateTime? @map("resolved_at")
+  id            String    @id @default(uuid())
+  publicId      String    @unique @map("public_id") // e.g. DSP-A1B2C3
+  milestoneId   String    @map("milestone_id")
+  openedBy      String    @map("opened_by")
+  reason        String
+  description   String
+  status        String    @default("open") // open | under_review | resolved
+  assignedTo    String?   @map("assigned_to")
+  resolution    String?
+  resolutionOutcome String? @map("resolution_outcome") // verified | revoked
+  resolvedBy    String?   @map("resolved_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  underReviewAt DateTime? @map("under_review_at")
+  resolvedAt    DateTime? @map("resolved_at")
 
   milestone JourneyMilestone @relation(fields: [milestoneId], references: [id])
   opener    User             @relation("DisputeOpener", fields: [openedBy], references: [id])

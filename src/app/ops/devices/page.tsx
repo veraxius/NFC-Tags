@@ -1,6 +1,11 @@
 import { db } from "@/lib/db";
 import { Table, Badge, Card } from "@/components/ui";
-import { addDeviceInventoryAction, setDeviceStatusAction } from "@/lib/actions";
+import {
+  addDeviceInventoryAction,
+  setDeviceStatusAction,
+  assignDeviceAction,
+  replaceDeviceAction,
+} from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +70,11 @@ export default async function OpsDevices({
           const suspend = setDeviceStatusAction.bind(null, d.id, "suspended", "ops_suspend");
           const revoke = setDeviceStatusAction.bind(null, d.id, "revoked", "ops_revoke");
           const reactivate = setDeviceStatusAction.bind(null, d.id, "active", "ops_reactivate");
+          const replace = replaceDeviceAction.bind(null, d.id);
+          async function assign(formData: FormData) {
+            "use server";
+            await assignDeviceAction(d.id, String(formData.get("member") ?? ""));
+          }
           return (
             <tr key={d.id}>
               <td className="px-4 py-2.5 font-mono text-xs font-semibold">{d.publicDeviceId}</td>
@@ -89,7 +99,20 @@ export default async function OpsDevices({
               </td>
               <td className="px-4 py-2.5"><Badge status={d.status} /></td>
               <td className="px-4 py-2.5">
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {d.status === "inventory" && (
+                    <form action={assign} className="flex items-center gap-1">
+                      <input
+                        name="member"
+                        required
+                        placeholder="Journey ID or email"
+                        className="w-36 rounded border border-black/10 px-2 py-1 text-xs"
+                      />
+                      <button className="rounded border border-sky-300 px-2 py-1 text-xs text-sky-700 hover:bg-sky-50">
+                        Assign
+                      </button>
+                    </form>
+                  )}
                   {d.status === "active" && (
                     <form action={suspend}>
                       <button className="rounded border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50">Suspend</button>
@@ -100,7 +123,14 @@ export default async function OpsDevices({
                       <button className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Reactivate</button>
                     </form>
                   )}
-                  {d.status !== "revoked" && d.status !== "retired" && (
+                  {["active", "suspended", "lost", "stolen"].includes(d.status) && (
+                    <form action={replace}>
+                      <button className="rounded border border-black/10 px-2 py-1 text-xs text-[#1d1d1f] hover:bg-black/[0.04]">
+                        Replace
+                      </button>
+                    </form>
+                  )}
+                  {d.status !== "revoked" && d.status !== "retired" && d.status !== "replaced" && (
                     <form action={revoke}>
                       <button className="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50">Revoke</button>
                     </form>

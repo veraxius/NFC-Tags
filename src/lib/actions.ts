@@ -15,7 +15,13 @@ export async function logoutAction() {
   await destroySession();
   redirect("/login");
 }
-import { hashNfcToken, earthyDoingPublicId, generateNfcToken, devicePublicId } from "./ids";
+import {
+  hashNfcToken,
+  earthyDoingPublicId,
+  generateNfcToken,
+  devicePublicId,
+  disputePublicId,
+} from "./ids";
 import { audit } from "./audit";
 import {
   recordParticipation,
@@ -124,31 +130,23 @@ export async function revokeVerificationAction(verificationId: string, reason: s
 export async function createEarthyDoingAction(formData: FormData) {
   const session = await requireUser();
   const partnerId = String(formData.get("partnerId"));
-  if (!canActForPartner(session, partnerId)) throw new Error("Forbidden");
+  const { createEarthyDoing } = await import("./earthyDoings");
 
-  const dimensions = formData.getAll("dimensions").map(String);
-  const doing = await db.earthyDoing.create({
-    data: {
-      publicId: earthyDoingPublicId(),
-      partnerId,
-      title: String(formData.get("title")),
-      description: String(formData.get("description") ?? ""),
-      category: String(formData.get("category") ?? "general"),
-      status: "published",
-      startAt: new Date(String(formData.get("startAt"))),
-      endAt: new Date(String(formData.get("endAt"))),
-      capacity: formData.get("capacity") ? Number(formData.get("capacity")) : null,
-      createdBy: session.id,
-      classifications: {
-        create: dimensions.map((d) => ({ dimension: d })),
-      },
-    },
+  // Shares the same validation, policy assignment and audit trail as
+  // POST /api/v1/earthy-doings — the dashboard is not a second code path.
+  await createEarthyDoing({
+    session,
+    partnerId,
+    title: String(formData.get("title")),
+    description: String(formData.get("description") ?? ""),
+    category: String(formData.get("category") ?? "general"),
+    startAt: new Date(String(formData.get("startAt"))),
+    endAt: new Date(String(formData.get("endAt"))),
+    capacity: formData.get("capacity") ? Number(formData.get("capacity")) : null,
+    dimensions: formData.getAll("dimensions").map(String),
+    status: "published",
   });
-  await audit({
-    actorType: actorTypeFor(session, partnerId), actorId: session.id,
-    action: "earthy_doing.created", objectType: "earthy_doing", objectId: doing.id,
-    newState: { title: doing.title, status: doing.status, dimensions },
-  });
+
   revalidatePath("/partner");
   redirect("/partner");
 }
@@ -199,6 +197,67 @@ export async function setDeviceStatusAction(deviceId: string, status: string, re
   revalidatePath("/journey");
 }
 
+// TRS 44 — Earthy Doings screen actions: Publish | Pause | Cancel | Archive
+export async function transitionEarthyDoingAction(idOrPublicId: string, to: string) {
+  const session = await requireUser();
+  const { transitionEarthyDoing } = await import("./earthyDoings");
+  await transitionEarthyDoing({ session, idOrPublicId, to });
+  revalidatePath("/ops/doings");
+  revalidatePath("/partner/doings");
+}
+
+// TRS 46 — Device Center action: Assign a device from inventory to a member
+export async function assignDeviceAction(deviceId: string, journeyIdOrEmail: string) {
+  const session = await requireUser();
+  if (!isBeaurityAdmin(session)) throw new Error("Forbidden");
+
+  const query = journeyIdOrEmail.trim();
+  const user = await db.user.findFirst({
+    where: {
+      OR: [{ email: query.toLowerCase() }, { journeyIdentity: { publicId: query } }],
+    },
+  });
+  if (!user) throw new Error("No member found for that Journey ID or email");
+
+  const device = await db.journeyPortDevice.findUniqueOrThrow({ where: { id: deviceId } });
+  if (device.status !== "inventory") {
+    throw new Error(`Only devices in inventory can be assigned (this one is '${device.status}')`);
+  }
+
+  await db.journeyPortDevice.update({
+    where: { id: deviceId },
+    data: { userId: user.id, status: "assigned", issuedAt: device.issuedAt ?? new Date() },
+  });
+  await audit({
+    actorType: actorTypeFor(session), actorId: session.id,
+    action: "device.assigned", objectType: "journeyport_device", objectId: deviceId,
+    previousState: { status: device.status, userId: device.userId },
+    newState: { status: "assigned", userId: user.id },
+  });
+  revalidatePath("/ops/devices");
+}
+
+// TRS 46 — Device Center action: Replace. The new token is shown once via a
+// querystring flash, exactly like new inventory, because only its hash is
+// stored (TRS §23).
+export async function replaceDeviceAction(deviceId: string) {
+  const session = await requireUser();
+  if (!isBeaurityAdmin(session)) throw new Error("Forbidden");
+  const { replaceDevice } = await import("./devices");
+  const { replacement, token } = await replaceDevice({
+    idOrPublicId: deviceId,
+    session,
+    actorType: actorTypeFor(session),
+    reason: "replaced_from_device_center",
+  });
+  revalidatePath("/ops/devices");
+  redirect(
+    `/ops/devices?created=${encodeURIComponent(
+      JSON.stringify([{ deviceId: replacement.publicDeviceId, token }])
+    )}`
+  );
+}
+
 export async function setPartnerStatusAction(partnerId: string, status: string) {
   const session = await requireUser();
   if (!isBeaurityAdmin(session)) throw new Error("Forbidden");
@@ -224,6 +283,7 @@ export async function openDisputeAction(formData: FormData) {
   if (milestone.userId !== session.id) throw new Error("Forbidden");
   const dispute = await db.dispute.create({
     data: {
+      publicId: disputePublicId(),
       milestoneId,
       openedBy: session.id,
       reason: String(formData.get("reason")),
@@ -241,13 +301,41 @@ export async function openDisputeAction(formData: FormData) {
   redirect("/journey");
 }
 
+// TRS 49 — dispute workflow: OPEN -> UNDER REVIEW -> RESOLVED.
+// Taking a case assigns it to the reviewing administrator, so the queue
+// shows who is handling what.
+export async function startDisputeReviewAction(disputeId: string) {
+  const session = await requireUser();
+  if (!isBeaurityAdmin(session)) throw new Error("Forbidden");
+  const dispute = await db.dispute.findUniqueOrThrow({ where: { id: disputeId } });
+  if (dispute.status !== "open") throw new Error("Only open disputes can be moved to review");
+
+  await db.dispute.update({
+    where: { id: disputeId },
+    data: { status: "under_review", assignedTo: session.id, underReviewAt: new Date() },
+  });
+  await audit({
+    actorType: actorTypeFor(session), actorId: session.id,
+    action: "dispute.under_review", objectType: "dispute", objectId: disputeId,
+    previousState: { status: dispute.status }, newState: { status: "under_review" },
+  });
+  revalidatePath("/ops/disputes");
+}
+
 export async function resolveDisputeAction(disputeId: string, outcome: "verified" | "revoked", resolution: string) {
   const session = await requireUser();
   if (!isBeaurityAdmin(session)) throw new Error("Forbidden");
   const dispute = await db.dispute.findUniqueOrThrow({ where: { id: disputeId }, include: { milestone: true } });
+  if (dispute.status === "resolved") throw new Error("This dispute is already resolved");
   await db.dispute.update({
     where: { id: disputeId },
-    data: { status: "resolved", resolution, resolvedBy: session.id, resolvedAt: new Date() },
+    data: {
+      status: "resolved",
+      resolution,
+      resolutionOutcome: outcome,
+      resolvedBy: session.id,
+      resolvedAt: new Date(),
+    },
   });
   await db.journeyMilestone.update({
     where: { id: dispute.milestoneId },
