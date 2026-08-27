@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 
 export const DIMENSION_LABELS: Record<string, string> = {
@@ -63,8 +65,10 @@ export function DimensionBadge({ dimension }: { dimension: string }) {
 
 export function Card({ title, children, className = "" }: { title?: string; children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${className}`}>
-      {title && <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</h3>}
+    <div className={`glass p-5 ${className}`}>
+      {title && (
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#86868b]">{title}</h3>
+      )}
       {children}
     </div>
   );
@@ -72,27 +76,29 @@ export function Card({ title, children, className = "" }: { title?: string; chil
 
 export function Kpi({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className={`text-2xl font-bold ${accent ? "text-emerald-700" : "text-slate-900"}`}>{value}</div>
-      <div className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="glass p-4">
+      <div className={`text-2xl font-semibold tracking-tight ${accent ? "text-emerald-600" : "text-[#1d1d1f]"}`}>
+        {value}
+      </div>
+      <div className="mt-1 text-xs font-medium uppercase tracking-wide text-[#86868b]">{label}</div>
     </div>
   );
 }
 
 export function Table({ headers, children }: { headers: string[]; children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="glass overflow-x-auto p-0">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
+          <tr className="border-b border-black/[0.06]">
             {headers.map((h) => (
-              <th key={h} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#86868b]">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">{children}</tbody>
+        <tbody className="divide-y divide-black/[0.05]">{children}</tbody>
       </table>
     </div>
   );
@@ -107,24 +113,33 @@ export function NavBar({
   links: { href: string; label: string }[];
   user?: { displayName: string } | null;
 }) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-        <Link href="/" className="text-lg font-bold text-emerald-800">
-          JourneyPort<span className="text-slate-400">™</span>
-          <span className="ml-2 text-xs font-medium text-slate-400">{title}</span>
+    <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3.5">
+        <Link href="/" className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
+          JourneyPort<span className="text-[#86868b]">™</span>
+          <span className="ml-2 text-xs font-normal text-[#86868b]">{title}</span>
         </Link>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+        <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[#1d1d1f]/80">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-emerald-700">
+            <Link key={l.href} href={l.href} className="transition-colors hover:text-[#0071e3]">
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3 text-sm text-slate-500">
+        <div className="ml-auto flex items-center gap-3 text-[13px] text-[#86868b]">
           {user && <span>{user.displayName}</span>}
           <form action={logoutAction}>
-            <button className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50">
+            <button className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#1d1d1f] transition-colors hover:bg-black/[0.04]">
               Sign out
             </button>
           </form>

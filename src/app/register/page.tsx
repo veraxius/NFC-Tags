@@ -36,54 +36,62 @@ export default function RegisterPage() {
     router.refresh();
   }
 
+  const inputClass =
+    "w-full rounded-[12px] border border-black/10 bg-white/70 px-3.5 py-2.5 text-[15px] text-[#1d1d1f] outline-none transition-shadow focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20";
+  const labelClass = "mb-1.5 block text-[13px] font-medium text-[#1d1d1f]";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
-      <h1 className="text-2xl font-bold text-slate-900">Create your Journey identity</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Record. Verify. Grow. — Beaurity JourneyPort™
-      </p>
-      <form onSubmit={submit} className="mt-8 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">First name</label>
-            <input name="firstName" required className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Last name</label>
-            <input name="lastName" required className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-          </div>
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
-          <input name="email" type="email" required className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Password (min. 8 characters)</label>
-          <input name="password" type="password" minLength={8} required className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-        </div>
-        <label className="flex items-start gap-2 text-sm text-slate-600">
-          <input type="checkbox" name="consentTerms" required className="mt-1" />
-          I accept the JourneyPort Terms of Service (v1.0).
-        </label>
-        <label className="flex items-start gap-2 text-sm text-slate-600">
-          <input type="checkbox" name="consentDataProcessing" required className="mt-1" />
-          I consent to the processing of my participation data to create and
-          verify my Journey Milestones (v1.0).
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          disabled={loading}
-          className="w-full rounded-lg bg-emerald-700 py-2.5 font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
-        >
-          {loading ? "Creating…" : "Create my JourneyPort"}
-        </button>
-      </form>
-      <p className="mt-6 text-sm text-slate-500">
-        Already a member?{" "}
-        <Link href="/login" className="font-medium text-emerald-700 hover:underline">
-          Sign in
+    <main className="flex min-h-screen items-center justify-center px-6 py-16">
+      <div className="glass w-full max-w-md p-10">
+        <Link href="/" className="text-[13px] font-medium text-[#0071e3] hover:underline">
+          ‹ JourneyPort™
         </Link>
-      </p>
+        <h1 className="mt-4 text-[28px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">
+          Create your Journey identity
+        </h1>
+        <p className="mt-1 text-[15px] text-[#86868b]">
+          Record. Verify. Grow. — Beaurity JourneyPort™
+        </p>
+        <form onSubmit={submit} className="mt-8 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>First name</label>
+              <input name="firstName" required className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Last name</label>
+              <input name="lastName" required className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Email</label>
+            <input name="email" type="email" required className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Password (min. 8 characters)</label>
+            <input name="password" type="password" minLength={8} required className={inputClass} />
+          </div>
+          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[#86868b]">
+            <input type="checkbox" name="consentTerms" required className="mt-1 accent-[#0071e3]" />
+            I accept the JourneyPort Terms of Service (v1.0).
+          </label>
+          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[#86868b]">
+            <input type="checkbox" name="consentDataProcessing" required className="mt-1 accent-[#0071e3]" />
+            I consent to the processing of my participation data to create and
+            verify my Journey Milestones (v1.0).
+          </label>
+          {error && <p className="text-[13px] text-red-600">{error}</p>}
+          <button disabled={loading} className="btn-primary w-full disabled:opacity-50">
+            {loading ? "Creating…" : "Create my JourneyPort"}
+          </button>
+        </form>
+        <p className="mt-6 text-[13px] text-[#86868b]">
+          Already a member?{" "}
+          <Link href="/login" className="font-medium text-[#0071e3] hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }
