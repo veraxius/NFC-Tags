@@ -145,7 +145,6 @@ export function NavBar({
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-3 text-[13px] text-[#86868b]">
-          {user && <span>{user.displayName}</span>}
           <form action={logoutAction}>
             <button className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#1d1d1f] transition-colors hover:bg-black/[0.04]">
               Sign out
