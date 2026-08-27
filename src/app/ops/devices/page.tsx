@@ -1,0 +1,116 @@
+import { db } from "@/lib/db";
+import { Table, Badge, Card } from "@/components/ui";
+import { addDeviceInventoryAction, setDeviceStatusAction } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
+
+// TRS 46 — Screen 07 JOURNEYPORT DEVICE CENTER
+export default async function OpsDevices({
+  searchParams,
+}: {
+  searchParams: Promise<{ created?: string }>;
+}) {
+  const { created } = await searchParams;
+  const createdTokens: { deviceId: string; token: string }[] = created
+    ? JSON.parse(created)
+    : [];
+
+  const devices = await db.journeyPortDevice.findMany({
+    include: { user: { include: { journeyIdentity: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return (
+    <div className="space-y-5">
+      <h1 className="text-2xl font-bold text-slate-900">JourneyPort Device Center</h1>
+
+      {createdTokens.length > 0 && (
+        <Card title="⚠ New NFC tokens — shown only once (write these to the physical chips)">
+          <ul className="space-y-1 font-mono text-xs">
+            {createdTokens.map((t) => (
+              <li key={t.deviceId} className="rounded bg-slate-50 px-2 py-1.5">
+                <span className="font-semibold">{t.deviceId}</span> → /t/{t.token}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-slate-500">
+            The platform stores only a hash of each token. Program each NFC chip
+            with the full URL (https://&lt;host&gt;/t/&lt;token&gt;).
+          </p>
+        </Card>
+      )}
+
+      <Card title="Add inventory">
+        <form action={addDeviceInventoryAction} className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-500">Quantity</label>
+            <input name="count" type="number" min={1} max={50} defaultValue={5} className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-500">Type</label>
+            <select name="deviceType" className="rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              <option value="card">Card (MVP)</option>
+              <option value="bracelet">Bracelet</option>
+              <option value="keytag">Key tag</option>
+            </select>
+          </div>
+          <button className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+            Generate devices & tokens
+          </button>
+        </form>
+      </Card>
+
+      <Table headers={["Device ID", "Type", "Member", "Activated", "Last tap", "Status", "Actions"]}>
+        {devices.map((d) => {
+          const suspend = setDeviceStatusAction.bind(null, d.id, "suspended", "ops_suspend");
+          const revoke = setDeviceStatusAction.bind(null, d.id, "revoked", "ops_revoke");
+          const reactivate = setDeviceStatusAction.bind(null, d.id, "active", "ops_reactivate");
+          return (
+            <tr key={d.id}>
+              <td className="px-4 py-2.5 font-mono text-xs font-semibold">{d.publicDeviceId}</td>
+              <td className="px-4 py-2.5 text-slate-600">{d.deviceType}</td>
+              <td className="px-4 py-2.5">
+                {d.user ? (
+                  <>
+                    <span className="text-slate-900">{d.user.displayName}</span>
+                    <span className="ml-1 font-mono text-xs text-slate-400">
+                      {d.user.journeyIdentity?.publicId}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-slate-400">—</span>
+                )}
+              </td>
+              <td className="px-4 py-2.5 text-slate-600">
+                {d.activatedAt ? d.activatedAt.toLocaleDateString() : "—"}
+              </td>
+              <td className="px-4 py-2.5 text-slate-600">
+                {d.lastUsedAt ? d.lastUsedAt.toLocaleString() : "—"}
+              </td>
+              <td className="px-4 py-2.5"><Badge status={d.status} /></td>
+              <td className="px-4 py-2.5">
+                <div className="flex gap-1.5">
+                  {d.status === "active" && (
+                    <form action={suspend}>
+                      <button className="rounded border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50">Suspend</button>
+                    </form>
+                  )}
+                  {["suspended", "lost", "stolen"].includes(d.status) && (
+                    <form action={reactivate}>
+                      <button className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50">Reactivate</button>
+                    </form>
+                  )}
+                  {d.status !== "revoked" && d.status !== "retired" && (
+                    <form action={revoke}>
+                      <button className="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50">Revoke</button>
+                    </form>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </Table>
+    </div>
+  );
+}

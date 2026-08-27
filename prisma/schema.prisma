@@ -1,0 +1,345 @@
+// Beaurity JourneyPort™ / Earthy Doings™ — MVP data model
+// Implements TRS v1.0 sections 7-22. SQLite for MVP; field types chosen to
+// migrate cleanly to PostgreSQL (UUID PKs, JSON as serialized text).
+// Enum-like fields use String + application-level constants (SQLite has no enums).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// TRS 7.1 USERS
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?   @map("password_hash")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  displayName   String?   @map("display_name")
+  status        String    @default("pending") // pending | active | suspended | deleted
+  emailVerified Boolean   @default(false) @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  // global role: member | beaurity_admin | super_admin (partner roles live in PartnerUser)
+  platformRole String @default("member") @map("platform_role")
+
+  journeyIdentity JourneyIdentity?
+  devices         JourneyPortDevice[]
+  partnerUsers    PartnerUser[]
+  participations  Participation[]
+  milestones      JourneyMilestone[]
+  consents        Consent[]
+  disputesOpened  Dispute[]           @relation("DisputeOpener")
+
+  @@map("users")
+}
+
+// TRS 8 JOURNEY IDENTITIES
+model JourneyIdentity {
+  id                String   @id @default(uuid())
+  userId            String   @unique @map("user_id")
+  publicId          String   @unique @map("public_id") // e.g. JP-US-K7M9Q2X4
+  profileVisibility String   @default("private") @map("profile_visibility") // private | partners | public
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("journey_identities")
+}
+
+// TRS 9 NFC DEVICES
+model JourneyPortDevice {
+  id                  String    @id @default(uuid())
+  publicDeviceId      String    @unique @map("public_device_id") // e.g. JPD-8F2K1Q
+  tokenHash           String    @unique @map("token_hash") // sha256 of NFC URL token
+  deviceType          String    @default("card") @map("device_type") // card|bracelet|ring|keytag|mobile|other
+  hardwareUid         String?   @map("hardware_uid")
+  userId              String?   @map("user_id")
+  status              String    @default("inventory") // inventory|assigned|active|suspended|lost|stolen|replaced|revoked|retired
+  issuedAt            DateTime? @map("issued_at")
+  activatedAt         DateTime? @map("activated_at")
+  lastUsedAt          DateTime? @map("last_used_at")
+  revokedAt           DateTime? @map("revoked_at")
+  replacementDeviceId String?   @map("replacement_device_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  user           User?           @relation(fields: [userId], references: [id])
+  participations Participation[]
+
+  @@map("journeyport_devices")
+}
+
+// TRS 10 PARTNERS
+model Partner {
+  id                String    @id @default(uuid())
+  name              String
+  publicId          String    @unique @map("public_id") // e.g. PTR-A1B2C3
+  type              String // ngo | activist_group | company | school | municipality | other
+  status            String    @default("applicant") // applicant|under_review|approved|active|suspended|revoked
+  website           String?
+  country           String
+  timezone          String
+  verificationLevel Int       @default(1) @map("verification_level")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  approvedAt        DateTime? @map("approved_at")
+
+  partnerUsers   PartnerUser[]
+  locations      Location[]
+  earthyDoings   EarthyDoing[]
+  participations Participation[]
+  verifications  Verification[]
+
+  @@map("partners")
+}
+
+// TRS 11 PARTNER USERS
+model PartnerUser {
+  id        String   @id @default(uuid())
+  partnerId String   @map("partner_id")
+  userId    String   @map("user_id")
+  role      String // operator | administrator
+  status    String   @default("active") // active | suspended
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  partner Partner @relation(fields: [partnerId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([partnerId, userId])
+  @@map("partner_users")
+}
+
+// TRS 12 LOCATIONS
+model Location {
+  id                  String   @id @default(uuid())
+  partnerId           String   @map("partner_id")
+  name                String
+  address             String?
+  latitude            Float?
+  longitude           Float?
+  verificationRadiusM Int?     @map("verification_radius_m")
+  timezone            String
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  partner      Partner       @relation(fields: [partnerId], references: [id])
+  earthyDoings EarthyDoing[]
+
+  @@map("locations")
+}
+
+// TRS 13 EARTHY DOINGS
+model EarthyDoing {
+  id                   String   @id @default(uuid())
+  publicId             String   @unique @map("public_id") // e.g. ED-2026-MBC001
+  partnerId            String   @map("partner_id")
+  title                String
+  description          String
+  category             String
+  status               String   @default("draft") // draft|published|active|completed|cancelled|archived
+  startAt              DateTime @map("start_at")
+  endAt                DateTime @map("end_at")
+  locationId           String?  @map("location_id")
+  capacity             Int?
+  verificationPolicy   String   @default("nfc+partner+aim") @map("verification_policy")
+  createdBy            String   @map("created_by")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  partner         Partner                    @relation(fields: [partnerId], references: [id])
+  location        Location?                  @relation(fields: [locationId], references: [id])
+  classifications TriSilienceClassification[]
+  participations  Participation[]
+  milestones      JourneyMilestone[]
+
+  @@map("earthy_doings")
+}
+
+// TRS 14 TRISILIENCE CLASSIFICATIONS
+model TriSilienceClassification {
+  id            String   @id @default(uuid())
+  earthyDoingId String   @map("earthy_doing_id")
+  dimension     String // SELF_SUSTAINABILITY | EMOTIONAL_PROSPERITY | ENVIRONMENTAL_EQUITY
+  weight        Float?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  earthyDoing EarthyDoing @relation(fields: [earthyDoingId], references: [id])
+
+  @@unique([earthyDoingId, dimension])
+  @@map("trisilience_classifications")
+}
+
+// TRS 15 PARTICIPATIONS
+model Participation {
+  id              String    @id @default(uuid())
+  publicId        String    @unique @map("public_id") // e.g. PART-XXXX
+  earthyDoingId   String    @map("earthy_doing_id")
+  userId          String    @map("user_id")
+  deviceId        String?   @map("device_id")
+  partnerId       String    @map("partner_id")
+  interactionType String    @default("nfc") @map("interaction_type") // nfc | manual
+  checkInAt       DateTime  @map("check_in_at")
+  checkOutAt      DateTime? @map("check_out_at")
+  locationId      String?   @map("location_id")
+  status          String    @default("detected") // detected|in_progress|completed|verification_pending|cancelled|invalid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  earthyDoing  EarthyDoing        @relation(fields: [earthyDoingId], references: [id])
+  user         User               @relation(fields: [userId], references: [id])
+  device       JourneyPortDevice? @relation(fields: [deviceId], references: [id])
+  partner      Partner            @relation(fields: [partnerId], references: [id])
+  verification Verification?
+  milestone    JourneyMilestone?
+
+  @@unique([earthyDoingId, userId]) // duplicate protection (US-003)
+  @@map("participations")
+}
+
+// TRS 16 VERIFICATIONS
+model Verification {
+  id                        String    @id @default(uuid())
+  participationId           String    @unique @map("participation_id")
+  status                    String    @default("pending") // pending|review|verified|rejected|disputed|revoked
+  verificationMethod        String    @default("partner_confirmation") @map("verification_method")
+  verifiedBy                String?   @map("verified_by")
+  partnerId                 String    @map("partner_id")
+  verificationPolicyVersion String    @default("pilot-1.0") @map("verification_policy_version")
+  reasonCode                String?   @map("reason_code")
+  notes                     String?
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  verifiedAt                DateTime? @map("verified_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  participation Participation  @relation(fields: [participationId], references: [id])
+  partner       Partner        @relation(fields: [partnerId], references: [id])
+  evidence      Evidence[]
+  aimAssessment AimAssessment?
+  milestone     JourneyMilestone?
+
+  @@map("verifications")
+}
+
+// TRS 17 EVIDENCE
+model Evidence {
+  id               String   @id @default(uuid())
+  verificationId   String   @map("verification_id")
+  evidenceType     String   @map("evidence_type") // nfc_tap|partner_confirmation|timestamp|location|attendance|completion|certificate|document|api_record|other
+  storageReference String?  @map("storage_reference")
+  source           String
+  metadata         String   @default("{}") // JSON
+  hash             String?
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  verification Verification @relation(fields: [verificationId], references: [id])
+
+  @@map("evidence")
+}
+
+// TRS 18 AIM ASSESSMENTS
+model AimAssessment {
+  id                   String    @id @default(uuid())
+  verificationId       String    @unique @map("verification_id")
+  aimRequestId         String    @unique @map("aim_request_id") // JP-AIM-...
+  status               String    @default("pending") // pending | completed | failed
+  assessmentResult     String?   @map("assessment_result") // credible | not_credible | inconclusive
+  confidence           Float?
+  explanation          String    @default("{}") // JSON
+  modelVersion         String?   @map("model_version")
+  requestedAt          DateTime  @default(now()) @map("requested_at")
+  completedAt          DateTime? @map("completed_at")
+  rawResponseReference String?   @map("raw_response_reference")
+
+  verification Verification @relation(fields: [verificationId], references: [id])
+
+  @@map("aim_assessments")
+}
+
+// TRS 19 JOURNEY MILESTONES
+model JourneyMilestone {
+  id              String    @id @default(uuid())
+  publicId        String    @unique @map("public_id") // e.g. JM-XXXX
+  userId          String    @map("user_id")
+  earthyDoingId   String    @map("earthy_doing_id")
+  participationId String    @unique @map("participation_id")
+  verificationId  String    @unique @map("verification_id")
+  aimAssessmentId String?   @map("aim_assessment_id")
+  status          String    @default("pending") // pending|verified|rejected|disputed|revoked
+  visibility      String    @default("private") // private | partners | public
+  earnedAt        DateTime  @map("earned_at")
+  verifiedAt      DateTime? @map("verified_at")
+  revokedAt       DateTime? @map("revoked_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id])
+  earthyDoing   EarthyDoing   @relation(fields: [earthyDoingId], references: [id])
+  participation Participation @relation(fields: [participationId], references: [id])
+  verification  Verification  @relation(fields: [verificationId], references: [id])
+  disputes      Dispute[]
+
+  @@map("journey_milestones")
+}
+
+// TRS 20 CONSENTS — history is append-only, never overwritten
+model Consent {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  consentType   String    @map("consent_type") // terms | data_processing | location | partner_sharing
+  policyVersion String    @map("policy_version")
+  granted       Boolean
+  grantedAt     DateTime? @map("granted_at")
+  revokedAt     DateTime? @map("revoked_at")
+  source        String    @default("web")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("consents")
+}
+
+// TRS 21 DISPUTES
+model Dispute {
+  id          String    @id @default(uuid())
+  milestoneId String    @map("milestone_id")
+  openedBy    String    @map("opened_by")
+  reason      String
+  description String
+  status      String    @default("open") // open | under_review | resolved
+  resolution  String?
+  resolvedBy  String?   @map("resolved_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  resolvedAt  DateTime? @map("resolved_at")
+
+  milestone JourneyMilestone @relation(fields: [milestoneId], references: [id])
+  opener    User             @relation("DisputeOpener", fields: [openedBy], references: [id])
+
+  @@map("disputes")
+}
+
+// TRS 22 AUDIT EVENTS — append-only from the application perspective
+model AuditEvent {
+  id            String   @id @default(uuid())
+  actorType     String   @map("actor_type") // member|partner_operator|partner_admin|beaurity_admin|super_admin|system|aim
+  actorId       String?  @map("actor_id")
+  action        String
+  objectType    String   @map("object_type")
+  objectId      String   @map("object_id")
+  previousState String?  @map("previous_state") // JSON
+  newState      String?  @map("new_state") // JSON
+  reason        String?
+  ipReference   String?  @map("ip_reference")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([objectType, objectId])
+  @@map("audit_events")
+}
