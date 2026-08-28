@@ -2,7 +2,8 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
-import { Kpi, Badge, Card } from "@/components/ui";
+import { Kpi } from "@/components/ui";
+import { OrganicCard, Headline } from "@/components/organic";
 
 export const dynamic = "force-dynamic";
 
@@ -19,57 +20,57 @@ export default async function PartnerOverview() {
 
   const awaitingCompletion = await db.participation.findMany({
     where: { partnerId: partner.id, status: { in: ["detected", "in_progress"] } },
-    include: { user: { include: { journeyIdentity: true } }, earthyDoing: true },
+    include: { user: true, earthyDoing: true },
     orderBy: { checkInAt: "desc" },
     take: 10,
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text)]">{partner.name}</h1>
+          <Headline className="text-3xl">{partner.name}</Headline>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Partner ID <span className="font-mono">{partner.publicId}</span> · <Badge status={partner.status} />
+            Your impact, tracked and verified.
           </p>
         </div>
         <Link
           href="/partner/doings/new"
-          className="rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
+          className="rounded-full bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
         >
-          + Create Earthy Doing
+          + New Earthy Doing
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Kpi label="Earthy Doings" value={doings} />
-        <Kpi label="Participations" value={participations} />
-        <Kpi label="Pending verification" value={pendingVerifications} />
-        <Kpi label="Verified milestones" value={verifiedCount} accent />
+        <Kpi label="Activities" value={doings} />
+        <Kpi label="People who showed up" value={participations} />
+        <Kpi label="Waiting on you" value={pendingVerifications} />
+        <Kpi label="Verified" value={verifiedCount} accent />
       </div>
 
-      <Card title="Participants awaiting completion">
+      <OrganicCard className="p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          People here right now
+        </h2>
         {awaitingCompletion.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-secondary)]">No participants currently checked in.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Nobody's checked in at the moment.</p>
         ) : (
           <ul className="divide-y divide-[var(--color-divider)] text-sm">
             {awaitingCompletion.map((p) => (
-              <li key={p.id} className="flex items-center justify-between py-2">
+              <li key={p.id} className="flex items-center justify-between py-2.5">
                 <div>
                   <span className="font-medium">{p.user.displayName}</span>
-                  <span className="ml-2 font-mono text-xs text-[var(--color-warmgray)]">
-                    {p.user.journeyIdentity?.publicId}
-                  </span>
                   <span className="ml-2 text-[var(--color-text-secondary)]">· {p.earthyDoing.title}</span>
                 </div>
                 <Link href="/partner/verifications" className="text-xs font-semibold text-[var(--color-pink)] hover:underline">
-                  Manage →
+                  Confirm →
                 </Link>
               </li>
             ))}
           </ul>
         )}
-      </Card>
+      </OrganicCard>
     </div>
   );
 }

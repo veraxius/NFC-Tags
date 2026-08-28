@@ -14,7 +14,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
         links={[
           { href: "/partner", label: "Overview" },
           { href: "/partner/doings", label: "Earthy Doings" },
-          { href: "/partner/verifications", label: "Verifications" },
+          { href: "/partner/verifications", label: "Confirmations" },
         ]}
       />
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>

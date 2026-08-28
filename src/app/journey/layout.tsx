@@ -13,7 +13,7 @@ export default async function JourneyLayout({ children }: { children: React.Reac
         links={[
           { href: "/journey", label: "Timeline" },
           { href: "/journey/devices", label: "My JourneyPorts" },
-          { href: "/journey/privacy", label: "Privacy & Consent" },
+          { href: "/journey/privacy", label: "Privacy" },
         ]}
       />
       <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>

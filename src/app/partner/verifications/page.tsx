@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
-import { Badge, Card } from "@/components/ui";
+import { OrganicCard, StatusPill, Headline } from "@/components/organic";
 import {
   completeParticipationAction,
   approveVerificationAction,
@@ -19,15 +19,13 @@ export default async function PartnerVerifications() {
   const [inProgress, verifications] = await Promise.all([
     db.participation.findMany({
       where: { partnerId: partner.id, status: { in: ["detected", "in_progress"] } },
-      include: { user: { include: { journeyIdentity: true } }, earthyDoing: true },
+      include: { user: true, earthyDoing: true },
       orderBy: { checkInAt: "desc" },
     }),
     db.verification.findMany({
       where: { partnerId: partner.id },
       include: {
-        participation: {
-          include: { user: { include: { journeyIdentity: true } }, earthyDoing: true },
-        },
+        participation: { include: { user: true, earthyDoing: true } },
         evidence: true,
         aimAssessment: true,
       },
@@ -41,11 +39,19 @@ export default async function PartnerVerifications() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-[var(--color-text)]">Verifications</h1>
+      <div>
+        <Headline className="text-3xl">Confirmations</Headline>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          Turn what happened into someone&apos;s verified Journey.
+        </p>
+      </div>
 
-      <Card title="1 · Checked-in participants (mark completion)">
+      <OrganicCard className="p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          1 · Checked in — wrap them up
+        </h2>
         {inProgress.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-secondary)]">No participants awaiting completion.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No one&apos;s waiting on this right now.</p>
         ) : (
           <ul className="divide-y divide-[var(--color-divider)]">
             {inProgress.map((p) => {
@@ -53,20 +59,14 @@ export default async function PartnerVerifications() {
               return (
                 <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div>
-                    <p className="text-sm font-medium text-[var(--color-text)]">
-                      {p.user.displayName}{" "}
-                      <span className="font-mono text-xs text-[var(--color-warmgray)]">
-                        {p.user.journeyIdentity?.publicId}
-                      </span>
-                    </p>
+                    <p className="text-sm font-medium text-[var(--color-text)]">{p.user.displayName}</p>
                     <p className="text-xs text-[var(--color-text-secondary)]">
-                      {p.earthyDoing.title} · tapped in {p.checkInAt.toLocaleTimeString()} ·{" "}
-                      {p.interactionType.toUpperCase()}
+                      {p.earthyDoing.title} · tapped in at {p.checkInAt.toLocaleTimeString()}
                     </p>
                   </div>
                   <form action={complete}>
-                    <button className="rounded-lg bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
-                      Mark completed
+                    <button className="rounded-full bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
+                      Mark as done
                     </button>
                   </form>
                 </li>
@@ -74,53 +74,61 @@ export default async function PartnerVerifications() {
             })}
           </ul>
         )}
-      </Card>
+      </OrganicCard>
 
-      <Card title="2 · Pending verification (confirm participation)">
+      <OrganicCard className="p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          2 · Ready to confirm
+        </h2>
         {pending.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-secondary)]">No verifications pending.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Nothing waiting on your confirmation.</p>
         ) : (
           <ul className="divide-y divide-[var(--color-divider)]">
             {pending.map((v) => {
               const approve = approveVerificationAction.bind(null, v.id, undefined);
               const reject = rejectVerificationAction.bind(null, v.id, "PARTNER_REJECTED");
+              const tapped = v.evidence.some((e) => e.evidenceType === "nfc_tap");
               return (
                 <li key={v.id} className="py-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium text-[var(--color-text)]">
-                        {v.participation.user.displayName}{" "}
-                        <span className="font-mono text-xs text-[var(--color-warmgray)]">
-                          {v.participation.user.journeyIdentity?.publicId}
-                        </span>
+                        {v.participation.user.displayName}
                       </p>
                       <p className="text-xs text-[var(--color-text-secondary)]">
-                        {v.participation.earthyDoing.title} ·{" "}
-                        {v.participation.checkInAt.toLocaleString()}
+                        {v.participation.earthyDoing.title} · {v.participation.checkInAt.toLocaleString()}
                       </p>
-                      <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
-                        <Badge status={v.status} />
-                        {v.evidence.map((e) => (
-                          <span key={e.id} className="rounded bg-[var(--color-warmgray-soft)] px-1.5 py-0.5 text-[var(--color-text-secondary)]">
-                            {e.evidenceType}
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                        <StatusPill status={v.status} />
+                        {tapped && (
+                          <span className="rounded-full bg-[var(--color-teal-soft)] px-2 py-0.5 text-[var(--color-teal-ink)]">
+                            ✓ Tapped in
                           </span>
-                        ))}
+                        )}
                         {v.aimAssessment && (
-                          <span className="rounded bg-[var(--color-teal-soft)] px-1.5 py-0.5 text-[var(--color-teal-ink)]">
-                            AIM: {v.aimAssessment.assessmentResult} ({((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%)
+                          <span
+                            className={`rounded-full px-2 py-0.5 ${
+                              v.aimAssessment.assessmentResult === "credible"
+                                ? "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]"
+                                : "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]"
+                            }`}
+                          >
+                            {v.aimAssessment.assessmentResult === "credible"
+                              ? "✓ Checks out"
+                              : "⚠ Worth a second look"}
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <form action={approve}>
-                        <button className="rounded-lg bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
-                          Confirm & verify
+                        <button className="rounded-full bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
+                          Confirm
                         </button>
                       </form>
                       <form action={reject}>
-                        <button className="rounded-lg border border-[var(--color-plum)] px-3 py-1.5 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
-                          Reject
+                        <button className="rounded-full border border-[var(--color-plum)] px-3 py-1.5 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
+                          Not this time
                         </button>
                       </form>
                     </div>
@@ -130,9 +138,12 @@ export default async function PartnerVerifications() {
             })}
           </ul>
         )}
-      </Card>
+      </OrganicCard>
 
-      <Card title="History">
+      <OrganicCard className="p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          History
+        </h2>
         <ul className="divide-y divide-[var(--color-divider)]">
           {done.map((v) => (
             <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
@@ -140,18 +151,11 @@ export default async function PartnerVerifications() {
                 <span className="font-medium">{v.participation.user.displayName}</span>
                 <span className="ml-2 text-[var(--color-text-secondary)]">{v.participation.earthyDoing.title}</span>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                {v.aimAssessment && (
-                  <span className="text-[var(--color-warmgray)]">
-                    AIM {v.aimAssessment.assessmentResult} · {((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%
-                  </span>
-                )}
-                <Badge status={v.status} />
-              </div>
+              <StatusPill status={v.status} />
             </li>
           ))}
         </ul>
-      </Card>
+      </OrganicCard>
     </div>
   );
 }
