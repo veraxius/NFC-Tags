@@ -20,8 +20,8 @@ export default async function OpsAim() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">AIM Trust Layer</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">AIM Trust Layer</h1>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           Credibility assessments of verification claims — never of people.
         </p>
       </div>
@@ -32,10 +32,10 @@ export default async function OpsAim() {
             <td className="px-4 py-2.5">{a.verification.participation.earthyDoing.title}</td>
             <td className="px-4 py-2.5"><Badge status={a.assessmentResult ?? a.status} /></td>
             <td className="px-4 py-2.5">{a.confidence != null ? `${(a.confidence * 100).toFixed(0)}%` : "—"}</td>
-            <td className="px-4 py-2.5 font-mono text-xs text-slate-500">{a.modelVersion}</td>
-            <td className="px-4 py-2.5 text-slate-600">{a.completedAt?.toLocaleString() ?? "—"}</td>
+            <td className="px-4 py-2.5 font-mono text-xs text-[var(--color-text-secondary)]">{a.modelVersion}</td>
+            <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{a.completedAt?.toLocaleString() ?? "—"}</td>
             <td className="px-4 py-2.5">
-              <Link href={`/ops/verifications/${a.verificationId}`} className="text-xs font-semibold text-emerald-700 hover:underline">
+              <Link href={`/ops/verifications/${a.verificationId}`} className="text-xs font-semibold text-[var(--color-pink)] hover:underline">
                 View →
               </Link>
             </td>

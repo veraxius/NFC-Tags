@@ -53,8 +53,8 @@ export default async function VerificationDetail({ params }: { params: Promise<{
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs text-slate-400">VERIFICATION {v.id}</p>
-          <h1 className="text-2xl font-bold text-slate-900">{v.participation.earthyDoing.title}</h1>
+          <p className="text-xs text-[var(--color-warmgray)]">VERIFICATION {v.id}</p>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">{v.participation.earthyDoing.title}</h1>
         </div>
         <Badge status={v.status} />
       </div>
@@ -62,8 +62,8 @@ export default async function VerificationDetail({ params }: { params: Promise<{
       <div className="grid gap-5 md:grid-cols-2">
         <Card title="Participant">
           <p className="text-sm font-medium">{v.participation.user.displayName}</p>
-          <p className="font-mono text-xs text-slate-500">{v.participation.user.journeyIdentity?.publicId}</p>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="font-mono text-xs text-[var(--color-text-secondary)]">{v.participation.user.journeyIdentity?.publicId}</p>
+          <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
             Device: {v.participation.device?.publicDeviceId ?? "manual"} · Check-in{" "}
             {v.participation.checkInAt.toLocaleString()}
           </p>
@@ -76,9 +76,9 @@ export default async function VerificationDetail({ params }: { params: Promise<{
             ))}
           </div>
           {v.participation.earthyDoing.location && (
-            <p className="mt-2 text-xs text-slate-500">Location: {v.participation.earthyDoing.location.name}</p>
+            <p className="mt-2 text-xs text-[var(--color-text-secondary)]">Location: {v.participation.earthyDoing.location.name}</p>
           )}
-          <p className="mt-1 text-xs text-slate-500">Policy: {v.verificationPolicyVersion} · Method: {v.verificationMethod}</p>
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">Policy: {v.verificationPolicyVersion} · Method: {v.verificationMethod}</p>
         </Card>
       </div>
 
@@ -86,14 +86,14 @@ export default async function VerificationDetail({ params }: { params: Promise<{
         <ul className="space-y-2 text-sm">
           {v.evidence.map((e) => (
             <li key={e.id} className="flex items-start gap-2">
-              <span className="text-emerald-600">✓</span>
+              <span className="text-[var(--color-mint-ink)]">✓</span>
               <div>
                 <span className="font-medium">{e.evidenceType}</span>
-                <span className="ml-2 text-xs text-slate-400">{e.source} · {e.createdAt.toLocaleString()}</span>
+                <span className="ml-2 text-xs text-[var(--color-warmgray)]">{e.source} · {e.createdAt.toLocaleString()}</span>
               </div>
             </li>
           ))}
-          {v.evidence.length === 0 && <li className="text-slate-500">No evidence recorded yet.</li>}
+          {v.evidence.length === 0 && <li className="text-[var(--color-text-secondary)]">No evidence recorded yet.</li>}
         </ul>
       </Card>
 
@@ -102,23 +102,23 @@ export default async function VerificationDetail({ params }: { params: Promise<{
           <div className="text-sm">
             <div className="flex flex-wrap items-center gap-3">
               <Badge status={v.aimAssessment.assessmentResult ?? "pending"} />
-              <span className="text-slate-600">
+              <span className="text-[var(--color-text-secondary)]">
                 Confidence: {((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%
               </span>
-              <span className="font-mono text-xs text-slate-400">{v.aimAssessment.aimRequestId}</span>
-              <span className="text-xs text-slate-400">{v.aimAssessment.modelVersion}</span>
+              <span className="font-mono text-xs text-[var(--color-warmgray)]">{v.aimAssessment.aimRequestId}</span>
+              <span className="text-xs text-[var(--color-warmgray)]">{v.aimAssessment.modelVersion}</span>
             </div>
-            {aimExplanation?.summary && <p className="mt-2 text-slate-600">{aimExplanation.summary}</p>}
+            {aimExplanation?.summary && <p className="mt-2 text-[var(--color-text-secondary)]">{aimExplanation.summary}</p>}
             {aimExplanation?.factors && (
               <table className="mt-3 w-full text-xs">
                 <thead>
-                  <tr className="text-left text-slate-400">
+                  <tr className="text-left text-[var(--color-warmgray)]">
                     <th className="py-1">Signal</th><th>Present</th><th>Weight</th>
                   </tr>
                 </thead>
                 <tbody>
                   {aimExplanation.factors.map((f) => (
-                    <tr key={f.signal} className="border-t border-slate-100">
+                    <tr key={f.signal} className="border-t border-[var(--color-divider)]">
                       <td className="py-1">{f.signal}</td>
                       <td>{f.present ? "✓" : "✗"}</td>
                       <td>{f.weight}</td>
@@ -129,7 +129,7 @@ export default async function VerificationDetail({ params }: { params: Promise<{
             )}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">AIM has not evaluated this verification yet.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">AIM has not evaluated this verification yet.</p>
         )}
       </Card>
 
@@ -138,12 +138,12 @@ export default async function VerificationDetail({ params }: { params: Promise<{
           {["pending", "review"].includes(v.status) && (
             <>
               <form action={approve}>
-                <button className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                <button className="rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]">
                   Approve
                 </button>
               </form>
               <form action={reject}>
-                <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+                <button className="rounded-lg border border-[var(--color-plum)] px-4 py-2 text-sm font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                   Reject
                 </button>
               </form>
@@ -151,24 +151,24 @@ export default async function VerificationDetail({ params }: { params: Promise<{
           )}
           {v.status === "verified" && (
             <form action={revoke}>
-              <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+              <button className="rounded-lg border border-[var(--color-plum)] px-4 py-2 text-sm font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                 Revoke milestone
               </button>
             </form>
           )}
           {!["pending", "review", "verified"].includes(v.status) && (
-            <p className="text-sm text-slate-500">No actions available in status “{v.status}”.</p>
+            <p className="text-sm text-[var(--color-text-secondary)]">No actions available in status “{v.status}”.</p>
           )}
         </div>
       </Card>
 
       <Card title="Audit history">
-        <ul className="space-y-1.5 text-xs text-slate-600">
+        <ul className="space-y-1.5 text-xs text-[var(--color-text-secondary)]">
           {audits.map((a) => (
             <li key={a.id} className="flex flex-wrap gap-2">
-              <span className="text-slate-400">{a.createdAt.toLocaleString()}</span>
+              <span className="text-[var(--color-warmgray)]">{a.createdAt.toLocaleString()}</span>
               <span className="font-mono font-medium">{a.action}</span>
-              <span className="text-slate-400">by {a.actorType}</span>
+              <span className="text-[var(--color-warmgray)]">by {a.actorType}</span>
             </li>
           ))}
         </ul>

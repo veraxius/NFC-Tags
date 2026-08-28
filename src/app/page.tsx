@@ -61,19 +61,22 @@ export default async function Home() {
       {/* Nav */}
       <header className="glass-nav sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/beaurity-overlay-small.png"
+              src="/beaurity-imagen.png"
               alt="Beaurity"
-              width={240}
-              height={47}
+              width={512}
+              height={512}
               priority
-              className="-my-2 h-10 w-auto"
+              className="-my-2 h-10 w-10"
             />
+            <span className="text-[17px] font-medium tracking-tight text-[var(--color-text)]">
+              Beaurity
+            </span>
           </Link>
-          <nav className="ml-2 hidden gap-6 text-[13px] text-[#1d1d1f]/80 sm:flex">
-            <a href="#impact" className="transition-colors hover:text-[#0071e3]">Triple Impact</a>
-            <a href="#how" className="transition-colors hover:text-[#0071e3]">How it works</a>
+          <nav className="ml-2 hidden gap-6 text-[13px] text-[var(--color-text)]/80 sm:flex">
+            <a href="#impact" className="transition-colors hover:text-[var(--color-pink)]">Triple Impact</a>
+            <a href="#how" className="transition-colors hover:text-[var(--color-pink)]">How it works</a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/login" className="btn-secondary !py-2 !text-[13px]">
@@ -97,13 +100,13 @@ export default async function Home() {
           }}
         />
         <Reveal>
-          <p className="text-sm font-medium tracking-wide text-[#86868b]">
+          <p className="text-sm font-medium tracking-wide text-[var(--color-text-secondary)]">
             Beaurity EarthyDoing™
           </p>
         </Reveal>
         <Reveal delay={80}>
           <h1
-            className="mx-auto mt-3 max-w-4xl text-[52px] font-semibold leading-[1.05] tracking-[-0.025em] text-[#1d1d1f] sm:text-[80px]"
+            className="mx-auto mt-3 max-w-4xl text-[52px] font-semibold leading-[1.05] tracking-[-0.025em] text-[var(--color-text)] sm:text-[80px]"
           >
             JourneyPort.
             <br />
@@ -111,7 +114,7 @@ export default async function Home() {
           </h1>
         </Reveal>
         <Reveal delay={160}>
-          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-[1.5] text-[#86868b] sm:text-[21px]">
+          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-[1.5] text-[var(--color-text-secondary)] sm:text-[21px]">
             Every meaningful action becomes part of your trusted Journey —
             verified through NFC, partner confirmation, and the AIM Trust Layer.
           </p>
@@ -144,7 +147,7 @@ export default async function Home() {
                 <div className="mx-auto flex h-20 w-32 items-center justify-center rounded-2xl border border-white/60 bg-white/70 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-md">
                   <span className="text-2xl">📡</span>
                 </div>
-                <p className="mt-5 text-[13px] font-medium uppercase tracking-widest text-[#86868b]">
+                <p className="mt-5 text-[13px] font-medium uppercase tracking-widest text-[var(--color-text-secondary)]">
                   Tap. Verify. Trust.
                 </p>
               </div>
@@ -157,15 +160,15 @@ export default async function Home() {
       <section id="impact" className="px-6 py-24 sm:py-36">
         <div className="mx-auto max-w-5xl text-center">
           <Reveal>
-            <p className="text-sm font-medium tracking-wide text-[#0071e3]">Triple Impact</p>
+            <p className="text-sm font-medium tracking-wide text-[var(--color-pink)]">Triple Impact</p>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mt-2 text-[36px] font-semibold tracking-[-0.02em] text-[#1d1d1f] sm:text-[48px]">
+            <h2 className="mt-2 text-[36px] font-semibold tracking-[-0.02em] text-[var(--color-text)] sm:text-[48px]">
               Every action, measured with purpose.
             </h2>
           </Reveal>
           <Reveal delay={160}>
-            <p className="mx-auto mt-4 max-w-2xl text-[19px] leading-[1.5] text-[#86868b]">
+            <p className="mx-auto mt-4 max-w-2xl text-[19px] leading-[1.5] text-[var(--color-text-secondary)]">
               JourneyPort classifies verified Earthy Doings across three
               dimensions — never ranking people, only the credibility of what
               they did.
@@ -180,10 +183,10 @@ export default async function Home() {
                     className="mb-6 h-2.5 w-2.5 rounded-full"
                     style={{ background: d.tint }}
                   />
-                  <h3 className="text-[21px] font-semibold tracking-tight text-[#1d1d1f]">
+                  <h3 className="text-[21px] font-semibold tracking-tight text-[var(--color-text)]">
                     {d.name}
                   </h3>
-                  <p className="mt-3 text-[15px] leading-[1.5] text-[#86868b]">
+                  <p className="mt-3 text-[15px] leading-[1.5] text-[var(--color-text-secondary)]">
                     {d.desc}
                   </p>
                 </div>
@@ -198,10 +201,10 @@ export default async function Home() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <Reveal>
-              <p className="text-sm font-medium tracking-wide text-[#0071e3]">How it works</p>
+              <p className="text-sm font-medium tracking-wide text-[var(--color-pink)]">How it works</p>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="mt-2 text-[36px] font-semibold tracking-[-0.02em] text-[#1d1d1f] sm:text-[48px]">
+              <h2 className="mt-2 text-[36px] font-semibold tracking-[-0.02em] text-[var(--color-text)] sm:text-[48px]">
                 From a real moment to a trusted record.
               </h2>
             </Reveal>
@@ -211,14 +214,14 @@ export default async function Home() {
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 100}>
                 <div className="glass flex h-full items-start gap-5 p-8">
-                  <span className="text-[28px] font-semibold tracking-tight text-[#0071e3]/30">
+                  <span className="text-[28px] font-semibold tracking-tight text-[var(--color-pink)]/30">
                     {s.n}
                   </span>
                   <div>
-                    <h3 className="text-[19px] font-semibold tracking-tight text-[#1d1d1f]">
+                    <h3 className="text-[19px] font-semibold tracking-tight text-[var(--color-text)]">
                       {s.title}
                     </h3>
-                    <p className="mt-2 text-[15px] leading-[1.5] text-[#86868b]">
+                    <p className="mt-2 text-[15px] leading-[1.5] text-[var(--color-text-secondary)]">
                       {s.desc}
                     </p>
                   </div>
@@ -232,12 +235,12 @@ export default async function Home() {
       {/* CTA */}
       <section className="px-6 py-24 text-center sm:py-32">
         <Reveal>
-          <h2 className="text-[36px] font-semibold tracking-[-0.02em] text-[#1d1d1f] sm:text-[48px]">
+          <h2 className="text-[36px] font-semibold tracking-[-0.02em] text-[var(--color-text)] sm:text-[48px]">
             Your Trusted Journey Through Life.
           </h2>
         </Reveal>
         <Reveal delay={100}>
-          <p className="mx-auto mt-4 max-w-xl text-[19px] text-[#86868b]">
+          <p className="mx-auto mt-4 max-w-xl text-[19px] text-[var(--color-text-secondary)]">
             Create your Journey identity in under a minute.
           </p>
         </Reveal>
@@ -256,20 +259,25 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t px-6 py-10" style={{ borderColor: "var(--color-divider)" }}>
         <div className="mx-auto max-w-6xl">
-          <Image
-            src="/beaurity-overlay-small.png"
-            alt="Beaurity"
-            width={240}
-            height={47}
-            className="h-5 w-auto opacity-80"
-          />
-          <p className="mt-3 text-[12px] leading-[1.6] text-[#86868b]">
+          <div className="flex items-center gap-2 opacity-80">
+            <Image
+              src="/beaurity-imagen.png"
+              alt="Beaurity"
+              width={512}
+              height={512}
+              className="h-6 w-6"
+            />
+            <span className="text-[14px] font-medium tracking-tight text-[var(--color-text)]">
+              Beaurity
+            </span>
+          </div>
+          <p className="mt-3 text-[12px] leading-[1.6] text-[var(--color-text-secondary)]">
             Beaurity JourneyPort™ — Your Trusted Journey Through Life.
           </p>
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-[12px] text-[#86868b]" style={{ borderColor: "var(--color-divider)" }}>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-[12px] text-[var(--color-text-secondary)]" style={{ borderColor: "var(--color-divider)" }}>
             <span>Copyright © {new Date().getFullYear()} Beaurity. All rights reserved.</span>
-            <Link href="/login" className="hover:text-[#1d1d1f]">Sign in</Link>
-            <Link href="/register" className="hover:text-[#1d1d1f]">Create account</Link>
+            <Link href="/login" className="hover:text-[var(--color-text)]">Sign in</Link>
+            <Link href="/register" className="hover:text-[var(--color-text)]">Create account</Link>
           </div>
         </div>
       </footer>

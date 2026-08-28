@@ -37,19 +37,19 @@ export default function RegisterPage() {
   }
 
   const inputClass =
-    "w-full rounded-[12px] border border-black/10 bg-white/70 px-3.5 py-2.5 text-[15px] text-[#1d1d1f] outline-none transition-shadow focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20";
-  const labelClass = "mb-1.5 block text-[13px] font-medium text-[#1d1d1f]";
+    "w-full rounded-[12px] border border-black/10 bg-white/70 px-3.5 py-2.5 text-[15px] text-[var(--color-text)] outline-none transition-shadow focus:border-[var(--color-pink)] focus:ring-2 focus:ring-[var(--color-pink)]/20";
+  const labelClass = "mb-1.5 block text-[13px] font-medium text-[var(--color-text)]";
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-16">
       <div className="glass w-full max-w-md p-10">
-        <Link href="/" className="text-[13px] font-medium text-[#0071e3] hover:underline">
+        <Link href="/" className="text-[13px] font-medium text-[var(--color-pink)] hover:underline">
           ‹ JourneyPort™
         </Link>
-        <h1 className="mt-4 text-[28px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">
+        <h1 className="mt-4 text-[28px] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
           Create your Journey identity
         </h1>
-        <p className="mt-1 text-[15px] text-[#86868b]">
+        <p className="mt-1 text-[15px] text-[var(--color-text-secondary)]">
           Record. Verify. Grow. — Beaurity JourneyPort™
         </p>
         <form onSubmit={submit} className="mt-8 space-y-4">
@@ -71,23 +71,23 @@ export default function RegisterPage() {
             <label className={labelClass}>Password (min. 8 characters)</label>
             <input name="password" type="password" minLength={8} required className={inputClass} />
           </div>
-          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[#86868b]">
-            <input type="checkbox" name="consentTerms" required className="mt-1 accent-[#0071e3]" />
+          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[var(--color-text-secondary)]">
+            <input type="checkbox" name="consentTerms" required className="mt-1 accent-[var(--color-pink)]" />
             I accept the JourneyPort Terms of Service (v1.0).
           </label>
-          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[#86868b]">
-            <input type="checkbox" name="consentDataProcessing" required className="mt-1 accent-[#0071e3]" />
+          <label className="flex items-start gap-2 text-[13px] leading-[1.5] text-[var(--color-text-secondary)]">
+            <input type="checkbox" name="consentDataProcessing" required className="mt-1 accent-[var(--color-pink)]" />
             I consent to the processing of my participation data to create and
             verify my Journey Milestones (v1.0).
           </label>
-          {error && <p className="text-[13px] text-red-600">{error}</p>}
+          {error && <p className="text-[13px] text-[var(--color-plum)]">{error}</p>}
           <button disabled={loading} className="btn-primary w-full disabled:opacity-50">
             {loading ? "Creating…" : "Create my JourneyPort"}
           </button>
         </form>
-        <p className="mt-6 text-[13px] text-[#86868b]">
+        <p className="mt-6 text-[13px] text-[var(--color-text-secondary)]">
           Already a member?{" "}
-          <Link href="/login" className="font-medium text-[#0071e3] hover:underline">
+          <Link href="/login" className="font-medium text-[var(--color-pink)] hover:underline">
             Sign in
           </Link>
         </p>

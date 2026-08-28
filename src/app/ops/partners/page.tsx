@@ -22,7 +22,7 @@ export default async function OpsPartners() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-slate-900">Partners</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Partners</h1>
       <Table headers={["Partner", "Type", "Status", "Earthy Doings", "Participants", "Verification %", "Actions"]}>
         {partners.map((p) => {
           const pct =
@@ -34,10 +34,10 @@ export default async function OpsPartners() {
           return (
             <tr key={p.id}>
               <td className="px-4 py-2.5">
-                <p className="font-medium text-slate-900">{p.name}</p>
-                <p className="font-mono text-xs text-slate-400">{p.publicId}</p>
+                <p className="font-medium text-[var(--color-text)]">{p.name}</p>
+                <p className="font-mono text-xs text-[var(--color-warmgray)]">{p.publicId}</p>
               </td>
-              <td className="px-4 py-2.5 text-slate-600">{p.type}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{p.type}</td>
               <td className="px-4 py-2.5"><Badge status={p.status} /></td>
               <td className="px-4 py-2.5">{p._count.earthyDoings}</td>
               <td className="px-4 py-2.5">{p._count.participations}</td>
@@ -46,14 +46,14 @@ export default async function OpsPartners() {
                 <div className="flex gap-2">
                   {["applicant", "under_review", "suspended", "approved"].includes(p.status) && (
                     <form action={approve}>
-                      <button className="rounded border border-emerald-300 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                      <button className="rounded border border-[var(--color-mint)] px-2 py-1 text-xs font-semibold text-[var(--color-mint-ink)] hover:bg-[var(--color-mint-soft)]">
                         Approve
                       </button>
                     </form>
                   )}
                   {["approved", "active"].includes(p.status) && (
                     <form action={suspend}>
-                      <button className="rounded border border-red-300 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">
+                      <button className="rounded border border-[var(--color-plum)] px-2 py-1 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                         Suspend
                       </button>
                     </form>

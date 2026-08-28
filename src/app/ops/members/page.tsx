@@ -53,18 +53,18 @@ export default async function OpsMembers({
   ]);
 
   const filterClass =
-    "rounded-[10px] border border-black/10 bg-white/70 px-3 py-1.5 text-[13px] text-[#1d1d1f]";
+    "rounded-[10px] border border-black/10 bg-white/70 px-3 py-1.5 text-[13px] text-[var(--color-text)]";
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Members</h1>
-        <span className="text-[13px] text-[#86868b]">{members.length} shown</span>
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">Members</h1>
+        <span className="text-[13px] text-[var(--color-text-secondary)]">{members.length} shown</span>
       </div>
 
       <form method="get" className="glass flex flex-wrap items-end gap-3 p-4">
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#86868b]">Status</label>
+          <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">Status</label>
           <select name="status" defaultValue={sp.status ?? ""} className={filterClass}>
             <option value="">Any</option>
             <option value="active">Active</option>
@@ -74,7 +74,7 @@ export default async function OpsMembers({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#86868b]">Partner</label>
+          <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">Partner</label>
           <select name="partner" defaultValue={sp.partner ?? ""} className={filterClass}>
             <option value="">Any</option>
             {partners.map((p) => (
@@ -85,7 +85,7 @@ export default async function OpsMembers({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#86868b]">Joined</label>
+          <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">Joined</label>
           <select name="since" defaultValue={sp.since ?? ""} className={filterClass}>
             <option value="">Any time</option>
             <option value="7">Last 7 days</option>
@@ -94,7 +94,7 @@ export default async function OpsMembers({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#86868b]">JourneyPort</label>
+          <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">JourneyPort</label>
           <select name="device" defaultValue={sp.device ?? ""} className={filterClass}>
             <option value="">Any</option>
             <option value="active">Has active device</option>
@@ -104,7 +104,7 @@ export default async function OpsMembers({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-[#86868b]">Milestones</label>
+          <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">Milestones</label>
           <select name="milestones" defaultValue={sp.milestones ?? ""} className={filterClass}>
             <option value="">Any</option>
             <option value="with">Has verified milestones</option>
@@ -133,18 +133,18 @@ export default async function OpsMembers({
             <td className="px-4 py-2.5">
               <Link
                 href={`/ops/members/${m.id}`}
-                className="font-medium text-[#0071e3] hover:underline"
+                className="font-medium text-[var(--color-pink)] hover:underline"
               >
                 {m.displayName ?? `${m.firstName} ${m.lastName}`}
               </Link>
             </td>
-            <td className="px-4 py-2.5 font-mono text-xs text-[#86868b]">
+            <td className="px-4 py-2.5 font-mono text-xs text-[var(--color-text-secondary)]">
               {m.journeyIdentity?.publicId}
             </td>
-            <td className="px-4 py-2.5 text-[#86868b]">{m.createdAt.toLocaleDateString()}</td>
+            <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{m.createdAt.toLocaleDateString()}</td>
             <td className="px-4 py-2.5">{m.devices.length}</td>
             <td className="px-4 py-2.5">{m._count.milestones}</td>
-            <td className="px-4 py-2.5 text-[#86868b]">
+            <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">
               {m.lastLoginAt ? m.lastLoginAt.toLocaleDateString() : "—"}
             </td>
             <td className="px-4 py-2.5">

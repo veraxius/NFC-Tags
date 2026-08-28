@@ -92,16 +92,16 @@ export default async function MemberDetail({
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/ops/members" className="text-[13px] font-medium text-[#0071e3] hover:underline">
+        <Link href="/ops/members" className="text-[13px] font-medium text-[var(--color-pink)] hover:underline">
           ‹ Members
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
             {member.displayName ?? `${member.firstName} ${member.lastName}`}
           </h1>
           <Badge status={member.status} />
         </div>
-        <p className="mt-1 font-mono text-xs text-[#86868b]">
+        <p className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">
           {member.journeyIdentity?.publicId}
         </p>
       </div>
@@ -113,8 +113,8 @@ export default async function MemberDetail({
             href={`/ops/members/${id}?tab=${t}`}
             className={`rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
               t === tab
-                ? "border-[#0071e3] bg-[#0071e3] text-white"
-                : "border-black/10 text-[#1d1d1f] hover:bg-black/[0.04]"
+                ? "border-[var(--color-pink)] bg-[var(--color-pink)] text-white"
+                : "border-black/10 text-[var(--color-text)] hover:bg-black/[0.04]"
             }`}
           >
             {t.toUpperCase()}
@@ -125,24 +125,24 @@ export default async function MemberDetail({
       {tab === "profile" && (
         <Card title="Profile">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-            <dt className="text-[#86868b]">Journey ID</dt>
+            <dt className="text-[var(--color-text-secondary)]">Journey ID</dt>
             <dd className="font-mono">{member.journeyIdentity?.publicId ?? "—"}</dd>
-            <dt className="text-[#86868b]">Email</dt>
+            <dt className="text-[var(--color-text-secondary)]">Email</dt>
             <dd>
               {member.email}{" "}
               {member.emailVerified ? (
-                <span className="text-emerald-600">✓ verified</span>
+                <span className="text-[var(--color-mint-ink)]">✓ verified</span>
               ) : (
-                <span className="text-amber-600">unverified</span>
+                <span className="text-[var(--color-gold-ink)]">unverified</span>
               )}
             </dd>
-            <dt className="text-[#86868b]">Joined</dt>
+            <dt className="text-[var(--color-text-secondary)]">Joined</dt>
             <dd>{member.createdAt.toLocaleString()}</dd>
-            <dt className="text-[#86868b]">Last login</dt>
+            <dt className="text-[var(--color-text-secondary)]">Last login</dt>
             <dd>{member.lastLoginAt?.toLocaleString() ?? "—"}</dd>
-            <dt className="text-[#86868b]">Platform role</dt>
+            <dt className="text-[var(--color-text-secondary)]">Platform role</dt>
             <dd>{member.platformRole}</dd>
-            <dt className="text-[#86868b]">Profile visibility</dt>
+            <dt className="text-[var(--color-text-secondary)]">Profile visibility</dt>
             <dd>{member.journeyIdentity?.profileVisibility ?? "—"}</dd>
           </dl>
         </Card>
@@ -152,14 +152,14 @@ export default async function MemberDetail({
         <div className="space-y-5">
           <Card title="Verified milestones">
             {milestones.length === 0 ? (
-              <p className="text-sm text-[#86868b]">No milestones yet.</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">No milestones yet.</p>
             ) : (
               <ul className="divide-y divide-black/[0.05]">
                 {milestones.map((m) => (
                   <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                     <div>
                       <p className="text-sm font-medium">{m.earthyDoing.title}</p>
-                      <p className="text-xs text-[#86868b]">
+                      <p className="text-xs text-[var(--color-text-secondary)]">
                         {m.earthyDoing.partner.name} · {m.earnedAt.toLocaleDateString()}
                       </p>
                       <div className="mt-1 flex flex-wrap gap-1">
@@ -176,16 +176,16 @@ export default async function MemberDetail({
           </Card>
           <Card title="All participations">
             {participations.length === 0 ? (
-              <p className="text-sm text-[#86868b]">No participations recorded.</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">No participations recorded.</p>
             ) : (
               <ul className="divide-y divide-black/[0.05] text-sm">
                 {participations.map((p) => (
                   <li key={p.id} className="flex items-center justify-between py-2">
                     <span>
                       {p.earthyDoing.title}
-                      <span className="ml-2 font-mono text-xs text-[#86868b]">{p.publicId}</span>
+                      <span className="ml-2 font-mono text-xs text-[var(--color-text-secondary)]">{p.publicId}</span>
                     </span>
-                    <span className="flex items-center gap-2 text-xs text-[#86868b]">
+                    <span className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
                       {p.checkInAt.toLocaleDateString()}
                       <Badge status={p.status} />
                     </span>
@@ -202,11 +202,11 @@ export default async function MemberDetail({
           {member.devices.map((d) => (
             <tr key={d.id}>
               <td className="px-4 py-2.5 font-mono text-xs font-semibold">{d.publicDeviceId}</td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.deviceType}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.deviceType}</td>
               <td className="px-4 py-2.5"><Badge status={d.status} /></td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.issuedAt?.toLocaleDateString() ?? "—"}</td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.activatedAt?.toLocaleDateString() ?? "—"}</td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.lastUsedAt?.toLocaleString() ?? "—"}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.issuedAt?.toLocaleDateString() ?? "—"}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.activatedAt?.toLocaleDateString() ?? "—"}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.lastUsedAt?.toLocaleString() ?? "—"}</td>
             </tr>
           ))}
         </Table>
@@ -217,18 +217,18 @@ export default async function MemberDetail({
           {verifications.map((v) => (
             <tr key={v.id}>
               <td className="px-4 py-2.5">
-                <Link href={`/ops/verifications/${v.id}`} className="text-[#0071e3] hover:underline">
+                <Link href={`/ops/verifications/${v.id}`} className="text-[var(--color-pink)] hover:underline">
                   {v.participation.earthyDoing.title}
                 </Link>
               </td>
               <td className="px-4 py-2.5"><Badge status={v.status} /></td>
-              <td className="px-4 py-2.5 text-xs text-[#86868b]">
+              <td className="px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
                 {v.aimAssessment
                   ? `${v.aimAssessment.assessmentResult} · ${((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%`
                   : "—"}
               </td>
-              <td className="px-4 py-2.5 text-[#86868b]">{v.createdAt.toLocaleDateString()}</td>
-              <td className="px-4 py-2.5 text-[#86868b]">{v.verifiedAt?.toLocaleDateString() ?? "—"}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{v.createdAt.toLocaleDateString()}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{v.verifiedAt?.toLocaleDateString() ?? "—"}</td>
             </tr>
           ))}
         </Table>
@@ -238,14 +238,14 @@ export default async function MemberDetail({
         <div className="space-y-5">
           <Card title="Consent history (append-only)">
             {member.consents.length === 0 ? (
-              <p className="text-sm text-[#86868b]">No consent records.</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">No consent records.</p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {member.consents.map((c) => (
                   <li key={c.id} className="flex flex-wrap items-center gap-2">
                     <Badge status={c.granted ? "active" : "revoked"} />
                     <span className="font-medium">{c.consentType}</span>
-                    <span className="text-xs text-[#86868b]">
+                    <span className="text-xs text-[var(--color-text-secondary)]">
                       v{c.policyVersion} · {c.createdAt.toLocaleString()} · via {c.source}
                     </span>
                   </li>
@@ -255,12 +255,12 @@ export default async function MemberDetail({
           </Card>
           <Card title="Privacy preferences">
             {member.privacyPreferences.length === 0 ? (
-              <p className="text-sm text-[#86868b]">Defaults in effect.</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">Defaults in effect.</p>
             ) : (
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 {member.privacyPreferences.map((p) => (
                   <div key={p.id} className="contents">
-                    <dt className="text-[#86868b]">{p.key}</dt>
+                    <dt className="text-[var(--color-text-secondary)]">{p.key}</dt>
                     <dd>{p.value}</dd>
                   </div>
                 ))}
@@ -274,13 +274,13 @@ export default async function MemberDetail({
         <Table headers={["Time", "Actor", "Action", "Object", "Reason"]}>
           {auditEvents.map((e) => (
             <tr key={e.id}>
-              <td className="whitespace-nowrap px-4 py-2 text-xs text-[#86868b]">
+              <td className="whitespace-nowrap px-4 py-2 text-xs text-[var(--color-text-secondary)]">
                 {e.createdAt.toLocaleString()}
               </td>
               <td className="px-4 py-2 text-xs">{e.actorType}</td>
               <td className="px-4 py-2 font-mono text-xs font-medium">{e.action}</td>
-              <td className="px-4 py-2 text-xs text-[#86868b]">{e.objectType}</td>
-              <td className="px-4 py-2 text-xs text-[#86868b]">{e.reason ?? "—"}</td>
+              <td className="px-4 py-2 text-xs text-[var(--color-text-secondary)]">{e.objectType}</td>
+              <td className="px-4 py-2 text-xs text-[var(--color-text-secondary)]">{e.reason ?? "—"}</td>
             </tr>
           ))}
         </Table>

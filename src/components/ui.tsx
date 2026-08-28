@@ -5,48 +5,63 @@ import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 
+// Color roles below follow the Beaurity Brand Color Palette Guidelines
+// (v1.0, May 2025). Pink is reserved for primary actions/links only, so it
+// never appears on a status pill — that keeps "this is clickable" visually
+// distinct from "this is a status."
 export const DIMENSION_LABELS: Record<string, string> = {
   SELF_SUSTAINABILITY: "Self-Sustainability",
   EMOTIONAL_PROSPERITY: "Emotional Prosperity",
   ENVIRONMENTAL_EQUITY: "Environmental Equity",
 };
 
+// Self-Sustainability -> Pink (confidence, empowerment, independence)
+// Emotional Prosperity -> Peach Blossom (warmth, kindness, connection)
+// Environmental Equity -> Mint Fresh (growth, renewal)
 export const DIMENSION_COLORS: Record<string, string> = {
-  SELF_SUSTAINABILITY: "bg-amber-100 text-amber-800 border-amber-300",
-  EMOTIONAL_PROSPERITY: "bg-rose-100 text-rose-800 border-rose-300",
-  ENVIRONMENTAL_EQUITY: "bg-emerald-100 text-emerald-800 border-emerald-300",
+  SELF_SUSTAINABILITY:
+    "bg-[var(--color-pink-soft)] text-[var(--color-pink-ink)] border-[var(--color-pink)]/25",
+  EMOTIONAL_PROSPERITY:
+    "bg-[var(--color-peach-soft)] text-[var(--color-peach-ink)] border-[var(--color-peach)]/50",
+  ENVIRONMENTAL_EQUITY:
+    "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)] border-[var(--color-mint)]/50",
 };
 
+// good=Mint · info=Peach · warning=Gold · neutral=Warm Gray · danger=Deep Plum
+// (brand has no red; Plum is the darkest, most serious color available) ·
+// disputed=Teal Wave ("balance, healing, and clarity" fits a case awaiting resolution)
 const STATUS_COLORS: Record<string, string> = {
-  verified: "bg-emerald-100 text-emerald-800",
-  active: "bg-emerald-100 text-emerald-800",
-  approved: "bg-emerald-100 text-emerald-800",
-  completed: "bg-emerald-100 text-emerald-800",
-  credible: "bg-emerald-100 text-emerald-800",
-  published: "bg-sky-100 text-sky-800",
-  pending: "bg-amber-100 text-amber-800",
-  verification_pending: "bg-amber-100 text-amber-800",
-  detected: "bg-sky-100 text-sky-800",
-  review: "bg-amber-100 text-amber-800",
-  inconclusive: "bg-amber-100 text-amber-800",
-  under_review: "bg-amber-100 text-amber-800",
-  open: "bg-amber-100 text-amber-800",
-  draft: "bg-slate-100 text-slate-700",
-  inventory: "bg-slate-100 text-slate-700",
-  assigned: "bg-sky-100 text-sky-800",
-  rejected: "bg-red-100 text-red-800",
-  not_credible: "bg-red-100 text-red-800",
-  revoked: "bg-red-100 text-red-800",
-  suspended: "bg-red-100 text-red-800",
-  lost: "bg-red-100 text-red-800",
-  stolen: "bg-red-100 text-red-800",
-  invalid: "bg-red-100 text-red-800",
-  disputed: "bg-purple-100 text-purple-800",
-  resolved: "bg-emerald-100 text-emerald-800",
+  verified: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  active: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  approved: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  completed: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  credible: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  resolved: "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
+  published: "bg-[var(--color-peach-soft)] text-[var(--color-peach-ink)]",
+  detected: "bg-[var(--color-peach-soft)] text-[var(--color-peach-ink)]",
+  assigned: "bg-[var(--color-peach-soft)] text-[var(--color-peach-ink)]",
+  pending: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  verification_pending: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  review: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  inconclusive: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  under_review: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  open: "bg-[var(--color-gold-soft)] text-[var(--color-gold-ink)]",
+  draft: "bg-[var(--color-warmgray-soft)] text-[var(--color-warmgray-ink)]",
+  inventory: "bg-[var(--color-warmgray-soft)] text-[var(--color-warmgray-ink)]",
+  rejected: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  not_credible: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  revoked: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  suspended: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  lost: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  stolen: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  invalid: "bg-[var(--color-plum-soft)] text-[var(--color-plum)]",
+  disputed: "bg-[var(--color-teal-soft)] text-[var(--color-teal-ink)]",
 };
 
 export function Badge({ status }: { status: string }) {
-  const color = STATUS_COLORS[status] ?? "bg-slate-100 text-slate-700";
+  const color =
+    STATUS_COLORS[status] ??
+    "bg-[var(--color-warmgray-soft)] text-[var(--color-warmgray-ink)]";
   return (
     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
       {status.replace(/_/g, " ")}
@@ -57,7 +72,10 @@ export function Badge({ status }: { status: string }) {
 export function DimensionBadge({ dimension }: { dimension: string }) {
   return (
     <span
-      className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${DIMENSION_COLORS[dimension] ?? "bg-slate-100 text-slate-700 border-slate-300"}`}
+      className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${
+        DIMENSION_COLORS[dimension] ??
+        "bg-[var(--color-warmgray-soft)] text-[var(--color-warmgray-ink)] border-[var(--color-warmgray)]"
+      }`}
     >
       {DIMENSION_LABELS[dimension] ?? dimension}
     </span>
@@ -68,7 +86,9 @@ export function Card({ title, children, className = "" }: { title?: string; chil
   return (
     <div className={`glass p-5 ${className}`}>
       {title && (
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#86868b]">{title}</h3>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          {title}
+        </h3>
       )}
       {children}
     </div>
@@ -78,10 +98,16 @@ export function Card({ title, children, className = "" }: { title?: string; chil
 export function Kpi({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
   return (
     <div className="glass p-4">
-      <div className={`text-2xl font-semibold tracking-tight ${accent ? "text-emerald-600" : "text-[#1d1d1f]"}`}>
+      <div
+        className={`text-2xl font-semibold tracking-tight ${
+          accent ? "text-[var(--color-mint-ink)]" : "text-[var(--color-text)]"
+        }`}
+      >
         {value}
       </div>
-      <div className="mt-1 text-xs font-medium uppercase tracking-wide text-[#86868b]">{label}</div>
+      <div className="mt-1 text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
+        {label}
+      </div>
     </div>
   );
 }
@@ -91,15 +117,18 @@ export function Table({ headers, children }: { headers: string[]; children: Reac
     <div className="glass overflow-x-auto p-0">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-black/[0.06]">
+          <tr className="border-b border-[var(--color-divider)]">
             {headers.map((h) => (
-              <th key={h} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#86868b]">
+              <th
+                key={h}
+                className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]"
+              >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-black/[0.05]">{children}</tbody>
+        <tbody className="divide-y divide-[var(--color-divider)]">{children}</tbody>
       </table>
     </div>
   );
@@ -126,27 +155,36 @@ export function NavBar({
   return (
     <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-6 py-3">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src="/beaurity-overlay-small.png"
+            src="/beaurity-imagen.png"
             alt="Beaurity"
-            width={240}
-            height={47}
-            className="-my-2 h-9 w-auto"
+            width={512}
+            height={512}
+            className="-my-2 h-9 w-9"
           />
-          <span className="hidden h-4 w-px bg-black/10 sm:block" />
-          <span className="hidden text-xs font-normal text-[#86868b] sm:inline">{title}</span>
+          <span className="text-[16px] font-medium tracking-tight text-[var(--color-text)]">
+            Beaurity
+          </span>
+          <span className="hidden h-4 w-px bg-[var(--color-divider)] sm:block" />
+          <span className="hidden text-xs font-normal text-[var(--color-text-secondary)] sm:inline">
+            {title}
+          </span>
         </Link>
-        <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[#1d1d1f]/80">
+        <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[var(--color-text)]/80">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="transition-colors hover:text-[#0071e3]">
+            <Link
+              key={l.href}
+              href={l.href}
+              className="transition-colors hover:text-[var(--color-pink)]"
+            >
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3 text-[13px] text-[#86868b]">
+        <div className="ml-auto flex items-center gap-3 text-[13px] text-[var(--color-text-secondary)]">
           <form action={logoutAction}>
-            <button className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#1d1d1f] transition-colors hover:bg-black/[0.04]">
+            <button className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
               Sign out
             </button>
           </form>

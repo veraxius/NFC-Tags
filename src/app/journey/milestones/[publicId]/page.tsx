@@ -37,9 +37,9 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-medium text-slate-400">MILESTONE {m.publicId}</p>
+        <p className="text-xs font-medium text-[var(--color-warmgray)]">MILESTONE {m.publicId}</p>
         <div className="mt-1 flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-slate-900">{m.earthyDoing.title}</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">{m.earthyDoing.title}</h1>
           <Badge status={m.status} />
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -50,20 +50,20 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
       </div>
 
       <Card title="Why this milestone is trusted">
-        <ul className="space-y-2 text-sm text-slate-700">
+        <ul className="space-y-2 text-sm text-[var(--color-text-secondary)]">
           {m.verification.evidence.map((e) => (
             <li key={e.id} className="flex items-center gap-2">
-              <span className="text-emerald-600">✓</span>
+              <span className="text-[var(--color-mint-ink)]">✓</span>
               {EVIDENCE_LABELS[e.evidenceType] ?? e.evidenceType}
             </li>
           ))}
           {aim && (
             <li className="flex items-center gap-2">
-              <span className="text-emerald-600">✓</span>
+              <span className="text-[var(--color-mint-ink)]">✓</span>
               AIM Trust Layer assessment:{" "}
               <Badge status={aim.assessmentResult ?? "pending"} />
               {aim.confidence != null && (
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-[var(--color-text-secondary)]">
                   confidence {(aim.confidence * 100).toFixed(0)}%
                 </span>
               )}
@@ -71,7 +71,7 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
           )}
         </ul>
         {explanation?.summary && (
-          <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+          <p className="mt-3 rounded-lg bg-[var(--color-bg-alt)] px-3 py-2 text-xs text-[var(--color-text-secondary)]">
             {explanation.summary}
           </p>
         )}
@@ -79,15 +79,15 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
 
       <Card title="Details">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <dt className="text-slate-500">Partner</dt>
+          <dt className="text-[var(--color-text-secondary)]">Partner</dt>
           <dd className="font-medium">{m.earthyDoing.partner.name}</dd>
-          <dt className="text-slate-500">Participated</dt>
+          <dt className="text-[var(--color-text-secondary)]">Participated</dt>
           <dd className="font-medium">{m.participation.checkInAt.toLocaleString()}</dd>
-          <dt className="text-slate-500">Verified</dt>
+          <dt className="text-[var(--color-text-secondary)]">Verified</dt>
           <dd className="font-medium">{m.verifiedAt ? m.verifiedAt.toLocaleString() : "—"}</dd>
           {m.earthyDoing.location && (
             <>
-              <dt className="text-slate-500">Location</dt>
+              <dt className="text-[var(--color-text-secondary)]">Location</dt>
               <dd className="font-medium">{m.earthyDoing.location.name}</dd>
             </>
           )}
@@ -96,7 +96,7 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
 
       {m.disputes.some((d) => d.status !== "resolved") ? (
         <Card title="Dispute">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[var(--color-text-secondary)]">
             You have an open dispute on this milestone. Beaurity Operations will review it.
           </p>
         </Card>
@@ -105,8 +105,8 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
           <form action={openDisputeAction} className="space-y-3">
             <input type="hidden" name="milestoneId" value={m.id} />
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Reason</label>
-              <select name="reason" required className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-secondary)]">Reason</label>
+              <select name="reason" required className="w-full rounded-lg border border-[var(--color-warmgray)] px-3 py-2 text-sm">
                 <option value="">Select a reason…</option>
                 <option value="not_me">This was not my participation</option>
                 <option value="wrong_activity">Wrong activity recorded</option>
@@ -115,10 +115,10 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Description</label>
-              <textarea name="description" rows={2} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+              <label className="mb-1 block text-sm font-medium text-[var(--color-text-secondary)]">Description</label>
+              <textarea name="description" rows={2} className="w-full rounded-lg border border-[var(--color-warmgray)] px-3 py-2 text-sm" />
             </div>
-            <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+            <button className="rounded-lg border border-[var(--color-plum)] px-4 py-2 text-sm font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
               Open dispute
             </button>
           </form>

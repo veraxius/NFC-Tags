@@ -25,8 +25,8 @@ export default async function OpsDisputes() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-slate-900">Disputes</h1>
-      {disputes.length === 0 && <p className="text-sm text-slate-500">No disputes.</p>}
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Disputes</h1>
+      {disputes.length === 0 && <p className="text-sm text-[var(--color-text-secondary)]">No disputes.</p>}
       <div className="space-y-4">
         {disputes.map((d) => {
           const startReview = startDisputeReviewAction.bind(null, d.id);
@@ -36,22 +36,22 @@ export default async function OpsDisputes() {
             <Card key={d.id}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium text-[#1d1d1f]">
+                  <p className="font-medium text-[var(--color-text)]">
                     {d.milestone.earthyDoing.title}
-                    <span className="ml-2 font-mono text-xs text-[#86868b]">{d.publicId}</span>
+                    <span className="ml-2 font-mono text-xs text-[var(--color-text-secondary)]">{d.publicId}</span>
                   </p>
-                  <p className="text-xs text-[#86868b]">
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     Milestone <span className="font-mono">{d.milestone.publicId}</span> · Opened by{" "}
                     {d.opener.displayName} · {d.createdAt.toLocaleString()} · Reason:{" "}
                     <span className="font-medium">{d.reason}</span>
                   </p>
-                  {d.description && <p className="mt-1 text-sm text-[#1d1d1f]">{d.description}</p>}
-                  <p className="mt-1 text-xs text-[#86868b]">
+                  {d.description && <p className="mt-1 text-sm text-[var(--color-text)]">{d.description}</p>}
+                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                     Assigned: {assigneeName(d.assignedTo)}
                     {d.underReviewAt && ` · under review since ${d.underReviewAt.toLocaleString()}`}
                   </p>
                   {d.resolution && (
-                    <p className="mt-1 text-xs text-emerald-700">
+                    <p className="mt-1 text-xs text-[var(--color-pink)]">
                       Resolution ({d.resolutionOutcome}): {d.resolution}
                     </p>
                   )}
@@ -60,7 +60,7 @@ export default async function OpsDisputes() {
                   <Badge status={d.status} />
                   {d.status === "open" && (
                     <form action={startReview}>
-                      <button className="rounded-full border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50">
+                      <button className="rounded-full border border-[var(--color-gold)] px-3 py-1.5 text-xs font-semibold text-[var(--color-gold-ink)] hover:bg-[var(--color-gold-soft)]">
                         Take case → Under review
                       </button>
                     </form>
@@ -68,12 +68,12 @@ export default async function OpsDisputes() {
                   {d.status === "under_review" && (
                     <>
                       <form action={keepVerified}>
-                        <button className="rounded-full border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                        <button className="rounded-full border border-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-ink)] hover:bg-[var(--color-mint-soft)]">
                           Resolve: keep verified
                         </button>
                       </form>
                       <form action={revoke}>
-                        <button className="rounded-full border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50">
+                        <button className="rounded-full border border-[var(--color-plum)] px-3 py-1.5 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                           Resolve: revoke
                         </button>
                       </form>

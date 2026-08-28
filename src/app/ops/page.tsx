@@ -55,10 +55,10 @@ export default async function OpsOverview() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-slate-900">Operations Overview</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Operations Overview</h1>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">JourneyPort Network</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">JourneyPort Network</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Kpi label="Total members" value={totalMembers} />
           <Kpi label="Active members" value={activeMembers} />
@@ -68,7 +68,7 @@ export default async function OpsOverview() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Today</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">Today</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Kpi label="NFC taps" value={tapsToday} />
           <Kpi label="Participations" value={participationsToday} />
@@ -80,25 +80,25 @@ export default async function OpsOverview() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card title="Verification health">
           <dl className="space-y-1.5 text-sm">
-            <div className="flex justify-between"><dt className="text-slate-500">Completion</dt><dd className="font-semibold">{completionPct}%</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Needs review</dt><dd className="font-semibold text-amber-700">{needsReview}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Rejected</dt><dd className="font-semibold text-red-700">{rejected}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Disputed</dt><dd className="font-semibold text-purple-700">{disputed}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Completion</dt><dd className="font-semibold">{completionPct}%</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Needs review</dt><dd className="font-semibold text-[var(--color-gold-ink)]">{needsReview}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Rejected</dt><dd className="font-semibold text-[var(--color-plum)]">{rejected}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Disputed</dt><dd className="font-semibold text-[var(--color-teal-ink)]">{disputed}</dd></div>
           </dl>
         </Card>
         <Card title="NFC health">
           <dl className="space-y-1.5 text-sm">
-            <div className="flex justify-between"><dt className="text-slate-500">Active devices</dt><dd className="font-semibold">{activeDevices}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Activation</dt><dd className="font-semibold">{activationPct}%</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Suspended</dt><dd className="font-semibold text-amber-700">{suspendedDevices}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Active devices</dt><dd className="font-semibold">{activeDevices}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Activation</dt><dd className="font-semibold">{activationPct}%</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Suspended</dt><dd className="font-semibold text-[var(--color-gold-ink)]">{suspendedDevices}</dd></div>
           </dl>
         </Card>
         <Card title="AIM">
           <dl className="space-y-1.5 text-sm">
-            <div className="flex justify-between"><dt className="text-slate-500">Assessments</dt><dd className="font-semibold">{aimCompleted + aimPending}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Pending</dt><dd className="font-semibold">{aimPending}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Completed</dt><dd className="font-semibold">{aimCompleted}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Exceptions</dt><dd className="font-semibold text-amber-700">{aimNotCredible}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Assessments</dt><dd className="font-semibold">{aimCompleted + aimPending}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Pending</dt><dd className="font-semibold">{aimPending}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Completed</dt><dd className="font-semibold">{aimCompleted}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-text-secondary)]">Exceptions</dt><dd className="font-semibold text-[var(--color-gold-ink)]">{aimNotCredible}</dd></div>
           </dl>
         </Card>
       </div>

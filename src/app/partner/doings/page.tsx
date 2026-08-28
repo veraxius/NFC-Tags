@@ -21,10 +21,10 @@ export default async function PartnerDoings() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Earthy Doings</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">Earthy Doings</h1>
         <Link
           href="/partner/doings/new"
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+          className="rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
         >
           + Create
         </Link>
@@ -33,8 +33,8 @@ export default async function PartnerDoings() {
         {doings.map((d) => (
           <tr key={d.id}>
             <td className="px-4 py-2.5">
-              <p className="font-medium text-slate-900">{d.title}</p>
-              <p className="font-mono text-xs text-slate-400">{d.publicId}</p>
+              <p className="font-medium text-[var(--color-text)]">{d.title}</p>
+              <p className="font-mono text-xs text-[var(--color-warmgray)]">{d.publicId}</p>
             </td>
             <td className="px-4 py-2.5">
               <div className="flex flex-wrap gap-1">
@@ -43,7 +43,7 @@ export default async function PartnerDoings() {
                 ))}
               </div>
             </td>
-            <td className="px-4 py-2.5 text-slate-600">{d.startAt.toLocaleDateString()}</td>
+            <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.startAt.toLocaleDateString()}</td>
             <td className="px-4 py-2.5">{d._count.participations}</td>
             <td className="px-4 py-2.5">{d._count.milestones}</td>
             <td className="px-4 py-2.5"><Badge status={d.status} /></td>

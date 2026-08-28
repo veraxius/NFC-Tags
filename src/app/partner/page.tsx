@@ -28,14 +28,14 @@ export default async function PartnerOverview() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{partner.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">{partner.name}</h1>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             Partner ID <span className="font-mono">{partner.publicId}</span> · <Badge status={partner.status} />
           </p>
         </div>
         <Link
           href="/partner/doings/new"
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+          className="rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
         >
           + Create Earthy Doing
         </Link>
@@ -50,19 +50,19 @@ export default async function PartnerOverview() {
 
       <Card title="Participants awaiting completion">
         {awaitingCompletion.length === 0 ? (
-          <p className="text-sm text-slate-500">No participants currently checked in.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No participants currently checked in.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 text-sm">
+          <ul className="divide-y divide-[var(--color-divider)] text-sm">
             {awaitingCompletion.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-2">
                 <div>
                   <span className="font-medium">{p.user.displayName}</span>
-                  <span className="ml-2 font-mono text-xs text-slate-400">
+                  <span className="ml-2 font-mono text-xs text-[var(--color-warmgray)]">
                     {p.user.journeyIdentity?.publicId}
                   </span>
-                  <span className="ml-2 text-slate-500">· {p.earthyDoing.title}</span>
+                  <span className="ml-2 text-[var(--color-text-secondary)]">· {p.earthyDoing.title}</span>
                 </div>
-                <Link href="/partner/verifications" className="text-xs font-semibold text-emerald-700 hover:underline">
+                <Link href="/partner/verifications" className="text-xs font-semibold text-[var(--color-pink)] hover:underline">
                   Manage →
                 </Link>
               </li>

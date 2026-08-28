@@ -32,8 +32,8 @@ export default async function OpsImpact() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Impact</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">Impact</h1>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           Verified participation, distinguished from recorded and pending claims.
         </p>
       </div>
@@ -50,9 +50,9 @@ export default async function OpsImpact() {
       <Card title="Verified impact by TriSilience dimension">
         <div className="grid gap-4 md:grid-cols-3">
           {byDimension.map((d) => (
-            <div key={d.dimension} className="rounded-xl border border-slate-200 p-4 text-center">
-              <p className="text-3xl font-bold text-emerald-700">{d.verified}</p>
-              <p className="mt-1 text-sm font-medium text-slate-600">{DIMENSION_LABELS[d.dimension]}</p>
+            <div key={d.dimension} className="rounded-xl border border-[var(--color-divider)] p-4 text-center">
+              <p className="text-3xl font-bold text-[var(--color-pink)]">{d.verified}</p>
+              <p className="mt-1 text-sm font-medium text-[var(--color-text-secondary)]">{DIMENSION_LABELS[d.dimension]}</p>
             </div>
           ))}
         </div>

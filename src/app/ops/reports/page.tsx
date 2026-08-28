@@ -77,8 +77,8 @@ export default async function OpsReports({
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Reports</h1>
-          <p className="mt-1 text-sm text-[#86868b]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">Reports</h1>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             Aggregated platform reporting for the last {days} days.
           </p>
         </div>
@@ -98,7 +98,7 @@ export default async function OpsReports({
       </div>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#86868b]">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
           Period summary
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -114,7 +114,7 @@ export default async function OpsReports({
       </section>
 
       <Card title="TriSilience impact — recorded vs verified">
-        <p className="mb-3 text-xs text-[#86868b]">
+        <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
           Recorded participation is not presented as verified impact (TRS §48).
         </p>
         <Table headers={["Dimension", "Recorded", "Verified", "Verification rate"]}>
@@ -122,8 +122,8 @@ export default async function OpsReports({
             <tr key={d.dimension}>
               <td className="px-4 py-2.5 font-medium">{DIMENSION_LABELS[d.dimension]}</td>
               <td className="px-4 py-2.5">{d.recorded}</td>
-              <td className="px-4 py-2.5 font-semibold text-emerald-700">{d.verified}</td>
-              <td className="px-4 py-2.5 text-[#86868b]">
+              <td className="px-4 py-2.5 font-semibold text-[var(--color-pink)]">{d.verified}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">
                 {d.recorded > 0 ? `${Math.round((d.verified / d.recorded) * 100)}%` : "—"}
               </td>
             </tr>
@@ -144,7 +144,7 @@ export default async function OpsReports({
                 <td className="px-4 py-2.5">{p._count.earthyDoings}</td>
                 <td className="px-4 py-2.5">{p._count.participations}</td>
                 <td className="px-4 py-2.5">{verified}</td>
-                <td className="px-4 py-2.5 text-[#86868b]">
+                <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">
                   {total > 0 ? `${Math.round((verified / total) * 100)}%` : "—"}
                 </td>
               </tr>

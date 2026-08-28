@@ -12,19 +12,19 @@ export default async function OpsAudit() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-slate-900">Audit Trail</h1>
-      <p className="text-sm text-slate-500">Append-only. Most recent 200 events.</p>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Audit Trail</h1>
+      <p className="text-sm text-[var(--color-text-secondary)]">Append-only. Most recent 200 events.</p>
       <Table headers={["Time", "Actor", "Action", "Object", "Reason"]}>
         {events.map((e) => (
           <tr key={e.id}>
-            <td className="whitespace-nowrap px-4 py-2 text-xs text-slate-500">{e.createdAt.toLocaleString()}</td>
+            <td className="whitespace-nowrap px-4 py-2 text-xs text-[var(--color-text-secondary)]">{e.createdAt.toLocaleString()}</td>
             <td className="px-4 py-2 text-xs">{e.actorType}</td>
-            <td className="px-4 py-2 font-mono text-xs font-medium text-slate-800">{e.action}</td>
-            <td className="px-4 py-2 text-xs text-slate-500">
+            <td className="px-4 py-2 font-mono text-xs font-medium text-[var(--color-text)]">{e.action}</td>
+            <td className="px-4 py-2 text-xs text-[var(--color-text-secondary)]">
               {e.objectType}
-              <span className="ml-1 font-mono text-slate-400">{e.objectId.slice(0, 8)}</span>
+              <span className="ml-1 font-mono text-[var(--color-warmgray)]">{e.objectId.slice(0, 8)}</span>
             </td>
-            <td className="px-4 py-2 text-xs text-slate-500">{e.reason ?? "—"}</td>
+            <td className="px-4 py-2 text-xs text-[var(--color-text-secondary)]">{e.reason ?? "—"}</td>
           </tr>
         ))}
       </Table>

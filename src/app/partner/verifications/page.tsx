@@ -41,31 +41,31 @@ export default async function PartnerVerifications() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-slate-900">Verifications</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Verifications</h1>
 
       <Card title="1 · Checked-in participants (mark completion)">
         {inProgress.length === 0 ? (
-          <p className="text-sm text-slate-500">No participants awaiting completion.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No participants awaiting completion.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-[var(--color-divider)]">
             {inProgress.map((p) => {
               const complete = completeParticipationAction.bind(null, p.id);
               return (
                 <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-[var(--color-text)]">
                       {p.user.displayName}{" "}
-                      <span className="font-mono text-xs text-slate-400">
+                      <span className="font-mono text-xs text-[var(--color-warmgray)]">
                         {p.user.journeyIdentity?.publicId}
                       </span>
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-text-secondary)]">
                       {p.earthyDoing.title} · tapped in {p.checkInAt.toLocaleTimeString()} ·{" "}
                       {p.interactionType.toUpperCase()}
                     </p>
                   </div>
                   <form action={complete}>
-                    <button className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">
+                    <button className="rounded-lg bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
                       Mark completed
                     </button>
                   </form>
@@ -78,9 +78,9 @@ export default async function PartnerVerifications() {
 
       <Card title="2 · Pending verification (confirm participation)">
         {pending.length === 0 ? (
-          <p className="text-sm text-slate-500">No verifications pending.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No verifications pending.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-[var(--color-divider)]">
             {pending.map((v) => {
               const approve = approveVerificationAction.bind(null, v.id, undefined);
               const reject = rejectVerificationAction.bind(null, v.id, "PARTNER_REJECTED");
@@ -88,25 +88,25 @@ export default async function PartnerVerifications() {
                 <li key={v.id} className="py-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-[var(--color-text)]">
                         {v.participation.user.displayName}{" "}
-                        <span className="font-mono text-xs text-slate-400">
+                        <span className="font-mono text-xs text-[var(--color-warmgray)]">
                           {v.participation.user.journeyIdentity?.publicId}
                         </span>
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-[var(--color-text-secondary)]">
                         {v.participation.earthyDoing.title} ·{" "}
                         {v.participation.checkInAt.toLocaleString()}
                       </p>
                       <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
                         <Badge status={v.status} />
                         {v.evidence.map((e) => (
-                          <span key={e.id} className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-600">
+                          <span key={e.id} className="rounded bg-[var(--color-warmgray-soft)] px-1.5 py-0.5 text-[var(--color-text-secondary)]">
                             {e.evidenceType}
                           </span>
                         ))}
                         {v.aimAssessment && (
-                          <span className="rounded bg-purple-50 px-1.5 py-0.5 text-purple-700">
+                          <span className="rounded bg-[var(--color-teal-soft)] px-1.5 py-0.5 text-[var(--color-teal-ink)]">
                             AIM: {v.aimAssessment.assessmentResult} ({((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%)
                           </span>
                         )}
@@ -114,12 +114,12 @@ export default async function PartnerVerifications() {
                     </div>
                     <div className="flex gap-2">
                       <form action={approve}>
-                        <button className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">
+                        <button className="rounded-lg bg-[var(--color-pink)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]">
                           Confirm & verify
                         </button>
                       </form>
                       <form action={reject}>
-                        <button className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50">
+                        <button className="rounded-lg border border-[var(--color-plum)] px-3 py-1.5 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                           Reject
                         </button>
                       </form>
@@ -133,16 +133,16 @@ export default async function PartnerVerifications() {
       </Card>
 
       <Card title="History">
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-[var(--color-divider)]">
           {done.map((v) => (
             <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
               <div>
                 <span className="font-medium">{v.participation.user.displayName}</span>
-                <span className="ml-2 text-slate-500">{v.participation.earthyDoing.title}</span>
+                <span className="ml-2 text-[var(--color-text-secondary)]">{v.participation.earthyDoing.title}</span>
               </div>
               <div className="flex items-center gap-2 text-xs">
                 {v.aimAssessment && (
-                  <span className="text-slate-400">
+                  <span className="text-[var(--color-warmgray)]">
                     AIM {v.aimAssessment.assessmentResult} · {((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%
                   </span>
                 )}

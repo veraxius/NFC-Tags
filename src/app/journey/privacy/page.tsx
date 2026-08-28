@@ -26,8 +26,8 @@ export default async function PrivacyPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Privacy & Consent</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-[var(--color-text)]">Privacy & Consent</h1>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           You control your Journey&apos;s visibility and what JourneyPort may collect.
         </p>
       </div>
@@ -42,8 +42,8 @@ export default async function PrivacyPage() {
                 <button
                   className={`rounded-lg border px-4 py-2 text-sm font-semibold ${
                     current
-                      ? "border-emerald-700 bg-emerald-700 text-white"
-                      : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                      ? "border-[var(--color-pink)] bg-[var(--color-pink)] text-white"
+                      : "border-[var(--color-warmgray)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-alt)]"
                   }`}
                 >
                   {v === "private" ? "Private (only me)" : v === "partners" ? "Partners I join" : "Public"}
@@ -61,10 +61,10 @@ export default async function PrivacyPage() {
             const granted = c?.granted ?? false;
             const toggle = setConsentAction.bind(null, type, !granted);
             return (
-              <div key={type} className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+              <div key={type} className="flex items-center justify-between gap-3 border-b border-[var(--color-divider)] pb-3 last:border-0 last:pb-0">
                 <div>
-                  <p className="text-sm font-medium text-slate-800">{CONSENT_LABELS[type]}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm font-medium text-[var(--color-text)]">{CONSENT_LABELS[type]}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     {c ? `v${c.policyVersion} · ${c.createdAt.toLocaleDateString()}` : "Not yet set"}
                   </p>
                 </div>
@@ -72,8 +72,8 @@ export default async function PrivacyPage() {
                   <button
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
                       granted
-                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        ? "bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)] hover:bg-[var(--color-mint)]/25"
+                        : "bg-[var(--color-warmgray-soft)] text-[var(--color-text-secondary)] hover:bg-[var(--color-warmgray)]/30"
                     }`}
                   >
                     {granted ? "Granted — revoke" : "Not granted — grant"}
@@ -86,12 +86,12 @@ export default async function PrivacyPage() {
       </Card>
 
       <Card title="Consent history (append-only)">
-        <ul className="space-y-1.5 text-xs text-slate-600">
+        <ul className="space-y-1.5 text-xs text-[var(--color-text-secondary)]">
           {consents.map((c) => (
             <li key={c.id} className="flex items-center gap-2">
               <Badge status={c.granted ? "active" : "revoked"} />
               <span className="font-medium">{CONSENT_LABELS[c.consentType] ?? c.consentType}</span>
-              <span className="text-slate-400">
+              <span className="text-[var(--color-warmgray)]">
                 v{c.policyVersion} · {c.createdAt.toLocaleString()}
               </span>
             </li>

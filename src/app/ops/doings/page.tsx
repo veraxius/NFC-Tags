@@ -24,8 +24,8 @@ export default async function OpsDoings() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Earthy Doings</h1>
-        <p className="text-[13px] text-[#86868b]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">Earthy Doings</h1>
+        <p className="text-[13px] text-[var(--color-text-secondary)]">
           Activities are created by partners from the Partner Dashboard.
         </p>
       </div>
@@ -49,10 +49,10 @@ export default async function OpsDoings() {
           return (
             <tr key={d.id}>
               <td className="px-4 py-2.5">
-                <p className="font-medium text-[#1d1d1f]">{d.title}</p>
-                <p className="font-mono text-xs text-[#86868b]">{d.publicId}</p>
+                <p className="font-medium text-[var(--color-text)]">{d.title}</p>
+                <p className="font-mono text-xs text-[var(--color-text-secondary)]">{d.publicId}</p>
               </td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.partner.name}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.partner.name}</td>
               <td className="px-4 py-2.5">
                 <div className="flex flex-wrap gap-1">
                   {d.classifications.map((c) => (
@@ -60,7 +60,7 @@ export default async function OpsDoings() {
                   ))}
                 </div>
               </td>
-              <td className="px-4 py-2.5 text-[#86868b]">{d.startAt.toLocaleDateString()}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.startAt.toLocaleDateString()}</td>
               <td className="px-4 py-2.5">{d._count.participations}</td>
               <td className="px-4 py-2.5">{d._count.milestones}</td>
               <td className="px-4 py-2.5">
@@ -71,7 +71,7 @@ export default async function OpsDoings() {
                   {canTransition(d.status, "published") && (
                     <form action={publish}>
                       <button
-                        className={`${actionClass} border-emerald-300 text-emerald-700 hover:bg-emerald-50`}
+                        className={`${actionClass} border-[var(--color-mint)] text-[var(--color-mint-ink)] hover:bg-[var(--color-mint-soft)]`}
                       >
                         Publish
                       </button>
@@ -80,7 +80,7 @@ export default async function OpsDoings() {
                   {canTransition(d.status, "paused") && (
                     <form action={pause}>
                       <button
-                        className={`${actionClass} border-amber-300 text-amber-700 hover:bg-amber-50`}
+                        className={`${actionClass} border-[var(--color-gold)] text-[var(--color-gold-ink)] hover:bg-[var(--color-gold-soft)]`}
                       >
                         Pause
                       </button>
@@ -89,7 +89,7 @@ export default async function OpsDoings() {
                   {canTransition(d.status, "cancelled") && (
                     <form action={cancel}>
                       <button
-                        className={`${actionClass} border-red-300 text-red-700 hover:bg-red-50`}
+                        className={`${actionClass} border-[var(--color-plum)] text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]`}
                       >
                         Cancel
                       </button>
@@ -98,7 +98,7 @@ export default async function OpsDoings() {
                   {canTransition(d.status, "archived") && (
                     <form action={archive}>
                       <button
-                        className={`${actionClass} border-black/10 text-[#86868b] hover:bg-black/[0.04]`}
+                        className={`${actionClass} border-black/10 text-[var(--color-text-secondary)] hover:bg-black/[0.04]`}
                       >
                         Archive
                       </button>

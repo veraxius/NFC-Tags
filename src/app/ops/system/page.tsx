@@ -23,15 +23,15 @@ export default async function OpsSystem() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">System</h1>
-        <p className="mt-1 text-sm text-[#86868b]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">System</h1>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           Platform configuration in force. Signed in as{" "}
           <span className="font-medium">{session.platformRole}</span>.
         </p>
       </div>
 
       <Card title="Verification policies">
-        <p className="mb-3 text-xs text-[#86868b]">
+        <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
           The verification model is configurable rather than hard-coded
           (Architecture doc §11). Each Earthy Doing references a policy.
         </p>
@@ -40,14 +40,14 @@ export default async function OpsSystem() {
             <tr key={p.id}>
               <td className="px-4 py-2.5">
                 <span className="font-medium">{p.name}</span>
-                <span className="ml-2 font-mono text-xs text-[#86868b]">{p.publicId}</span>
+                <span className="ml-2 font-mono text-xs text-[var(--color-text-secondary)]">{p.publicId}</span>
               </td>
-              <td className="px-4 py-2.5 text-[#86868b]">{p.version}</td>
+              <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{p.version}</td>
               <td className="px-4 py-2.5">{p.requiresNfc ? "required" : "optional"}</td>
               <td className="px-4 py-2.5">{p.requiresPartnerConfirm ? "required" : "optional"}</td>
               <td className="px-4 py-2.5">{p.requiresAim ? "required" : "optional"}</td>
               <td className="px-4 py-2.5">
-                {p.isDefault ? <Badge status="active" /> : <span className="text-[#86868b]">—</span>}
+                {p.isDefault ? <Badge status="active" /> : <span className="text-[var(--color-text-secondary)]">—</span>}
               </td>
             </tr>
           ))}
@@ -56,28 +56,28 @@ export default async function OpsSystem() {
 
       <Card title="AIM Trust Layer configuration">
         <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-          <dt className="text-[#86868b]">Config version</dt>
+          <dt className="text-[var(--color-text-secondary)]">Config version</dt>
           <dd className="font-mono">{CONFIG_VERSION}</dd>
-          <dt className="text-[#86868b]">Model version</dt>
+          <dt className="text-[var(--color-text-secondary)]">Model version</dt>
           <dd className="font-mono">{MODEL_VERSION}</dd>
-          <dt className="text-[#86868b]">Credible threshold</dt>
+          <dt className="text-[var(--color-text-secondary)]">Credible threshold</dt>
           <dd>confidence ≥ {THRESHOLDS.credible}</dd>
-          <dt className="text-[#86868b]">Not credible threshold</dt>
+          <dt className="text-[var(--color-text-secondary)]">Not credible threshold</dt>
           <dd>confidence ≤ {THRESHOLDS.notCredible}</dd>
         </dl>
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#86868b]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
             Supported signals and weights
           </p>
           <ul className="space-y-1 text-sm">
             {Object.entries(SIGNAL_WEIGHTS).map(([signal, weight]) => (
               <li key={signal} className="flex justify-between border-b border-black/[0.05] py-1">
                 <span className="font-mono text-xs">{signal}</span>
-                <span className="text-[#86868b]">{weight}</span>
+                <span className="text-[var(--color-text-secondary)]">{weight}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-[#86868b]">
+          <p className="mt-3 text-xs text-[var(--color-text-secondary)]">
             AIM assesses the credibility of an event claim — never a person&apos;s
             human value (TRS §47).
           </p>
@@ -92,7 +92,7 @@ export default async function OpsSystem() {
               return (
                 <li key={d} className="flex justify-between border-b border-black/[0.05] py-1">
                   <span>{d.replace(/_/g, " ")}</span>
-                  <span className="text-[#86868b]">
+                  <span className="text-[var(--color-text-secondary)]">
                     {row?._count ?? 0} classified activities
                   </span>
                 </li>
@@ -109,13 +109,13 @@ export default async function OpsSystem() {
                 className="flex justify-between border-b border-black/[0.05] py-1"
               >
                 <span className="font-mono text-xs">{r.platformRole}</span>
-                <span className="text-[#86868b]">{r._count} users</span>
+                <span className="text-[var(--color-text-secondary)]">{r._count} users</span>
               </li>
             ))}
             {partnerUserCounts.map((r) => (
               <li key={r.role} className="flex justify-between border-b border-black/[0.05] py-1">
                 <span className="font-mono text-xs">partner_{r.role}</span>
-                <span className="text-[#86868b]">{r._count} assignments</span>
+                <span className="text-[var(--color-text-secondary)]">{r._count} assignments</span>
               </li>
             ))}
           </ul>
@@ -123,7 +123,7 @@ export default async function OpsSystem() {
       </div>
 
       {!isSuperAdmin(session) && (
-        <p className="text-xs text-[#86868b]">
+        <p className="text-xs text-[var(--color-text-secondary)]">
           Security policies, API configuration and role definitions are managed
           by a Super Administrator (TRS §4.5).
         </p>

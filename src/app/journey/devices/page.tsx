@@ -14,14 +14,14 @@ export default async function MyDevices() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">My JourneyPorts</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">My JourneyPorts</h1>
+      <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
         Physical NFC devices connected to your Journey identity. All devices
         resolve to the same Journey.
       </p>
       <div className="mt-6 space-y-4">
         {devices.length === 0 && (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[var(--color-text-secondary)]">
             No devices yet. Tap a new JourneyPort card to activate it.
           </p>
         )}
@@ -33,8 +33,8 @@ export default async function MyDevices() {
             <Card key={d.id}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-mono font-semibold text-slate-900">{d.publicDeviceId}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-mono font-semibold text-[var(--color-text)]">{d.publicDeviceId}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     {d.deviceType} · activated{" "}
                     {d.activatedAt ? d.activatedAt.toLocaleDateString() : "—"} · last tap{" "}
                     {d.lastUsedAt ? d.lastUsedAt.toLocaleString() : "never"}
@@ -46,12 +46,12 @@ export default async function MyDevices() {
                 {d.status === "active" && (
                   <>
                     <form action={suspend}>
-                      <button className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50">
+                      <button className="rounded-lg border border-[var(--color-gold)] px-3 py-1.5 text-xs font-semibold text-[var(--color-gold-ink)] hover:bg-[var(--color-gold-soft)]">
                         Suspend
                       </button>
                     </form>
                     <form action={reportLost}>
-                      <button className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50">
+                      <button className="rounded-lg border border-[var(--color-plum)] px-3 py-1.5 text-xs font-semibold text-[var(--color-plum)] hover:bg-[var(--color-plum-soft)]">
                         Report lost (US-006)
                       </button>
                     </form>
@@ -59,13 +59,13 @@ export default async function MyDevices() {
                 )}
                 {d.status === "suspended" && (
                   <form action={reactivate}>
-                    <button className="rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                    <button className="rounded-lg border border-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-ink)] hover:bg-[var(--color-mint-soft)]">
                       Reactivate
                     </button>
                   </form>
                 )}
                 {["lost", "stolen", "revoked"].includes(d.status) && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     Token disabled. Your Journey history remains intact — contact
                     operations for a replacement.
                   </p>

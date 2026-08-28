@@ -39,8 +39,8 @@ export default async function TapPage({
 
   const shell = (children: React.ReactNode) => (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">
+      <div className="rounded-2xl border border-[var(--color-divider)] bg-white p-6 shadow-lg">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-pink)]">
           Beaurity JourneyPort™
         </p>
         {children}
@@ -51,8 +51,8 @@ export default async function TapPage({
   if (!device) {
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-slate-900">Unknown JourneyPort</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-text)]">Unknown JourneyPort</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           This JourneyPort could not be resolved. It may have been replaced or
           revoked. Please contact support.
         </p>
@@ -63,8 +63,8 @@ export default async function TapPage({
   if (["revoked", "lost", "stolen", "suspended", "retired", "replaced"].includes(device.status)) {
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-red-700">JourneyPort not active</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-plum)]">JourneyPort not active</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           This JourneyPort device is currently <Badge status={device.status} /> and cannot
           create interactions. If this is your device, request a replacement.
         </p>
@@ -76,20 +76,20 @@ export default async function TapPage({
   if (!user) {
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-slate-900">Welcome to JourneyPort</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-text)]">Welcome to JourneyPort</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           Sign in or create your Journey identity to continue with this JourneyPort.
         </p>
         <div className="mt-5 flex flex-col gap-2">
           <Link
             href={`/login?next=/t/${token}`}
-            className="rounded-lg bg-emerald-700 px-4 py-2.5 text-center font-semibold text-white hover:bg-emerald-800"
+            className="rounded-lg bg-[var(--color-pink)] px-4 py-2.5 text-center font-semibold text-white hover:bg-[var(--color-pink-hover)]"
           >
             Sign in
           </Link>
           <Link
             href="/register"
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-center font-semibold text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-[var(--color-warmgray)] px-4 py-2.5 text-center font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-alt)]"
           >
             Create account
           </Link>
@@ -103,8 +103,8 @@ export default async function TapPage({
     if (device.userId && device.userId !== user.id) {
       return shell(
         <>
-          <h1 className="mt-2 text-xl font-bold text-red-700">Assigned to another member</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <h1 className="mt-2 text-xl font-bold text-[var(--color-plum)]">Assigned to another member</h1>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
             This JourneyPort is assigned to a different member and cannot be
             activated on your account.
           </p>
@@ -114,14 +114,14 @@ export default async function TapPage({
     const activate = activateDeviceAction.bind(null, token);
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-slate-900">Activate your JourneyPort</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-text)]">Activate your JourneyPort</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           Device <span className="font-mono font-semibold">{device.publicDeviceId}</span>{" "}
           ({device.deviceType}) will be linked to your Journey identity. You
           confirm you are the owner of this physical JourneyPort.
         </p>
         <form action={activate} className="mt-5">
-          <button className="w-full rounded-lg bg-emerald-700 px-4 py-2.5 font-semibold text-white hover:bg-emerald-800">
+          <button className="w-full rounded-lg bg-[var(--color-pink)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--color-pink-hover)]">
             Confirm ownership & activate
           </button>
         </form>
@@ -133,8 +133,8 @@ export default async function TapPage({
   if (device.userId !== user.id) {
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-red-700">Not your JourneyPort</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-plum)]">Not your JourneyPort</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           This JourneyPort belongs to a different member.
         </p>
       </>
@@ -144,14 +144,14 @@ export default async function TapPage({
   if (sp.activated) {
     return shell(
       <>
-        <h1 className="mt-2 text-xl font-bold text-emerald-700">✓ JourneyPort activated</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="mt-2 text-xl font-bold text-[var(--color-pink)]">✓ JourneyPort activated</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           Your JourneyPort <span className="font-mono">{device.publicDeviceId}</span> is now
           connected to your Journey identity{" "}
           <span className="font-mono">{device.user?.journeyIdentity?.publicId}</span>. Tap it at
           any Earthy Doing to record your participation.
         </p>
-        <Link href="/journey" className="mt-5 block rounded-lg bg-emerald-700 px-4 py-2.5 text-center font-semibold text-white hover:bg-emerald-800">
+        <Link href="/journey" className="mt-5 block rounded-lg bg-[var(--color-pink)] px-4 py-2.5 text-center font-semibold text-white hover:bg-[var(--color-pink-hover)]">
           View my Journey
         </Link>
       </>
@@ -178,11 +178,11 @@ export default async function TapPage({
 
   return shell(
     <>
-      <h1 className="mt-2 text-xl font-bold text-slate-900">
+      <h1 className="mt-2 text-xl font-bold text-[var(--color-text)]">
         Hi, {user.displayName.split(" ")[0]} 👋
       </h1>
       {sp.error && (
-        <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="mt-2 rounded-lg bg-[var(--color-plum-soft)] px-3 py-2 text-sm text-[var(--color-plum)]">
           {sp.error === "EVENT_FULL"
             ? "This Earthy Doing has reached capacity."
             : sp.error === "EVENT_NOT_ACTIVE"
@@ -191,7 +191,7 @@ export default async function TapPage({
         </p>
       )}
       {participated && (
-        <div className="mt-3 rounded-lg bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+        <div className="mt-3 rounded-lg bg-[var(--color-mint-soft)] px-3 py-3 text-sm text-[var(--color-pink-ink)]">
           <p className="font-semibold">✓ Participation recorded</p>
           <p className="mt-1">
             {participated.title} — your participation is now awaiting partner
@@ -199,7 +199,7 @@ export default async function TapPage({
           </p>
         </div>
       )}
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
         {activeDoings.length > 0
           ? "Select the Earthy Doing you are participating in right now:"
           : "There are no Earthy Doings happening right now."}
@@ -208,11 +208,11 @@ export default async function TapPage({
         {activeDoings.map((d) => {
           const participate = tapParticipateAction.bind(null, token, d.id);
           return (
-            <form key={d.id} action={participate} className="rounded-xl border border-slate-200 p-4">
+            <form key={d.id} action={participate} className="rounded-xl border border-[var(--color-divider)] p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-slate-900">{d.title}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-semibold text-[var(--color-text)]">{d.title}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     {d.partner.name}
                     {d.location ? ` · ${d.location.name}` : ""}
                   </p>
@@ -223,14 +223,14 @@ export default async function TapPage({
                   <DimensionBadge key={c.id} dimension={c.dimension} />
                 ))}
               </div>
-              <button className="mt-3 w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+              <button className="mt-3 w-full rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]">
                 Tap in — I&apos;m here
               </button>
             </form>
           );
         })}
       </div>
-      <Link href="/journey" className="mt-6 block text-center text-sm font-medium text-emerald-700 hover:underline">
+      <Link href="/journey" className="mt-6 block text-center text-sm font-medium text-[var(--color-pink)] hover:underline">
         View my Journey →
       </Link>
     </>

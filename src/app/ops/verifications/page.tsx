@@ -32,7 +32,7 @@ export default async function OpsVerifications({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-slate-900">Verification Control Center</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-text)]">Verification Control Center</h1>
       <div className="flex flex-wrap gap-2">
         {QUEUES.map((q) => (
           <Link
@@ -40,8 +40,8 @@ export default async function OpsVerifications({
             href={`/ops/verifications?queue=${q}`}
             className={`rounded-lg border px-3 py-1.5 text-sm font-semibold ${
               q === queue
-                ? "border-emerald-700 bg-emerald-700 text-white"
-                : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+                ? "border-[var(--color-pink)] bg-[var(--color-pink)] text-white"
+                : "border-[var(--color-warmgray)] bg-white text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-alt)]"
             }`}
           >
             {q.replace(/_/g, " ").toUpperCase()} ({counts[q]})
@@ -50,18 +50,18 @@ export default async function OpsVerifications({
       </div>
       <div className="space-y-3">
         {verifications.length === 0 && (
-          <p className="text-sm text-slate-500">No verifications in this queue.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No verifications in this queue.</p>
         )}
         {verifications.map((v) => (
           <Link
             key={v.id}
             href={`/ops/verifications/${v.id}`}
-            className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-emerald-300"
+            className="block rounded-xl border border-[var(--color-divider)] bg-white p-4 shadow-sm hover:border-[var(--color-mint)]"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="font-medium text-slate-900">{v.participation.earthyDoing.title}</p>
-                <p className="text-xs text-slate-500">
+                <p className="font-medium text-[var(--color-text)]">{v.participation.earthyDoing.title}</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">
                   {v.participation.user.displayName} ·{" "}
                   <span className="font-mono">{v.participation.user.journeyIdentity?.publicId}</span> ·{" "}
                   {v.participation.earthyDoing.partner.name} · {v.createdAt.toLocaleString()}
@@ -69,7 +69,7 @@ export default async function OpsVerifications({
               </div>
               <div className="flex items-center gap-2">
                 {v.aimAssessment && (
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-[var(--color-warmgray)]">
                     AIM {v.aimAssessment.assessmentResult} ({((v.aimAssessment.confidence ?? 0) * 100).toFixed(0)}%)
                   </span>
                 )}
