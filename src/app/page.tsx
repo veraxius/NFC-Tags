@@ -70,7 +70,7 @@ export default async function Home() {
               priority
               className="-my-2 h-10 w-10"
             />
-            <span className="text-[17px] font-medium tracking-tight text-[var(--color-text)]">
+            <span className="wordmark text-[23px] leading-none text-[var(--color-text)]">
               Beaurity
             </span>
           </Link>
@@ -267,7 +267,7 @@ export default async function Home() {
               height={512}
               className="h-6 w-6"
             />
-            <span className="text-[14px] font-medium tracking-tight text-[var(--color-text)]">
+            <span className="wordmark text-[17px] leading-none text-[var(--color-text)]">
               Beaurity
             </span>
           </div>

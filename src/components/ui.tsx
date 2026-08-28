@@ -163,7 +163,7 @@ export function NavBar({
             height={512}
             className="-my-2 h-9 w-9"
           />
-          <span className="text-[16px] font-medium tracking-tight text-[var(--color-text)]">
+          <span className="wordmark text-[20px] leading-none text-[var(--color-text)]">
             Beaurity
           </span>
           <span className="hidden h-4 w-px bg-[var(--color-divider)] sm:block" />
