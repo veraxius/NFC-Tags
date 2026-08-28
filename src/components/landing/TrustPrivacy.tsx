@@ -5,10 +5,10 @@ import { Reveal } from "@/components/Reveal";
 // before the page returns to light for the closing invitation.
 const PRINCIPLES = [
   { title: "Consent", body: "You should understand when and why your information is being used." },
-  { title: "Transparency", body: "Verification should be explainable." },
+  { title: "Transparency", body: "You should always be able to see why something was verified." },
   { title: "Control", body: "Your Journey belongs to you." },
-  { title: "Privacy", body: "Organizations should only access what's necessary for participation and verification." },
-  { title: "Accountability", body: "Verified actions should have evidence behind them." },
+  { title: "Privacy", body: "Organizations only see what they need to confirm you were there — nothing more." },
+  { title: "Accountability", body: "Every verified action carries its own evidence — nothing verified on faith alone." },
   { title: "Challenge", body: "Incorrect information should be correctable, and disputed evidence reviewable." },
 ] as const;
 
@@ -37,11 +37,11 @@ export function TrustPrivacy() {
           <div className="mx-auto mt-9 max-w-xl space-y-3 text-[15.5px] leading-[1.7] text-white/70">
             <p>EarthyDoing is built around a simple principle: trust should never require blind faith.</p>
             <p>
-              JourneyPort helps establish that an activity occurred.
-              Participating organizations provide confirmation. Evidence
-              creates signals. Beaurity&apos;s AIM Trust Layer evaluates the
-              credibility of those signals — the result is an explainable
-              record behind a verified EarthyDoing.
+              A tap tells us you were there. The organization tells us what
+              happened. And quietly, behind the scenes, Beaurity&apos;s AIM
+              Trust Layer checks that it all adds up — so every verified
+              EarthyDoing comes with a story you can trust, not just a
+              checkmark.
             </p>
           </div>
         </Reveal>

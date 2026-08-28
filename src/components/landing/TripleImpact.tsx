@@ -72,8 +72,8 @@ export function TripleImpact() {
         </Reveal>
         <Reveal delay={140}>
           <p className="mx-auto mt-5 max-w-xl text-[17px] leading-[1.6] text-[var(--color-text-secondary)]">
-            Real sustainability starts with people. EarthyDoing examines
-            positive action across three interconnected dimensions of impact.
+            Real sustainability starts with people. EarthyDoing looks at
+            every positive action through three connected lenses.
           </p>
         </Reveal>
 

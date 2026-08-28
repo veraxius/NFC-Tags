@@ -52,8 +52,8 @@ export function MeetJourneyPort() {
 
           <Reveal delay={200}>
             <p className="mt-8 max-w-md text-[16px] leading-[1.65] text-[var(--color-text-secondary)]">
-              JourneyPort™ is a simple NFC-enabled bracelet that connects you
-              to the EarthyDoing ecosystem. No searching. No paper forms. No
+              JourneyPort™ is a simple bracelet that connects you to
+              everything you do. No searching. No paper forms. No
               complicated check-in process.
             </p>
           </Reveal>

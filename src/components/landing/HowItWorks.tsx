@@ -21,8 +21,8 @@ const STEPS = [
   {
     n: "03",
     label: "Verify",
-    title: "Evidence and confirmation create a trusted record.",
-    body: "Beaurity's AIM Trust Layer evaluates the credibility of that evidence, so verification stays explainable and accountable.",
+    title: "What happened gets confirmed — not just claimed.",
+    body: "Beaurity's AIM Trust Layer quietly checks that everything lines up, so every verified moment is one you can stand behind.",
     color: "var(--color-teal)",
   },
   {

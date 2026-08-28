@@ -52,8 +52,8 @@ export function Hero() {
       <Reveal delay={260}>
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-[1.6] text-[var(--color-text-secondary)]">
           With Beaurity JourneyPort™, meaningful actions become part of a
-          trusted record of what you actually did — verified by evidence of
-          participation and the organizations that made it possible.
+          trusted record of what you actually did — confirmed by the people
+          and organizations who were there with you.
         </p>
       </Reveal>
 

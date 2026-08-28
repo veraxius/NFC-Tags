@@ -7,10 +7,10 @@ const BENEFITS = [
   { title: "Verify Participation", body: "Create stronger evidence that activities actually happened." },
   { title: "Measure Engagement", body: "Understand how people participate across initiatives." },
   { title: "Recognize Contributors", body: "Give volunteers and participants meaningful recognition they can carry with them." },
-  { title: "Demonstrate Impact", body: "Transform activity into clearer evidence for partners, stakeholders, donors, and communities." },
-  { title: "Strengthen Reporting", body: "Build better participation records for impact reporting, grants, partnerships, and sustainability initiatives." },
+  { title: "Demonstrate Impact", body: "Turn everyday activity into a story your partners, donors, and community can see clearly." },
+  { title: "Strengthen Reporting", body: "Give your reporting, grants, and partnerships the kind of records that hold up." },
   { title: "Increase Re-engagement", body: "Give people a reason to return, participate again, and continue their Journey." },
-  { title: "Build Trust", body: "Create an explainable evidence trail behind participation and impact." },
+  { title: "Build Trust", body: "Make sure there's always a clear, honest trail behind every bit of impact you claim." },
 ] as const;
 
 // Placeholder — the client will provide the real intake channel for

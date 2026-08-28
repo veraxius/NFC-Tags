@@ -3,12 +3,12 @@ import { Reveal } from "@/components/Reveal";
 // 07 — YOUR JOURNEY. A deliberately calm beat after the busier timeline —
 // a simple, evenly-spaced grid. The pause the client asked for.
 const ITEMS = [
-  { title: "EarthyDoings Completed", body: "The meaningful actions you participated in." },
-  { title: "Verified Participation", body: "Evidence confirming your involvement." },
-  { title: "Time Contributed", body: "The time you dedicated to meaningful activities." },
-  { title: "Organizations Supported", body: "The communities and causes you helped." },
-  { title: "Triple Impact", body: "How your actions contributed to Self, People, and Planet." },
-  { title: "Milestones", body: "Recognition for sustained participation and meaningful contribution." },
+  { title: "What you've done", body: "Every meaningful action you've taken, gathered in one place." },
+  { title: "Confirmed, not just claimed", body: "Each moment backed by real confirmation — not only your word for it." },
+  { title: "Time you've given", body: "Every hour you've shown up for something that mattered." },
+  { title: "Who you've helped", body: "The communities and causes that felt your support." },
+  { title: "Triple Impact", body: "How your actions touched Self, People, and Planet." },
+  { title: "Milestones", body: "The moments worth celebrating along the way." },
 ] as const;
 
 export function YourJourney() {
