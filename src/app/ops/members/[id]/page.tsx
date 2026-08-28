@@ -124,7 +124,7 @@ export default async function MemberDetail({
 
       {tab === "profile" && (
         <Card title="Profile">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <dt className="text-[var(--color-text-secondary)]">Journey ID</dt>
             <dd className="font-mono">{member.journeyIdentity?.publicId ?? "—"}</dd>
             <dt className="text-[var(--color-text-secondary)]">Email</dt>
@@ -180,7 +180,7 @@ export default async function MemberDetail({
             ) : (
               <ul className="divide-y divide-black/[0.05] text-sm">
                 {participations.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between py-2">
+                  <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                     <span>
                       {p.earthyDoing.title}
                       <span className="ml-2 font-mono text-xs text-[var(--color-text-secondary)]">{p.publicId}</span>
@@ -257,7 +257,7 @@ export default async function MemberDetail({
             {member.privacyPreferences.length === 0 ? (
               <p className="text-sm text-[var(--color-text-secondary)]">Defaults in effect.</p>
             ) : (
-              <dl className="grid grid-cols-2 gap-2 text-sm">
+              <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
                 {member.privacyPreferences.map((p) => (
                   <div key={p.id} className="contents">
                     <dt className="text-[var(--color-text-secondary)]">{p.key}</dt>

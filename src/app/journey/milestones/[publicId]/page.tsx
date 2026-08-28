@@ -77,7 +77,7 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
           Details
         </h2>
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
           <dt className="text-[var(--color-text-secondary)]">Organization</dt>
           <dd className="font-medium">{partnerName}</dd>
           <dt className="text-[var(--color-text-secondary)]">You showed up</dt>

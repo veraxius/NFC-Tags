@@ -55,7 +55,7 @@ export default async function OpsSystem() {
       </Card>
 
       <Card title="AIM Trust Layer configuration">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <dt className="text-[var(--color-text-secondary)]">Config version</dt>
           <dd className="font-mono">{CONFIG_VERSION}</dd>
           <dt className="text-[var(--color-text-secondary)]">Model version</dt>

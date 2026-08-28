@@ -82,7 +82,7 @@ export default async function JourneyTimeline() {
               className="p-5"
             >
               <p className="text-xs font-medium text-[var(--color-warmgray-ink)]">{fmt(m.earnedAt)}</p>
-              <div className="mt-1 flex items-center justify-between gap-3">
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-[var(--color-text)]">{m.earthyDoing.title}</h3>
                 <StatusPill status={m.status} />
               </div>

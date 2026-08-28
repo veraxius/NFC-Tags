@@ -28,7 +28,7 @@ export default async function NewDoing() {
             <label className={labelClass}>Tell people what to expect</label>
             <textarea name="description" rows={3} className={inputClass} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Category</label>
               <select name="category" className={inputClass}>
@@ -44,7 +44,7 @@ export default async function NewDoing() {
               <input name="capacity" type="number" min={1} className={inputClass} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Starts</label>
               <input

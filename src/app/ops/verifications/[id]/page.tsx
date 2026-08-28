@@ -110,22 +110,24 @@ export default async function VerificationDetail({ params }: { params: Promise<{
             </div>
             {aimExplanation?.summary && <p className="mt-2 text-[var(--color-text-secondary)]">{aimExplanation.summary}</p>}
             {aimExplanation?.factors && (
-              <table className="mt-3 w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[var(--color-warmgray)]">
-                    <th className="py-1">Signal</th><th>Present</th><th>Weight</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {aimExplanation.factors.map((f) => (
-                    <tr key={f.signal} className="border-t border-[var(--color-divider)]">
-                      <td className="py-1">{f.signal}</td>
-                      <td>{f.present ? "✓" : "✗"}</td>
-                      <td>{f.weight}</td>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[280px] text-xs">
+                  <thead>
+                    <tr className="text-left text-[var(--color-warmgray)]">
+                      <th className="py-1">Signal</th><th>Present</th><th>Weight</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {aimExplanation.factors.map((f) => (
+                      <tr key={f.signal} className="border-t border-[var(--color-divider)]">
+                        <td className="py-1">{f.signal}</td>
+                        <td>{f.present ? "✓" : "✗"}</td>
+                        <td>{f.weight}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         ) : (

@@ -69,7 +69,7 @@ export default async function PrivacyPage() {
             return (
               <div
                 key={type}
-                className="flex items-center justify-between gap-3 border-b border-[var(--color-divider)] pb-3 last:border-0 last:pb-0"
+                className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-divider)] pb-3 last:border-0 last:pb-0"
               >
                 <p className="text-sm font-medium text-[var(--color-text)]">{CONSENT_LABELS[type]}</p>
                 <form action={toggle}>

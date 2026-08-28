@@ -53,7 +53,7 @@ export default function RegisterPage() {
           Record. Verify. Grow. — Beaurity JourneyPort™
         </p>
         <form onSubmit={submit} className="mt-8 space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>First name</label>
               <input name="firstName" required className={inputClass} />

@@ -58,7 +58,7 @@ export default async function PartnerOverview() {
         ) : (
           <ul className="divide-y divide-[var(--color-divider)] text-sm">
             {awaitingCompletion.map((p) => (
-              <li key={p.id} className="flex items-center justify-between py-2.5">
+              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                 <div>
                   <span className="font-medium">{p.user.displayName}</span>
                   <span className="ml-2 text-[var(--color-text-secondary)]">· {p.earthyDoing.title}</span>
