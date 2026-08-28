@@ -1,0 +1,81 @@
+import { Reveal } from "@/components/Reveal";
+
+// 08 — FOR ORGANIZATIONS. The audience shifts from individual to
+// institution, so the section itself shifts — a warm tinted ground marks
+// the change before a single word is read.
+const BENEFITS = [
+  { title: "Verify Participation", body: "Create stronger evidence that activities actually happened." },
+  { title: "Measure Engagement", body: "Understand how people participate across initiatives." },
+  { title: "Recognize Contributors", body: "Give volunteers and participants meaningful recognition they can carry with them." },
+  { title: "Demonstrate Impact", body: "Transform activity into clearer evidence for partners, stakeholders, donors, and communities." },
+  { title: "Strengthen Reporting", body: "Build better participation records for impact reporting, grants, partnerships, and sustainability initiatives." },
+  { title: "Increase Re-engagement", body: "Give people a reason to return, participate again, and continue their Journey." },
+  { title: "Build Trust", body: "Create an explainable evidence trail behind participation and impact." },
+] as const;
+
+// Placeholder — the client will provide the real intake channel for
+// organization inquiries; wire this to it before launch.
+const PARTNER_CONTACT = "mailto:hello@beaurity.com?subject=Bringing%20EarthyDoing%20to%20our%20organization";
+
+export function ForOrganizations() {
+  return (
+    <section
+      id="organizations"
+      className="px-6 py-24 sm:py-32"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,209,179,0.16), rgba(255,209,179,0.04) 60%, transparent)",
+      }}
+    >
+      <div className="mx-auto max-w-5xl">
+        <div className="text-center">
+          <Reveal>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[var(--color-peach-ink)]">
+              For organizations
+            </p>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="wordmark mx-auto mt-3 max-w-2xl text-[34px] leading-[1.12] tracking-[-0.015em] text-[var(--color-text)] sm:text-[46px]">
+              Turn participation into evidence.
+            </h2>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="mx-auto mt-5 max-w-xl text-[17px] leading-[1.6] text-[var(--color-text-secondary)]">
+              You already create impact. EarthyDoing helps you make it
+              visible — for nonprofits, NGOs, schools, community
+              organizations, volunteer groups, foundations, and
+              purpose-driven organizations of every size.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="mt-14 grid gap-x-8 gap-y-8 sm:grid-cols-2">
+          {BENEFITS.map((b, i) => (
+            <Reveal key={b.title} delay={i * 60}>
+              <div className="flex gap-3">
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--color-peach)]" />
+                <div>
+                  <h3 className="text-[16px] font-semibold text-[var(--color-text)]">{b.title}</h3>
+                  <p className="mt-1 text-[14.5px] leading-[1.55] text-[var(--color-text-secondary)]">
+                    {b.body}
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={220}>
+          <div className="mt-16 text-center">
+            <p className="wordmark text-[19px] text-[var(--color-text)]">
+              You create the impact. EarthyDoing helps you prove it.
+            </p>
+            <a href={PARTNER_CONTACT} className="btn-primary mt-6 inline-flex">
+              Bring EarthyDoings to your organization
+            </a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
