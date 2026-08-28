@@ -154,16 +154,16 @@ export function NavBar({
 
   return (
     <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-6 py-3">
-        <Link href="/" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+        <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <Image
             src="/beaurity-imagen.png"
             alt="Beaurity"
             width={512}
             height={512}
-            className="-my-2 h-9 w-9"
+            className="-my-2 h-8 w-8 sm:h-9 sm:w-9"
           />
-          <span className="wordmark text-[20px] leading-none text-[var(--color-text)]">
+          <span className="wordmark whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] sm:text-[20px]">
             Beaurity
           </span>
           <span className="hidden h-4 w-px bg-[var(--color-divider)] sm:block" />
@@ -182,9 +182,9 @@ export function NavBar({
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3 text-[13px] text-[var(--color-text-secondary)]">
+        <div className="ml-auto flex shrink-0 items-center gap-3 text-[13px] text-[var(--color-text-secondary)]">
           <form action={logoutAction}>
-            <button className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
+            <button className="whitespace-nowrap rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
               Sign out
             </button>
           </form>

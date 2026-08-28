@@ -60,17 +60,17 @@ export default async function Home() {
     <main>
       {/* Nav */}
       <header className="glass-nav sticky top-0 z-50">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
-          <Link href="/" className="flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+          <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
             <Image
               src="/beaurity-imagen.png"
               alt="Beaurity"
               width={512}
               height={512}
               priority
-              className="-my-2 h-10 w-10"
+              className="-my-2 h-8 w-8 sm:h-10 sm:w-10"
             />
-            <span className="wordmark text-[23px] leading-none text-[var(--color-text)]">
+            <span className="wordmark whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] sm:text-[23px]">
               Beaurity
             </span>
           </Link>
@@ -78,11 +78,11 @@ export default async function Home() {
             <a href="#impact" className="transition-colors hover:text-[var(--color-pink)]">Triple Impact</a>
             <a href="#how" className="transition-colors hover:text-[var(--color-pink)]">How it works</a>
           </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/login" className="btn-secondary !py-2 !text-[13px]">
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <Link href="/login" className="btn-secondary !py-2 !px-2 !text-[13px] sm:!px-3">
               Sign in
             </Link>
-            <Link href="/register" className="btn-primary !px-4 !py-2 !text-[13px]">
+            <Link href="/register" className="btn-primary !px-3 !py-2 !text-[13px] sm:!px-4">
               Start your Journey
             </Link>
           </div>
