@@ -4,23 +4,23 @@ import { Reveal } from "@/components/Reveal";
 
 // 01 — HERO. The visitor's first breath. The client's finished banner
 // graphic already carries the headline, the SELF/PEOPLE/PLANET mark and
-// the tagline — so it runs full-bleed, edge to edge, as the very first
-// thing on the page. The text below it stays deliberately shorter than
-// before: only what the image doesn't already say, plus the real,
-// clickable CTAs an image can't provide.
+// the tagline. It sits with a small margin from the edges and rounded
+// corners, like every other image on the page. The text below it stays
+// deliberately shorter than before: only what the image doesn't already
+// say, plus the real, clickable CTAs an image can't provide.
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pb-24 text-center">
+    <section className="relative overflow-hidden pb-24 pt-8 text-center">
       <Reveal>
-        <div className="relative w-full">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Image
             src="/hero-verified-impact.png"
             alt="Turn Good Intentions Into Verified Impact. EarthyDoing makes every meaningful action count — Self, People, Planet."
             width={1536}
             height={1024}
             priority
-            sizes="100vw"
-            className="h-auto w-full"
+            sizes="(min-width: 1280px) 1152px, 100vw"
+            className="h-auto w-full rounded-[28px]"
           />
         </div>
       </Reveal>
