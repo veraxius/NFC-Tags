@@ -11,6 +11,7 @@ import { YourJourney } from "@/components/landing/YourJourney";
 import { ForOrganizations } from "@/components/landing/ForOrganizations";
 import { TrustPrivacy } from "@/components/landing/TrustPrivacy";
 import { StartCta } from "@/components/landing/StartCta";
+import { BottomBanner } from "@/components/landing/BottomBanner";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 
 // Homepage — content framework "Beaurity EarthyDoing™ Website V2".
@@ -37,6 +38,7 @@ export default async function Home() {
       <ForOrganizations /> {/* 08 — VALUE, for institutions */}
       <TrustPrivacy /> {/* 09 — TECHNOLOGY + TRUST */}
       <StartCta /> {/* 10 — ACTION */}
+      <BottomBanner />
       <SiteFooter />
     </main>
   );

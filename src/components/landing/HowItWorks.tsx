@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 06 — HOW IT WORKS. A vertical journey path — the strongest literal
@@ -49,6 +50,17 @@ export function HowItWorks() {
           </h2>
         </Reveal>
       </div>
+
+      <Reveal delay={140}>
+        <Image
+          src="/how-it-works-tap.png"
+          alt="Tap your Beaurity JourneyPort bracelet to record your action — every action counts, verified on your dashboard."
+          width={1536}
+          height={1024}
+          sizes="(min-width: 1024px) 900px, 100vw"
+          className="mx-auto mt-14 h-auto w-full max-w-4xl rounded-[28px]"
+        />
+      </Reveal>
 
       <div className="relative mx-auto mt-16 max-w-3xl">
         <div

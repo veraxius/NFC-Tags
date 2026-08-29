@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 08 — FOR ORGANIZATIONS. The audience shifts from individual to
@@ -48,6 +49,17 @@ export function ForOrganizations() {
             </p>
           </Reveal>
         </div>
+
+        <Reveal delay={200}>
+          <Image
+            src="/for-organizations-field.png"
+            alt="Beaurity EarthyDoing volunteers using the JourneyPort app in the field, recording a verified Tree Planting EarthyDoing."
+            width={1536}
+            height={1024}
+            sizes="(min-width: 1024px) 900px, 100vw"
+            className="mx-auto mt-14 h-auto w-full max-w-4xl rounded-[28px]"
+          />
+        </Reveal>
 
         <div className="mt-14 grid gap-x-8 gap-y-8 sm:grid-cols-2">
           {BENEFITS.map((b, i) => (

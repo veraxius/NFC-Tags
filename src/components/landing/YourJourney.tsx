@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 07 — YOUR JOURNEY. A deliberately calm beat after the busier timeline —
@@ -30,6 +31,17 @@ export function YourJourney() {
             Positive actions should not disappear when an event ends. Your
             Journey brings them together.
           </p>
+        </Reveal>
+
+        <Reveal delay={200}>
+          <Image
+            src="/your-journey-dashboard.png"
+            alt="The Beaurity JourneyPort dashboard showing Impact Score, verified EarthyDoing activity, and impact across Self, People, and Planet."
+            width={1536}
+            height={1024}
+            sizes="(min-width: 1024px) 900px, 100vw"
+            className="mx-auto mt-14 h-auto w-full max-w-4xl rounded-[28px]"
+          />
         </Reveal>
 
         <div className="mt-14 grid gap-x-8 gap-y-10 text-left sm:grid-cols-2 lg:grid-cols-3">

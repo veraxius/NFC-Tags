@@ -1,31 +1,13 @@
+import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 02 — WHAT IS AN EARTHYDOING? Asymmetric two-column beat: the definition
-// on the left, a loose, hand-scattered collage of real examples on the
-// right — texture instead of another paragraph.
-const EXAMPLES = [
-  { text: "Volunteering at a food bank", tint: "peach" },
-  { text: "Mentoring a student", tint: "pink" },
-  { text: "Cleaning a beach", tint: "mint" },
-  { text: "Planting trees", tint: "mint" },
-  { text: "Learning CPR", tint: "pink" },
-  { text: "Supporting a neighbor", tint: "peach" },
-  { text: "Restoring a habitat", tint: "mint" },
-  { text: "Teaching someone a skill", tint: "pink" },
-] as const;
-
-const TINT_CLASS: Record<string, string> = {
-  pink: "border-[var(--color-pink)]/25 bg-[var(--color-pink-soft)] text-[var(--color-pink-ink)]",
-  peach: "border-[var(--color-peach)]/50 bg-[var(--color-peach-soft)] text-[var(--color-peach-ink)]",
-  mint: "border-[var(--color-mint)]/50 bg-[var(--color-mint-soft)] text-[var(--color-mint-ink)]",
-};
-
-const ROTATE = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "rotate-1", "-rotate-2", "rotate-2", "-rotate-1"];
-
+// on the left, the client's real photo grid of examples on the right —
+// texture instead of another paragraph.
 export function WhatIsEarthyDoing() {
   return (
     <section id="what" className="px-6 py-24 sm:py-32">
-      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-10">
+      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-10">
         <div>
           <Reveal>
             <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[var(--color-pink)]">
@@ -62,17 +44,16 @@ export function WhatIsEarthyDoing() {
           </Reveal>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {EXAMPLES.map((e, i) => (
-            <Reveal key={e.text} delay={i * 60} className={i % 3 === 1 ? "sm:translate-y-4" : ""}>
-              <div
-                className={`rounded-2xl border px-4 py-4 text-[14px] font-medium leading-snug ${TINT_CLASS[e.tint]} ${ROTATE[i % ROTATE.length]} transition-transform hover:rotate-0`}
-              >
-                {e.text}
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal delay={120}>
+          <Image
+            src="/what-is-earthydoing.png"
+            alt="Eight examples of an EarthyDoing: volunteering at a food bank, mentoring a student, cleaning a beach, planting trees, learning CPR, restoring a habitat, supporting a neighbor, teaching someone a skill."
+            width={1536}
+            height={1024}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="h-auto w-full rounded-[28px]"
+          />
+        </Reveal>
       </div>
     </section>
   );

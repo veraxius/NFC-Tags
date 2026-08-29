@@ -2,32 +2,20 @@ import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 05 — MEET JOURNEYPORT. A quieter, more intimate beat: one strong
-// pull-quote instead of a paragraph wall, and a simple badge-style mark
-// standing in for the bracelet until real product photography lands.
+// pull-quote instead of a paragraph wall, next to the real product photo.
 export function MeetJourneyPort() {
   return (
     <section className="px-6 py-24 sm:py-32">
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
         <Reveal>
-          <div className="mx-auto flex aspect-square w-full max-w-sm items-center justify-center">
-            <div
-              className="flex h-56 w-56 items-center justify-center rounded-full sm:h-72 sm:w-72"
-              style={{
-                background:
-                  "radial-gradient(circle at 35% 30%, rgba(230,0,126,0.14), rgba(142,215,198,0.18) 55%, transparent 75%)",
-              }}
-            >
-              <div className="glass flex h-32 w-32 items-center justify-center rounded-full p-6 sm:h-40 sm:w-40">
-                <Image
-                  src="/beaurity-imagen.png"
-                  alt="JourneyPort"
-                  width={512}
-                  height={512}
-                  className="h-full w-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
+          <Image
+            src="/journeyport-bracelet.png"
+            alt="The Beaurity JourneyPort bracelet — your action, verified impact. Self, People, Planet."
+            width={1536}
+            height={1024}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="h-auto w-full rounded-[28px]"
+          />
         </Reveal>
 
         <div>

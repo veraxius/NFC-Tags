@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
 
 // 03 — SEE EARTHYDOINGS IN ACTION. Full-width gallery beat — a deliberate
@@ -63,6 +64,17 @@ export function InAction() {
             </h2>
           </Reveal>
         </div>
+
+        <Reveal delay={120}>
+          <Image
+            src="/in-action-hub.png"
+            alt="Six ways impact happens: Restore (Beach Cleanup), Grow (Mentoring a Student), Support (Community Food Bank), Learn (Sustainability Workshop), Protect (Habitat Restoration), Connect (Community Service)."
+            width={1536}
+            height={1024}
+            sizes="100vw"
+            className="mx-auto mt-14 h-auto w-full max-w-4xl rounded-[28px]"
+          />
+        </Reveal>
 
         <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {ITEMS.map((item, i) => (
