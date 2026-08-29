@@ -12,14 +12,14 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden pb-24 pt-2 text-center">
       <Reveal>
-        <div className="mx-auto max-w-[1400px] px-2 sm:px-3">
+        <div className="mx-auto max-w-none px-1 sm:px-2">
           <Image
             src="/hero-verified-impact.png"
             alt="Turn Good Intentions Into Verified Impact. EarthyDoing makes every meaningful action count — Self, People, Planet."
             width={1536}
             height={1024}
             priority
-            sizes="(min-width: 1280px) 1152px, 100vw"
+            sizes="100vw"
             className="h-auto w-full rounded-[28px]"
           />
         </div>
