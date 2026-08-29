@@ -10,7 +10,7 @@ import { Reveal } from "@/components/Reveal";
 // say, plus the real, clickable CTAs an image can't provide.
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pb-24 pt-8 text-center">
+    <section className="relative overflow-hidden pb-24 pt-2 text-center">
       <Reveal>
         <div className="mx-auto max-w-[1400px] px-2 sm:px-3">
           <Image
