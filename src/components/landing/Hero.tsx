@@ -55,10 +55,16 @@ export function Hero() {
 
         <Reveal delay={260}>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/register" className="btn-primary">
+            <Link
+              href="/register"
+              className="btn-primary transition-transform duration-200 ease-out hover:scale-[1.04]"
+            >
               Start your Journey
             </Link>
-            <a href="#organizations" className="btn-secondary">
+            <a
+              href="#organizations"
+              className="btn-secondary transition-transform duration-200 ease-out hover:scale-[1.04]"
+            >
               Bring EarthyDoings to your organization
             </a>
           </div>

@@ -82,7 +82,10 @@ export function ForOrganizations() {
             <p className="wordmark text-[19px] text-[var(--color-text)]">
               You create the impact. EarthyDoing helps you prove it.
             </p>
-            <a href={PARTNER_CONTACT} className="btn-primary mt-6 inline-flex">
+            <a
+              href={PARTNER_CONTACT}
+              className="btn-primary mt-6 inline-flex transition-transform duration-200 ease-out hover:scale-[1.04]"
+            >
               Bring EarthyDoings to your organization
             </a>
           </div>

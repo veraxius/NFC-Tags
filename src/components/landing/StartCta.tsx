@@ -53,35 +53,59 @@ export function StartCta() {
 
       <div className="mx-auto mt-16 grid max-w-4xl gap-5 sm:grid-cols-2">
         <Reveal delay={280}>
-          <div className="glass h-full p-8 text-center">
-            <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--color-pink)]">
+          <div
+            className="glass h-full p-8 text-center"
+            style={{
+              background: "linear-gradient(160deg, #241033 0%, #1a0c26 55%, #150920 100%)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              backdropFilter: "none",
+              WebkitBackdropFilter: "none",
+            }}
+          >
+            <p className="text-[12px] font-semibold uppercase tracking-wide" style={{ color: "var(--color-mint)" }}>
               For individuals
             </p>
-            <h3 className="wordmark mt-2 text-[21px] text-[var(--color-text)]">
+            <h3 className="wordmark mt-2 text-[21px] text-white">
               Start building your Journey.
             </h3>
-            <p className="mt-2 text-[14px] leading-[1.55] text-[var(--color-text-secondary)]">
+            <p className="mt-2 text-[14px] leading-[1.55] text-white/70">
               Create your Journey identity and begin turning meaningful
               actions into a trusted record of contribution.
             </p>
-            <Link href="/register" className="btn-primary mt-6 inline-flex">
+            <Link
+              href="/register"
+              className="btn-primary mt-6 inline-flex transition-transform duration-200 ease-out hover:scale-[1.04]"
+              style={{ background: "#fff", color: "#1a0c26" }}
+            >
               Start my Journey
             </Link>
           </div>
         </Reveal>
         <Reveal delay={340}>
-          <div className="glass h-full p-8 text-center">
-            <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--color-peach-ink)]">
+          <div
+            className="glass h-full p-8 text-center"
+            style={{
+              background: "linear-gradient(160deg, #241033 0%, #1a0c26 55%, #150920 100%)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              backdropFilter: "none",
+              WebkitBackdropFilter: "none",
+            }}
+          >
+            <p className="text-[12px] font-semibold uppercase tracking-wide" style={{ color: "var(--color-mint)" }}>
               For organizations
             </p>
-            <h3 className="wordmark mt-2 text-[21px] text-[var(--color-text)]">
+            <h3 className="wordmark mt-2 text-[21px] text-white">
               Turn your impact into trusted evidence.
             </h3>
-            <p className="mt-2 text-[14px] leading-[1.55] text-[var(--color-text-secondary)]">
+            <p className="mt-2 text-[14px] leading-[1.55] text-white/70">
               Bring EarthyDoing and JourneyPort to your volunteers, members,
               programs, events, and communities.
             </p>
-            <a href={PARTNER_CONTACT} className="btn-ghost mt-6 inline-flex">
+            <a
+              href={PARTNER_CONTACT}
+              className="btn-primary mt-6 inline-flex transition-transform duration-200 ease-out hover:scale-[1.04]"
+              style={{ background: "#fff", color: "#1a0c26" }}
+            >
               Become an EarthyDoing Partner
             </a>
           </div>
