@@ -52,6 +52,15 @@ function VennMotif() {
       <text x="72" y="70" fontSize="14" fontWeight="600" fill="var(--color-pink-ink)">Self</text>
       <text x="222" y="70" fontSize="14" fontWeight="600" fill="var(--color-mint-ink)">Planet</text>
       <text x="148" y="222" fontSize="14" fontWeight="600" fill="var(--color-peach-ink)">People</text>
+      <image
+        href="/trisilience-symbol.png"
+        x="128"
+        y="96"
+        width="64"
+        height="64"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ filter: "brightness(1.2) saturate(1.08)" }}
+      />
     </svg>
   );
 }

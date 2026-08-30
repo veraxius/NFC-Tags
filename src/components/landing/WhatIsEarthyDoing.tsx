@@ -46,8 +46,8 @@ export function WhatIsEarthyDoing() {
 
         <Reveal delay={120}>
           <Image
-            src="/what-is-earthydoing.png"
-            alt="Eight examples of an EarthyDoing: volunteering at a food bank, mentoring a student, cleaning a beach, planting trees, learning CPR, restoring a habitat, supporting a neighbor, teaching someone a skill."
+            src="/small-actions-add-up.png"
+            alt="Seven examples of an EarthyDoing: Restore (beach cleanup), Support (food bank), Grow (mentoring a student), Learn (sustainability workshop), Protect (planting trees), Connect (volunteering), and Every Action Counts."
             width={1536}
             height={1024}
             sizes="(min-width: 1024px) 50vw, 100vw"
