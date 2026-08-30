@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const NAV = [
+  { href: "#what", label: "EarthyDoing" },
   { href: "#what", label: "What it is" },
   { href: "#how", label: "How it works" },
   { href: "#organizations", label: "For organizations" },
@@ -41,7 +42,7 @@ export function SiteHeader() {
 
         <nav className="ml-2 hidden gap-6 text-[14px] text-[var(--color-text)]/75 lg:flex">
           {NAV.map((n) => (
-            <a key={n.href} href={n.href} className="transition-colors hover:text-[var(--color-pink)]">
+            <a key={n.label} href={n.href} className="transition-colors hover:text-[var(--color-pink)]">
               {n.label}
             </a>
           ))}
@@ -74,7 +75,7 @@ export function SiteHeader() {
         <div className="border-t border-[var(--color-divider)] px-4 py-4 sm:hidden">
           <nav className="flex flex-col gap-3 text-[15px] text-[var(--color-text)]">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href} onClick={() => setOpen(false)}>
+              <a key={n.label} href={n.href} onClick={() => setOpen(false)}>
                 {n.label}
               </a>
             ))}
