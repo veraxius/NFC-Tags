@@ -54,7 +54,7 @@ export function StartCta() {
       <div className="mx-auto mt-16 grid max-w-4xl gap-5 sm:grid-cols-2">
         <Reveal delay={280}>
           <div
-            className="glass h-full p-8 text-center"
+            className="glass flex h-full flex-col p-8 text-center"
             style={{
               background: "linear-gradient(160deg, #241033 0%, #1a0c26 55%, #150920 100%)",
               border: "1px solid rgba(255,255,255,0.12)",
@@ -66,7 +66,9 @@ export function StartCta() {
               For individuals
             </p>
             <h3 className="wordmark mt-2 text-[21px] text-white">
-              Start building your Journey.
+              Start building your Journey
+              <br />
+              today.
             </h3>
             <p className="mt-2 text-[14px] leading-[1.55] text-white/70">
               Create your Journey identity and begin turning meaningful
@@ -74,8 +76,7 @@ export function StartCta() {
             </p>
             <Link
               href="/register"
-              className="btn-primary mt-6 inline-flex transition-transform duration-200 ease-out hover:scale-[1.04]"
-              style={{ background: "#fff", color: "#1a0c26" }}
+              className="btn-primary mt-auto inline-flex self-center transition-transform duration-200 ease-out hover:scale-[1.04]"
             >
               Start my Journey
             </Link>
@@ -104,7 +105,6 @@ export function StartCta() {
             <a
               href={PARTNER_CONTACT}
               className="btn-primary mt-6 inline-flex transition-transform duration-200 ease-out hover:scale-[1.04]"
-              style={{ background: "#fff", color: "#1a0c26" }}
             >
               Become an EarthyDoing Partner
             </a>
