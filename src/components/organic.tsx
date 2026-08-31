@@ -140,6 +140,68 @@ export function OrganicCard({
   );
 }
 
+// ---------- Pie chart ----------
+// Hand-built SVG, no charting dependency — same approach as the Venn motif
+// on the public landing page (src/components/landing/TripleImpact.tsx).
+
+function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
+}
+
+export type PieSlice = { label: string; value: number; color: string };
+
+export function PieChart({ data, size = 160 }: { data: PieSlice[]; size?: number }) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  const r = size / 2;
+  let cursor = 0;
+  const slices = data
+    .filter((d) => d.value > 0)
+    .map((d) => {
+      const startAngle = (cursor / total) * 360;
+      cursor += d.value;
+      const endAngle = (cursor / total) * 360;
+      return { ...d, startAngle, endAngle };
+    });
+
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      {total === 0 ? (
+        <div
+          className="flex shrink-0 items-center justify-center rounded-full border border-dashed border-[var(--color-divider)] text-xs text-[var(--color-text-secondary)]"
+          style={{ width: size, height: size }}
+        >
+          No data yet
+        </div>
+      ) : (
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+          {slices.map((s) => (
+            <path key={s.label} d={arcPath(r, r, r, s.startAngle, s.endAngle)} fill={s.color} />
+          ))}
+        </svg>
+      )}
+      <ul className="space-y-1.5 text-sm">
+        {data.map((d) => (
+          <li key={d.label} className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: d.color }} />
+            <span className="text-[var(--color-text)]">{d.label}</span>
+            <span className="text-[var(--color-text-secondary)]">
+              {total > 0 ? `${Math.round((d.value / total) * 100)}%` : "0%"} ({d.value})
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // A warm section heading for member/partner pages — pairs with the wordmark
 // typeface so headlines feel like part of the same brand voice, while body
 // copy stays on the clean, highly-legible system font.

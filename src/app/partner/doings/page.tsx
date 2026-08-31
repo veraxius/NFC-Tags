@@ -39,23 +39,28 @@ export default async function PartnerDoings() {
       ) : (
         <div className="space-y-3">
           {doings.map((d) => (
-            <OrganicCard key={d.id} accentDimension={d.classifications[0]?.dimension} className="p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-[var(--color-text)]">{d.title}</p>
-                  <p className="text-xs text-[var(--color-text-secondary)]">{d.startAt.toLocaleDateString()}</p>
+            <Link key={d.id} href={`/partner/doings/${d.id}`} className="block">
+              <OrganicCard
+                accentDimension={d.classifications[0]?.dimension}
+                className="p-4 transition-shadow hover:shadow-[0_6px_24px_rgba(0,0,0,0.08)]"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[var(--color-text)]">{d.title}</p>
+                    <p className="text-xs text-[var(--color-text-secondary)]">{d.startAt.toLocaleDateString()}</p>
+                  </div>
+                  <StatusPill status={d.status} />
                 </div>
-                <StatusPill status={d.status} />
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {d.classifications.map((c) => (
-                  <DimensionBadge key={c.id} dimension={c.dimension} />
-                ))}
-              </div>
-              <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-                {d._count.participations} people showed up · {d._count.milestones} verified
-              </p>
-            </OrganicCard>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {d.classifications.map((c) => (
+                    <DimensionBadge key={c.id} dimension={c.dimension} />
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
+                  {d._count.participations} people showed up · {d._count.milestones} verified
+                </p>
+              </OrganicCard>
+            </Link>
           ))}
         </div>
       )}

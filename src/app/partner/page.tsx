@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
 import { Kpi, Card } from "@/components/ui";
 import { DIMENSION_LABELS } from "@/lib/dimensions";
-import { OrganicCard, Headline } from "@/components/organic";
+import { OrganicCard, Headline, PieChart, type PieSlice } from "@/components/organic";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +14,20 @@ export default async function PartnerOverview() {
   const user = await requireUser();
   const partner = await resolvePartnerFor(user);
 
-  const [doings, participations, pendingVerifications, verifiedCount, peopleGroups] = await Promise.all([
-    db.earthyDoing.count({ where: { partnerId: partner.id } }),
-    db.participation.count({ where: { partnerId: partner.id } }),
-    db.verification.count({ where: { partnerId: partner.id, status: { in: ["pending", "review"] } } }),
-    db.verification.count({ where: { partnerId: partner.id, status: "verified" } }),
-    db.participation.groupBy({ by: ["userId"], where: { partnerId: partner.id }, _count: true }),
-  ]);
+  const [doings, participations, pendingVerifications, verifiedCount, rejectedCount, peopleGroups, doingsWithCounts] =
+    await Promise.all([
+      db.earthyDoing.count({ where: { partnerId: partner.id } }),
+      db.participation.count({ where: { partnerId: partner.id } }),
+      db.verification.count({ where: { partnerId: partner.id, status: { in: ["pending", "review"] } } }),
+      db.verification.count({ where: { partnerId: partner.id, status: "verified" } }),
+      db.verification.count({ where: { partnerId: partner.id, status: { in: ["rejected", "disputed", "revoked"] } } }),
+      db.participation.groupBy({ by: ["userId"], where: { partnerId: partner.id }, _count: true }),
+      db.earthyDoing.findMany({
+        where: { partnerId: partner.id },
+        select: { id: true, title: true, _count: { select: { participations: true } } },
+        orderBy: { participations: { _count: "desc" } },
+      }),
+    ]);
 
   const awaitingCompletion = await db.participation.findMany({
     where: { partnerId: partner.id, status: { in: ["detected", "in_progress"] } },
@@ -59,6 +66,32 @@ export default async function PartnerOverview() {
       return u ? { id, name: u.displayName ?? `${u.firstName} ${u.lastName}`, count } : null;
     })
     .filter((x): x is { id: string; name: string; count: number } => x !== null);
+
+  const DOING_COLORS = [
+    "var(--color-pink)",
+    "var(--color-gold)",
+    "var(--color-plum)",
+    "var(--color-teal)",
+    "var(--color-mint)",
+    "var(--color-peach)",
+  ];
+  const sortedDoings = doingsWithCounts.filter((d) => d._count.participations > 0);
+  const topDoings = sortedDoings.slice(0, 6);
+  const otherDoingsTotal = sortedDoings.slice(6).reduce((s, d) => s + d._count.participations, 0);
+  const doingSlices: PieSlice[] = [
+    ...topDoings.map((d, i) => ({
+      label: d.title,
+      value: d._count.participations,
+      color: DOING_COLORS[i % DOING_COLORS.length],
+    })),
+    ...(otherDoingsTotal > 0 ? [{ label: "Other", value: otherDoingsTotal, color: "var(--color-warmgray)" }] : []),
+  ];
+
+  const performanceSlices: PieSlice[] = [
+    { label: "Verified", value: verifiedCount, color: "var(--color-mint)" },
+    { label: "Pending review", value: pendingVerifications, color: "var(--color-gold)" },
+    { label: "Rejected / disputed", value: rejectedCount, color: "var(--color-plum)" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -120,6 +153,15 @@ export default async function PartnerOverview() {
           <Link href="/partner/people" className="mt-3 block text-xs font-semibold text-[var(--color-pink)] hover:underline">
             See everyone →
           </Link>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card title="Participation by Earthy Doing">
+          <PieChart data={doingSlices} />
+        </Card>
+        <Card title="Overall performance">
+          <PieChart data={performanceSlices} />
         </Card>
       </div>
 
