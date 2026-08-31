@@ -159,8 +159,8 @@ export default async function PartnerOverview({
             Your impact, tracked and verified.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <form method="get">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <form method="get" className="flex flex-wrap items-center gap-2">
             <select
               name="period"
               defaultValue={period}
@@ -171,7 +171,7 @@ export default async function PartnerOverview({
               <option value="90">Last 90 days</option>
               <option value="365">Last 12 months</option>
             </select>
-            <button className="btn-primary ml-2 !px-4 !py-1.5 !text-[13px]">Apply</button>
+            <button className="btn-primary !px-4 !py-1.5 !text-[13px]">Apply</button>
           </form>
           <Link
             href="/partner/doings/new"
