@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { DimensionBadge } from "@/components/ui";
 import { OrganicCard, StatusPill, Headline, trustSummary } from "@/components/organic";
-import { openDisputeAction } from "@/lib/actions";
+import { openDisputeAction, shareReflectionAction } from "@/lib/actions";
 
 // TRS 50 — "VIEW VERIFICATION": explain the evidence behind a milestone in
 // language a person can actually read, without exposing internal fields.
@@ -29,6 +29,7 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
       verification: { include: { evidence: true, aimAssessment: true } },
       participation: true,
       disputes: true,
+      reflections: { orderBy: { createdAt: "desc" } },
     },
   });
   if (!m || m.userId !== user.id) notFound();
@@ -85,6 +86,44 @@ export default async function MilestoneDetail({ params }: { params: Promise<{ pu
           <dt className="text-[var(--color-text-secondary)]">Confirmed</dt>
           <dd className="font-medium">{m.verifiedAt ? m.verifiedAt.toLocaleString() : "Not yet"}</dd>
         </dl>
+      </OrganicCard>
+
+      <OrganicCard className="p-5">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          Something good to say?
+        </h2>
+        <p className="mb-3 text-sm text-[var(--color-text-secondary)]">
+          How did this one feel? Worth remembering, worth sharing.
+        </p>
+        {m.reflections.length > 0 && (
+          <ul className="mb-4 space-y-2.5">
+            {m.reflections.map((r) => (
+              <li
+                key={r.id}
+                className="rounded-2xl bg-[var(--color-mint-soft)] px-3.5 py-2.5 text-sm text-[var(--color-mint-ink)]"
+              >
+                <p>&ldquo;{r.note}&rdquo;</p>
+                <p className="mt-1 text-xs opacity-70">
+                  {r.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form action={shareReflectionAction} className="space-y-3">
+          <input type="hidden" name="milestoneId" value={m.id} />
+          <input type="hidden" name="publicId" value={m.publicId} />
+          <textarea
+            name="note"
+            required
+            rows={2}
+            placeholder="This one mattered because…"
+            className="w-full rounded-2xl border border-[var(--color-warmgray)] px-3 py-2 text-sm"
+          />
+          <button className="rounded-full border border-[var(--color-mint-ink)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-ink)] hover:bg-[var(--color-mint-soft)]">
+            Share this
+          </button>
+        </form>
       </OrganicCard>
 
       {m.disputes.some((d) => d.status !== "resolved") ? (

@@ -301,6 +301,29 @@ export async function openDisputeAction(formData: FormData) {
   redirect("/journey");
 }
 
+// Counterpart to openDisputeAction — a positive note about a milestone.
+// Never touches the milestone/verification status and never enters the
+// Ops dispute queue; it's just something good the member wants on record.
+export async function shareReflectionAction(formData: FormData) {
+  const session = await requireUser();
+  const milestoneId = String(formData.get("milestoneId"));
+  const publicId = String(formData.get("publicId"));
+  const milestone = await db.journeyMilestone.findUniqueOrThrow({ where: { id: milestoneId } });
+  if (milestone.userId !== session.id) throw new Error("Forbidden");
+  const note = String(formData.get("note") ?? "").trim();
+  if (!note) throw new Error("Say a little about it first.");
+  const reflection = await db.milestoneReflection.create({
+    data: { milestoneId, userId: session.id, note },
+  });
+  await audit({
+    actorType: "member", actorId: session.id,
+    action: "reflection.shared", objectType: "milestone_reflection", objectId: reflection.id,
+    newState: { milestoneId },
+  });
+  revalidatePath(`/journey/milestones/${publicId}`);
+  redirect(`/journey/milestones/${publicId}`);
+}
+
 // TRS 49 — dispute workflow: OPEN -> UNDER REVIEW -> RESOLVED.
 // Taking a case assigns it to the reviewing administrator, so the queue
 // shows who is handling what.

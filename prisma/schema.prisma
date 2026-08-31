@@ -37,6 +37,7 @@ model User {
   milestones         JourneyMilestone[]
   consents           Consent[]
   disputesOpened     Dispute[]            @relation("DisputeOpener")
+  milestoneReflections MilestoneReflection[]
   privacyPreferences PrivacyPreference[]
   notifications      Notification[]
   passwordTokens     PasswordResetToken[]
@@ -399,8 +400,26 @@ model JourneyMilestone {
   participation Participation @relation(fields: [participationId], references: [id])
   verification  Verification  @relation(fields: [verificationId], references: [id])
   disputes      Dispute[]
+  reflections   MilestoneReflection[]
 
   @@map("journey_milestones")
+}
+
+// A member's own positive note about a verified milestone — the counterpart
+// to a Dispute, for when nothing's wrong and they just want to say so.
+// Always visible only to the member and, once shared, the partner that
+// confirmed the activity (never routed into the Ops dispute queue).
+model MilestoneReflection {
+  id          String   @id @default(uuid())
+  milestoneId String   @map("milestone_id")
+  userId      String   @map("user_id")
+  note        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  milestone JourneyMilestone @relation(fields: [milestoneId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@map("milestone_reflections")
 }
 
 // TRS 20 CONSENTS — history is append-only, never overwritten
