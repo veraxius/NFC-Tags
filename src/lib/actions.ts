@@ -151,6 +151,44 @@ export async function createEarthyDoingAction(formData: FormData) {
   redirect("/partner");
 }
 
+export async function recordDonationAction(formData: FormData) {
+  const session = await requireUser();
+  const { recordDonation } = await import("./finance");
+  await recordDonation({
+    session,
+    partnerId: String(formData.get("partnerId")),
+    programId: formData.get("programId") ? String(formData.get("programId")) : null,
+    earthyDoingId: formData.get("earthyDoingId") ? String(formData.get("earthyDoingId")) : null,
+    donorName: formData.get("donorName") ? String(formData.get("donorName")) : null,
+    donorType: String(formData.get("donorType")),
+    amount: Number(formData.get("amount")),
+    restricted: formData.get("restricted") === "on",
+    restrictionNote: formData.get("restrictionNote") ? String(formData.get("restrictionNote")) : null,
+    receivedAt: new Date(String(formData.get("receivedAt"))),
+  });
+  revalidatePath("/partner/finance");
+  redirect("/partner/finance");
+}
+
+export async function recordExpenseAction(formData: FormData) {
+  const session = await requireUser();
+  const { recordExpense } = await import("./finance");
+  await recordExpense({
+    session,
+    partnerId: String(formData.get("partnerId")),
+    programId: formData.get("programId") ? String(formData.get("programId")) : null,
+    earthyDoingId: formData.get("earthyDoingId") ? String(formData.get("earthyDoingId")) : null,
+    functionalCategory: String(formData.get("functionalCategory")),
+    subCategory: formData.get("subCategory") ? String(formData.get("subCategory")) : null,
+    vendor: formData.get("vendor") ? String(formData.get("vendor")) : null,
+    description: String(formData.get("description")),
+    amount: Number(formData.get("amount")),
+    spentAt: new Date(String(formData.get("spentAt"))),
+  });
+  revalidatePath("/partner/finance");
+  redirect("/partner/finance");
+}
+
 // ---- Ops actions ----
 
 export async function addDeviceInventoryAction(formData: FormData) {

@@ -38,6 +38,8 @@ model User {
   consents           Consent[]
   disputesOpened     Dispute[]            @relation("DisputeOpener")
   milestoneReflections MilestoneReflection[]
+  donationsRecorded  Donation[]
+  expensesRecorded   Expense[]
   privacyPreferences PrivacyPreference[]
   notifications      Notification[]
   passwordTokens     PasswordResetToken[]
@@ -168,6 +170,8 @@ model Partner {
   earthyDoings   EarthyDoing[]
   participations Participation[]
   verifications  Verification[]
+  donations      Donation[]
+  expenses       Expense[]
 
   @@map("partners")
 }
@@ -224,6 +228,8 @@ model Program {
 
   partner      Partner       @relation(fields: [partnerId], references: [id])
   earthyDoings EarthyDoing[]
+  donations    Donation[]
+  expenses     Expense[]
 
   @@map("programs")
 }
@@ -274,6 +280,8 @@ model EarthyDoing {
   classifications    TriSilienceClassification[]
   participations     Participation[]
   milestones         JourneyMilestone[]
+  donations          Donation[]
+  expenses           Expense[]
 
   @@map("earthy_doings")
 }
@@ -420,6 +428,60 @@ model MilestoneReflection {
   user      User             @relation(fields: [userId], references: [id])
 
   @@map("milestone_reflections")
+}
+
+// Financial transparency — donations received, classified the way US
+// nonprofit regulation expects (IRS Form 990 functional categories), so an
+// organization can show donors and auditors exactly where the money went.
+// Manual entry by partner staff; no bank/payment-processor integration.
+model Donation {
+  id              String   @id @default(uuid())
+  publicId        String   @unique @map("public_id") // e.g. DON-A1B2C3
+  partnerId       String   @map("partner_id")
+  programId       String?  @map("program_id")
+  earthyDoingId   String?  @map("earthy_doing_id")
+  donorName       String?  @map("donor_name") // null = anonymous
+  donorType       String   @map("donor_type") // individual|foundation|corporation|government_grant|other
+  amount          Decimal  @db.Decimal(12, 2)
+  restricted      Boolean  @default(false)
+  restrictionNote String?  @map("restriction_note")
+  receivedAt      DateTime @map("received_at")
+  recordedBy      String   @map("recorded_by")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  partner     Partner      @relation(fields: [partnerId], references: [id])
+  program     Program?     @relation(fields: [programId], references: [id])
+  earthyDoing EarthyDoing? @relation(fields: [earthyDoingId], references: [id])
+  recorder    User         @relation(fields: [recordedBy], references: [id])
+
+  @@map("donations")
+}
+
+// The expense-side counterpart to Donation. functionalCategory is the 3-way
+// IRS Form 990 classification (program_services|management_general|
+// fundraising); subCategory is free text for the org's own internal detail.
+model Expense {
+  id                 String   @id @default(uuid())
+  publicId           String   @unique @map("public_id") // e.g. EXP-A1B2C3
+  partnerId          String   @map("partner_id")
+  programId          String?  @map("program_id")
+  earthyDoingId      String?  @map("earthy_doing_id")
+  functionalCategory String   @map("functional_category")
+  subCategory        String?  @map("sub_category")
+  vendor             String?
+  description        String
+  amount             Decimal  @db.Decimal(12, 2)
+  spentAt            DateTime @map("spent_at")
+  recordedBy         String   @map("recorded_by")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  partner     Partner      @relation(fields: [partnerId], references: [id])
+  program     Program?     @relation(fields: [programId], references: [id])
+  earthyDoing EarthyDoing? @relation(fields: [earthyDoingId], references: [id])
+  recorder    User         @relation(fields: [recordedBy], references: [id])
+
+  @@map("expenses")
 }
 
 // TRS 20 CONSENTS — history is append-only, never overwritten
