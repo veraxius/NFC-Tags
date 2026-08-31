@@ -4,30 +4,71 @@ import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
 import { Kpi, Card } from "@/components/ui";
 import { DIMENSION_LABELS } from "@/lib/dimensions";
+import { pctChange } from "@/lib/metrics";
 import { OrganicCard, Headline, PieChart, type PieSlice } from "@/components/organic";
 
 export const dynamic = "force-dynamic";
 
 const DIMENSIONS = ["SELF_SUSTAINABILITY", "EMOTIONAL_PROSPERITY", "ENVIRONMENTAL_EQUITY"];
 
-export default async function PartnerOverview() {
+export default async function PartnerOverview({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
   const user = await requireUser();
   const partner = await resolvePartnerFor(user);
+  const { period = "30" } = await searchParams;
+  const days = Number(period) || 30;
+  const since = new Date(Date.now() - days * 864e5);
+  const previousSince = new Date(Date.now() - days * 2 * 864e5);
 
-  const [doings, participations, pendingVerifications, verifiedCount, rejectedCount, peopleGroups, doingsWithCounts] =
-    await Promise.all([
-      db.earthyDoing.count({ where: { partnerId: partner.id } }),
-      db.participation.count({ where: { partnerId: partner.id } }),
-      db.verification.count({ where: { partnerId: partner.id, status: { in: ["pending", "review"] } } }),
-      db.verification.count({ where: { partnerId: partner.id, status: "verified" } }),
-      db.verification.count({ where: { partnerId: partner.id, status: { in: ["rejected", "disputed", "revoked"] } } }),
-      db.participation.groupBy({ by: ["userId"], where: { partnerId: partner.id }, _count: true }),
-      db.earthyDoing.findMany({
-        where: { partnerId: partner.id },
-        select: { id: true, title: true, _count: { select: { participations: true } } },
-        orderBy: { participations: { _count: "desc" } },
-      }),
-    ]);
+  const [
+    doingsNow,
+    doingsPrev,
+    participationsNow,
+    participationsPrev,
+    verifiedNow,
+    verifiedPrev,
+    peopleNow,
+    peoplePrev,
+    pendingVerifications,
+    allTimeVerified,
+    allTimeRejected,
+    allTimePeopleGroups,
+    allTimeParticipations,
+    doingsWithCounts,
+    verifiedWithTimes,
+  ] = await Promise.all([
+    db.earthyDoing.count({ where: { partnerId: partner.id, createdAt: { gte: since } } }),
+    db.earthyDoing.count({ where: { partnerId: partner.id, createdAt: { gte: previousSince, lt: since } } }),
+    db.participation.count({ where: { partnerId: partner.id, checkInAt: { gte: since } } }),
+    db.participation.count({ where: { partnerId: partner.id, checkInAt: { gte: previousSince, lt: since } } }),
+    db.verification.count({ where: { partnerId: partner.id, status: "verified", verifiedAt: { gte: since } } }),
+    db.verification.count({
+      where: { partnerId: partner.id, status: "verified", verifiedAt: { gte: previousSince, lt: since } },
+    }),
+    db.participation.groupBy({ by: ["userId"], where: { partnerId: partner.id, checkInAt: { gte: since } }, _count: true }),
+    db.participation.groupBy({
+      by: ["userId"],
+      where: { partnerId: partner.id, checkInAt: { gte: previousSince, lt: since } },
+      _count: true,
+    }),
+    db.verification.count({ where: { partnerId: partner.id, status: { in: ["pending", "review"] } } }),
+    db.verification.count({ where: { partnerId: partner.id, status: "verified" } }),
+    db.verification.count({ where: { partnerId: partner.id, status: { in: ["rejected", "disputed", "revoked"] } } }),
+    db.participation.groupBy({ by: ["userId"], where: { partnerId: partner.id }, _count: true }),
+    db.participation.count({ where: { partnerId: partner.id } }),
+    db.earthyDoing.findMany({
+      where: { partnerId: partner.id },
+      select: { id: true, title: true, _count: { select: { participations: true } } },
+      orderBy: { participations: { _count: "desc" } },
+    }),
+    db.verification.findMany({
+      where: { partnerId: partner.id, status: "verified", verifiedAt: { not: null } },
+      select: { verifiedAt: true, participation: { select: { checkInAt: true } } },
+    }),
+  ]);
 
   const awaitingCompletion = await db.participation.findMany({
     where: { partnerId: partner.id, status: { in: ["detected", "in_progress"] } },
@@ -51,7 +92,8 @@ export default async function PartnerOverview() {
     }))
   );
 
-  const topPeopleIds = peopleGroups
+  const topPeopleIds = allTimePeopleGroups
+    .slice()
     .sort((a, b) => b._count - a._count)
     .slice(0, 5)
     .map((g) => g.userId);
@@ -62,10 +104,25 @@ export default async function PartnerOverview() {
   const topPeople = topPeopleIds
     .map((id) => {
       const u = topPeopleUsers.find((x) => x.id === id);
-      const count = peopleGroups.find((g) => g.userId === id)?._count ?? 0;
+      const count = allTimePeopleGroups.find((g) => g.userId === id)?._count ?? 0;
       return u ? { id, name: u.displayName ?? `${u.firstName} ${u.lastName}`, count } : null;
     })
     .filter((x): x is { id: string; name: string; count: number } => x !== null);
+
+  // ---- Performance KPIs (all-time — org health, not a period flow) ----
+  const repeatPeople = allTimePeopleGroups.filter((g) => g._count > 1).length;
+  const retentionRate = allTimePeopleGroups.length > 0 ? (repeatPeople / allTimePeopleGroups.length) * 100 : null;
+  const avgParticipationsPerPerson =
+    allTimePeopleGroups.length > 0 ? allTimeParticipations / allTimePeopleGroups.length : null;
+  const verificationOutcomes = allTimeVerified + pendingVerifications + allTimeRejected;
+  const verificationRate = verificationOutcomes > 0 ? (allTimeVerified / verificationOutcomes) * 100 : null;
+  const avgConfirmHours =
+    verifiedWithTimes.length > 0
+      ? verifiedWithTimes.reduce(
+          (s, v) => s + (v.verifiedAt!.getTime() - v.participation.checkInAt.getTime()) / 36e5,
+          0
+        ) / verifiedWithTimes.length
+      : null;
 
   const DOING_COLORS = [
     "var(--color-pink)",
@@ -88,9 +145,9 @@ export default async function PartnerOverview() {
   ];
 
   const performanceSlices: PieSlice[] = [
-    { label: "Verified", value: verifiedCount, color: "var(--color-mint)" },
+    { label: "Verified", value: allTimeVerified, color: "var(--color-mint)" },
     { label: "Pending review", value: pendingVerifications, color: "var(--color-gold)" },
-    { label: "Rejected / disputed", value: rejectedCount, color: "var(--color-plum)" },
+    { label: "Rejected / disputed", value: allTimeRejected, color: "var(--color-plum)" },
   ];
 
   return (
@@ -102,22 +159,68 @@ export default async function PartnerOverview() {
             Your impact, tracked and verified.
           </p>
         </div>
-        <Link
-          href="/partner/doings/new"
-          className="rounded-full bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
-        >
-          + New Earthy Doing
-        </Link>
+        <div className="flex items-center gap-2">
+          <form method="get">
+            <select
+              name="period"
+              defaultValue={period}
+              className="rounded-[10px] border border-black/10 bg-white/70 px-3 py-1.5 text-[13px]"
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last 12 months</option>
+            </select>
+            <button className="btn-primary ml-2 !px-4 !py-1.5 !text-[13px]">Apply</button>
+          </form>
+          <Link
+            href="/partner/doings/new"
+            className="rounded-full bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]"
+          >
+            + New Earthy Doing
+          </Link>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Kpi label="Activities" value={doings} />
-        <Link href="/partner/people">
-          <Kpi label="Your people" value={peopleGroups.length} />
-        </Link>
-        <Kpi label="Total check-ins" value={participations} />
-        <Kpi label="Waiting on you" value={pendingVerifications} />
-        <Kpi label="Verified" value={verifiedCount} accent />
+      <div>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          This period, vs. the {days} days before it
+        </h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          <Kpi label="New activities" value={doingsNow} deltaPct={pctChange(doingsNow, doingsPrev)} />
+          <Kpi label="People active" value={peopleNow.length} deltaPct={pctChange(peopleNow.length, peoplePrev.length)} />
+          <Kpi
+            label="Check-ins"
+            value={participationsNow}
+            deltaPct={pctChange(participationsNow, participationsPrev)}
+          />
+          <Kpi label="Verified" value={verifiedNow} accent deltaPct={pctChange(verifiedNow, verifiedPrev)} />
+          <Kpi label="Waiting on you" value={pendingVerifications} />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          Key performance indicators (all-time)
+        </h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <Kpi label="Volunteer retention" value={retentionRate != null ? `${retentionRate.toFixed(0)}%` : "—"} />
+          <Kpi
+            label="Avg. check-ins / person"
+            value={avgParticipationsPerPerson != null ? avgParticipationsPerPerson.toFixed(1) : "—"}
+          />
+          <Kpi label="Verification rate" value={verificationRate != null ? `${verificationRate.toFixed(0)}%` : "—"} accent />
+          <Kpi
+            label="Avg. time to confirm"
+            value={
+              avgConfirmHours != null
+                ? avgConfirmHours < 24
+                  ? `${avgConfirmHours.toFixed(1)}h`
+                  : `${(avgConfirmHours / 24).toFixed(1)}d`
+                : "—"
+            }
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

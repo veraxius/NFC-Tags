@@ -93,15 +93,42 @@ export function Card({ title, children, className = "" }: { title?: string; chil
   );
 }
 
-export function Kpi({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
+// deltaPct = % change vs. the prior comparison period; omit when there's
+// nothing meaningful to compare against (e.g. previous period was zero).
+export function Kpi({
+  label,
+  value,
+  accent = false,
+  deltaPct,
+}: {
+  label: string;
+  value: string | number;
+  accent?: boolean;
+  deltaPct?: number | null;
+}) {
   return (
     <div className="glass p-4">
-      <div
-        className={`text-2xl font-semibold tracking-tight ${
-          accent ? "text-[var(--color-mint-ink)]" : "text-[var(--color-text)]"
-        }`}
-      >
-        {value}
+      <div className="flex items-baseline gap-2">
+        <div
+          className={`text-2xl font-semibold tracking-tight ${
+            accent ? "text-[var(--color-mint-ink)]" : "text-[var(--color-text)]"
+          }`}
+        >
+          {value}
+        </div>
+        {deltaPct != null && (
+          <span
+            className={`text-xs font-semibold ${
+              deltaPct > 0
+                ? "text-[var(--color-mint-ink)]"
+                : deltaPct < 0
+                  ? "text-[var(--color-plum)]"
+                  : "text-[var(--color-text-secondary)]"
+            }`}
+          >
+            {deltaPct > 0 ? "↑" : deltaPct < 0 ? "↓" : "•"} {Math.abs(Math.round(deltaPct))}%
+          </span>
+        )}
       </div>
       <div className="mt-1 text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
         {label}
