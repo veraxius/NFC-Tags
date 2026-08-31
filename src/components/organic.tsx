@@ -202,6 +202,152 @@ export function PieChart({ data, size = 160 }: { data: PieSlice[]; size?: number
   );
 }
 
+// ---------- Impact ring ----------
+// Circular progress indicator (plain SVG, stroke-dasharray) — the "Impact
+// Score" ring look from the brand's own dashboard mockup.
+
+export function ImpactRing({
+  pct,
+  value,
+  label,
+  color = "var(--color-mint)",
+  size = 120,
+}: {
+  pct: number;
+  value: string | number;
+  label: string;
+  color?: string;
+  size?: number;
+}) {
+  const stroke = size * 0.11;
+  const r = size / 2 - stroke;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, pct));
+  const offset = c - (clamped / 100) * c;
+
+  return (
+    <div className="flex items-center gap-4">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-bg-alt)" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div>
+        <p className="text-2xl font-semibold text-[var(--color-text)]">{value}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Segmented bar ----------
+// One horizontal multi-color bar + legend — the "Your Impact Distribution"
+// look (Self/People/Planet), reused on both the Partner and Journey pages.
+
+export type BarSegment = { label: string; value: number; color: string; pts?: number };
+
+export function SegmentedBar({ segments }: { segments: BarSegment[] }) {
+  const total = segments.reduce((s, d) => s + d.value, 0);
+  return (
+    <div>
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-[var(--color-bg-alt)]">
+        {segments.map((s) => (
+          <div
+            key={s.label}
+            style={{ width: total > 0 ? `${(s.value / total) * 100}%` : 0, background: s.color }}
+          />
+        ))}
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+        {segments.map((s) => (
+          <div key={s.label}>
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+              <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+              {s.label}
+            </span>
+            <p className="mt-0.5 font-semibold text-[var(--color-text)]">
+              {s.pts ?? s.value} <span className="font-normal text-[var(--color-text-secondary)]">pts</span>
+            </p>
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              {total > 0 ? Math.round((s.value / total) * 100) : 0}%
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Trend line ----------
+// Small hand-drawn line + soft-filled area chart, no charting dependency.
+// Not bezier-smoothed — a straight-segment polyline, close to the mockup's
+// look without the extra complexity of curve interpolation.
+
+export function TrendLine({
+  points,
+  color = "var(--color-pink)",
+  height = 120,
+  sparkline = false,
+}: {
+  points: { label: string; value: number }[];
+  color?: string;
+  height?: number;
+  sparkline?: boolean;
+}) {
+  const width = 320;
+  const padding = sparkline ? 4 : 24;
+  const max = Math.max(1, ...points.map((p) => p.value));
+  const stepX = points.length > 1 ? (width - padding * 2) / (points.length - 1) : 0;
+  const coords = points.map((p, i) => ({
+    x: padding + i * stepX,
+    y: height - padding - (p.value / max) * (height - padding * (sparkline ? 2 : 3)),
+  }));
+  const linePath = coords.map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.y}`).join(" ");
+  const areaPath = `${linePath} L ${coords[coords.length - 1]?.x ?? padding} ${height - padding} L ${padding} ${height - padding} Z`;
+
+  return (
+    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="overflow-visible">
+      <defs>
+        <linearGradient id={`trend-fill-${color.replace(/[^a-zA-Z]/g, "")}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {coords.length > 1 && (
+        <>
+          <path d={areaPath} fill={`url(#trend-fill-${color.replace(/[^a-zA-Z]/g, "")})`} stroke="none" />
+          <path d={linePath} fill="none" stroke={color} strokeWidth={sparkline ? 2 : 2.5} strokeLinejoin="round" strokeLinecap="round" />
+        </>
+      )}
+      {coords.map((c, i) => (
+        <circle key={i} cx={c.x} cy={c.y} r={sparkline ? 0 : 3} fill={color} />
+      ))}
+      {!sparkline &&
+        points.map((p, i) => (
+          <text
+            key={p.label}
+            x={coords[i].x}
+            y={height - 4}
+            fontSize="10"
+            textAnchor="middle"
+            fill="var(--color-text-secondary)"
+          >
+            {p.label}
+          </text>
+        ))}
+    </svg>
+  );
+}
+
 // A warm section heading for member/partner pages — pairs with the wordmark
 // typeface so headlines feel like part of the same brand voice, while body
 // copy stays on the clean, highly-legible system font.

@@ -5,11 +5,40 @@ import { resolvePartnerFor } from "@/lib/partner";
 import { Kpi, Card } from "@/components/ui";
 import { DIMENSION_LABELS } from "@/lib/dimensions";
 import { pctChange } from "@/lib/metrics";
-import { OrganicCard, Headline, PieChart, type PieSlice } from "@/components/organic";
+import { monthBuckets } from "@/lib/trend";
+import {
+  OrganicCard,
+  Headline,
+  ImpactRing,
+  SegmentedBar,
+  TrendLine,
+  type BarSegment,
+} from "@/components/organic";
+import { IconGlobe, IconUsers, IconBook, IconHeart, IconGeneral } from "@/components/icons";
+import type { ComponentType } from "react";
 
 export const dynamic = "force-dynamic";
 
 const DIMENSIONS = ["SELF_SUSTAINABILITY", "EMOTIONAL_PROSPERITY", "ENVIRONMENTAL_EQUITY"];
+const DIMENSION_COLORS: Record<string, string> = {
+  SELF_SUSTAINABILITY: "var(--color-pink)",
+  EMOTIONAL_PROSPERITY: "var(--color-peach)",
+  ENVIRONMENTAL_EQUITY: "var(--color-mint)",
+};
+const CATEGORY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
+  environmental: IconGlobe,
+  community: IconUsers,
+  education: IconBook,
+  health: IconHeart,
+  general: IconGeneral,
+};
+const CATEGORY_LABELS: Record<string, string> = {
+  environmental: "Environmental",
+  community: "Community",
+  education: "Education",
+  health: "Health",
+  general: "General",
+};
 
 export default async function PartnerOverview({
   searchParams,
@@ -22,6 +51,7 @@ export default async function PartnerOverview({
   const days = Number(period) || 30;
   const since = new Date(Date.now() - days * 864e5);
   const previousSince = new Date(Date.now() - days * 2 * 864e5);
+  const sixMonthsAgo = new Date(Date.now() - 182 * 864e5);
 
   const [
     doingsNow,
@@ -39,6 +69,8 @@ export default async function PartnerOverview({
     allTimeParticipations,
     doingsWithCounts,
     verifiedWithTimes,
+    doingsCreatedDates,
+    doingsByCategory,
   ] = await Promise.all([
     db.earthyDoing.count({ where: { partnerId: partner.id, createdAt: { gte: since } } }),
     db.earthyDoing.count({ where: { partnerId: partner.id, createdAt: { gte: previousSince, lt: since } } }),
@@ -68,6 +100,11 @@ export default async function PartnerOverview({
       where: { partnerId: partner.id, status: "verified", verifiedAt: { not: null } },
       select: { verifiedAt: true, participation: { select: { checkInAt: true } } },
     }),
+    db.earthyDoing.findMany({
+      where: { partnerId: partner.id, createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    }),
+    db.earthyDoing.groupBy({ by: ["category"], where: { partnerId: partner.id }, _count: true }),
   ]);
 
   const awaitingCompletion = await db.participation.findMany({
@@ -124,40 +161,28 @@ export default async function PartnerOverview({
         ) / verifiedWithTimes.length
       : null;
 
-  const DOING_COLORS = [
-    "var(--color-pink)",
-    "var(--color-gold)",
-    "var(--color-plum)",
-    "var(--color-teal)",
-    "var(--color-mint)",
-    "var(--color-peach)",
-  ];
-  const sortedDoings = doingsWithCounts.filter((d) => d._count.participations > 0);
-  const topDoings = sortedDoings.slice(0, 6);
-  const otherDoingsTotal = sortedDoings.slice(6).reduce((s, d) => s + d._count.participations, 0);
-  const doingSlices: PieSlice[] = [
-    ...topDoings.map((d, i) => ({
-      label: d.title,
-      value: d._count.participations,
-      color: DOING_COLORS[i % DOING_COLORS.length],
-    })),
-    ...(otherDoingsTotal > 0 ? [{ label: "Other", value: otherDoingsTotal, color: "var(--color-warmgray)" }] : []),
-  ];
+  const doingsTrend = monthBuckets(doingsCreatedDates.map((d) => d.createdAt));
+  const verifiedTrend = monthBuckets(verifiedWithTimes.map((v) => v.verifiedAt!));
 
-  const performanceSlices: PieSlice[] = [
-    { label: "Verified", value: allTimeVerified, color: "var(--color-mint)" },
-    { label: "Pending review", value: pendingVerifications, color: "var(--color-gold)" },
-    { label: "Rejected / disputed", value: allTimeRejected, color: "var(--color-plum)" },
-  ];
+  const impactSegments: BarSegment[] = byDimension.map((d) => ({
+    label: DIMENSION_LABELS[d.dimension],
+    value: d.verified,
+    color: DIMENSION_COLORS[d.dimension],
+  }));
+
+  const rankedDimensions = byDimension
+    .slice()
+    .sort((a, b) => b.verified - a.verified);
+  const maxDimensionVerified = Math.max(1, ...rankedDimensions.map((d) => d.verified));
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Headline className="text-3xl">{partner.name}</Headline>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Your impact, tracked and verified.
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            Welcome back, {user.displayName.split(" ")[0]}!
           </p>
+          <Headline className="text-3xl">{partner.name}</Headline>
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <form method="get" className="flex flex-wrap items-center gap-2">
@@ -182,57 +207,85 @@ export default async function PartnerOverview({
         </div>
       </div>
 
-      <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-          This period, vs. the {days} days before it
-        </h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          <Kpi label="New activities" value={doingsNow} deltaPct={pctChange(doingsNow, doingsPrev)} />
-          <Kpi label="People active" value={peopleNow.length} deltaPct={pctChange(peopleNow.length, peoplePrev.length)} />
-          <Kpi
-            label="Check-ins"
-            value={participationsNow}
-            deltaPct={pctChange(participationsNow, participationsPrev)}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card title="Verification rate">
+          <ImpactRing
+            pct={verificationRate ?? 0}
+            value={verificationRate != null ? `${verificationRate.toFixed(0)}%` : "—"}
+            label="Excellent Impact"
+            color="var(--color-mint)"
           />
-          <Kpi label="Verified" value={verifiedNow} accent deltaPct={pctChange(verifiedNow, verifiedPrev)} />
-          <Kpi label="Waiting on you" value={pendingVerifications} />
-        </div>
-      </div>
-
-      <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-          Key performance indicators (all-time)
-        </h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Kpi label="Volunteer retention" value={retentionRate != null ? `${retentionRate.toFixed(0)}%` : "—"} />
-          <Kpi
-            label="Avg. check-ins / person"
-            value={avgParticipationsPerPerson != null ? avgParticipationsPerPerson.toFixed(1) : "—"}
-          />
-          <Kpi label="Verification rate" value={verificationRate != null ? `${verificationRate.toFixed(0)}%` : "—"} accent />
-          <Kpi
-            label="Avg. time to confirm"
-            value={
-              avgConfirmHours != null
-                ? avgConfirmHours < 24
-                  ? `${avgConfirmHours.toFixed(1)}h`
-                  : `${(avgConfirmHours / 24).toFixed(1)}d`
-                : "—"
-            }
-          />
-        </div>
+        </Card>
+        <Card title="Total Earthy Doings">
+          <p className="text-3xl font-semibold text-[var(--color-text)]">{doingsWithCounts.length}</p>
+          <p className="text-xs text-[var(--color-text-secondary)]">This month: {doingsNow}</p>
+          <div className="-mb-2 mt-2">
+            <TrendLine points={doingsTrend} color="var(--color-pink)" height={64} sparkline />
+          </div>
+        </Card>
+        <Card title="Your people">
+          <p className="text-3xl font-semibold text-[var(--color-text)]">{allTimePeopleGroups.length}</p>
+          <p className="mt-1 text-xs">
+            {(() => {
+              const d = pctChange(peopleNow.length, peoplePrev.length);
+              if (d == null) return <span className="text-[var(--color-text-secondary)]">No change yet</span>;
+              return (
+                <span className={d >= 0 ? "text-[var(--color-mint-ink)]" : "text-[var(--color-plum)]"}>
+                  {d >= 0 ? "↑" : "↓"} {Math.abs(Math.round(d))}% this period
+                </span>
+              );
+            })()}
+          </p>
+          <Link href="/partner/people" className="mt-3 inline-block text-xs font-semibold text-[var(--color-pink)] hover:underline">
+            See everyone →
+          </Link>
+        </Card>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card title="Impact by dimension">
+        <Card title="Your Impact Distribution">
+          <SegmentedBar segments={impactSegments} />
+        </Card>
+        <Card title="Impact Over Time — verified milestones">
+          <TrendLine points={verifiedTrend} color="var(--color-pink)" height={140} />
+        </Card>
+      </div>
+
+      <Card title="Your Earthy Doing Activity — by category">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {doingsByCategory.map((c) => {
+            const Icon = CATEGORY_ICONS[c.category] ?? IconGeneral;
+            return (
+              <div key={c.category} className="rounded-2xl border border-[var(--color-divider)] p-4 text-center">
+                <Icon className="mx-auto text-[var(--color-pink)]" />
+                <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">{c._count}</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  {CATEGORY_LABELS[c.category] ?? c.category}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card title="Top Impacted Areas">
           <div className="space-y-3">
-            {byDimension.map((d) => (
-              <div key={d.dimension} className="flex items-center justify-between text-sm">
-                <span className="font-medium text-[var(--color-text)]">{DIMENSION_LABELS[d.dimension]}</span>
-                <span className="text-[var(--color-text-secondary)]">
-                  <span className="font-semibold text-[var(--color-mint-ink)]">{d.verified}</span> verified ·{" "}
-                  {d.participations} recorded
-                </span>
+            {rankedDimensions.map((d) => (
+              <div key={d.dimension}>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="font-medium text-[var(--color-text)]">{DIMENSION_LABELS[d.dimension]}</span>
+                  <span className="text-[var(--color-text-secondary)]">{d.verified} pts</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-bg-alt)]">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${(d.verified / maxDimensionVerified) * 100}%`,
+                      background: DIMENSION_COLORS[d.dimension],
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -242,30 +295,70 @@ export default async function PartnerOverview({
           {topPeople.length === 0 ? (
             <p className="text-sm text-[var(--color-text-secondary)]">No one yet.</p>
           ) : (
-            <ul className="divide-y divide-[var(--color-divider)] text-sm">
+            <div className="flex flex-wrap gap-3">
               {topPeople.map((p) => (
-                <li key={p.id} className="flex items-center justify-between py-2">
-                  <Link href={`/partner/people/${p.id}`} className="font-medium text-[var(--color-pink)] hover:underline">
-                    {p.name}
-                  </Link>
-                  <span className="text-[var(--color-text-secondary)]">{p.count} check-ins</span>
-                </li>
+                <Link key={p.id} href={`/partner/people/${p.id}`} className="text-center">
+                  <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-pink-soft)] text-sm font-semibold text-[var(--color-pink-ink)]">
+                    {p.name.slice(0, 1)}
+                  </div>
+                  <p className="mt-1 max-w-[64px] truncate text-[11px] text-[var(--color-text-secondary)]">
+                    {p.name.split(" ")[0]}
+                  </p>
+                </Link>
               ))}
-            </ul>
+            </div>
           )}
-          <Link href="/partner/people" className="mt-3 block text-xs font-semibold text-[var(--color-pink)] hover:underline">
+          <Link href="/partner/people" className="mt-4 block text-xs font-semibold text-[var(--color-pink)] hover:underline">
             See everyone →
           </Link>
         </Card>
+
+        <Card title="Key performance indicators">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--color-text-secondary)]">Volunteer retention</span>
+              <span className="font-semibold text-[var(--color-text)]">
+                {retentionRate != null ? `${retentionRate.toFixed(0)}%` : "—"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--color-text-secondary)]">Avg. check-ins / person</span>
+              <span className="font-semibold text-[var(--color-text)]">
+                {avgParticipationsPerPerson != null ? avgParticipationsPerPerson.toFixed(1) : "—"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--color-text-secondary)]">Avg. time to confirm</span>
+              <span className="font-semibold text-[var(--color-text)]">
+                {avgConfirmHours != null
+                  ? avgConfirmHours < 24
+                    ? `${avgConfirmHours.toFixed(1)}h`
+                    : `${(avgConfirmHours / 24).toFixed(1)}d`
+                  : "—"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--color-text-secondary)]">Waiting on you</span>
+              <span className="font-semibold text-[var(--color-text)]">{pendingVerifications}</span>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card title="Participation by Earthy Doing">
-          <PieChart data={doingSlices} />
-        </Card>
-        <Card title="Overall performance">
-          <PieChart data={performanceSlices} />
-        </Card>
+      <div>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          This period, vs. the {days} days before it
+        </h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <Kpi label="New activities" value={doingsNow} deltaPct={pctChange(doingsNow, doingsPrev)} />
+          <Kpi label="People active" value={peopleNow.length} deltaPct={pctChange(peopleNow.length, peoplePrev.length)} />
+          <Kpi
+            label="Check-ins"
+            value={participationsNow}
+            deltaPct={pctChange(participationsNow, participationsPrev)}
+          />
+          <Kpi label="Verified" value={verifiedNow} accent deltaPct={pctChange(verifiedNow, verifiedPrev)} />
+        </div>
       </div>
 
       <OrganicCard className="p-5">

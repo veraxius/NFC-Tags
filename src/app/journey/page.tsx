@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { DimensionBadge } from "@/components/ui";
-import { OrganicCard, StatusPill, Headline } from "@/components/organic";
+import { DimensionBadge, Card } from "@/components/ui";
+import { OrganicCard, StatusPill, Headline, SegmentedBar, type BarSegment } from "@/components/organic";
+import { DIMENSION_LABELS } from "@/lib/dimensions";
+
+const DIMENSION_COLORS: Record<string, string> = {
+  SELF_SUSTAINABILITY: "var(--color-pink)",
+  EMOTIONAL_PROSPERITY: "var(--color-peach)",
+  ENVIRONMENTAL_EQUITY: "var(--color-mint)",
+};
 
 // TRS 50 — Member Journey screen: simple timeline with VIEW VERIFICATION.
 export const dynamic = "force-dynamic";
@@ -27,6 +34,18 @@ export default async function JourneyTimeline() {
   const fmt = (d: Date) =>
     d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
+  const verified = milestones.filter((m) => m.status === "verified");
+  const dimensions = ["SELF_SUSTAINABILITY", "EMOTIONAL_PROSPERITY", "ENVIRONMENTAL_EQUITY"];
+  const impactSegments: BarSegment[] = dimensions.map((d) => ({
+    label: DIMENSION_LABELS[d],
+    value: verified.filter((m) => m.earthyDoing.classifications.some((c) => c.dimension === d)).length,
+    color: DIMENSION_COLORS[d],
+  }));
+  const currentlyAt = pending[0];
+  const hoursSinceCheckIn = currentlyAt
+    ? (Date.now() - currentlyAt.checkInAt.getTime()) / 36e5
+    : null;
+
   return (
     <div>
       <Headline className="text-3xl">
@@ -35,6 +54,38 @@ export default async function JourneyTimeline() {
       <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
         Every meaningful thing you&apos;ve done, all in one place.
       </p>
+
+      {verified.length > 0 && (
+        <div className="mt-6">
+          <Card title="Your Impact">
+            <SegmentedBar segments={impactSegments} />
+          </Card>
+        </div>
+      )}
+
+      {currentlyAt && (
+        <div className="mt-4">
+          <OrganicCard
+            accentDimension={currentlyAt.earthyDoing.classifications[0]?.dimension}
+            className="p-4"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-gold-ink)]">
+              You&apos;re currently at
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--color-text)]">
+              {currentlyAt.earthyDoing.title}
+            </p>
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              {currentlyAt.earthyDoing.partner.name} ·{" "}
+              {hoursSinceCheckIn != null && hoursSinceCheckIn < 1
+                ? "just tapped in"
+                : hoursSinceCheckIn != null && hoursSinceCheckIn < 24
+                  ? `tapped in ${hoursSinceCheckIn.toFixed(1)}h ago`
+                  : `tapped in on ${fmt(currentlyAt.checkInAt)}`}
+            </p>
+          </OrganicCard>
+        </div>
+      )}
 
       {pending.length > 0 && (
         <section className="mt-8">

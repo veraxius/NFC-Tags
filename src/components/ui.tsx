@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 import { DIMENSION_LABELS } from "@/lib/dimensions";
@@ -163,12 +164,18 @@ export function NavBar({
   title,
   links,
   user,
+  mobileTabBar = false,
 }: {
   title: string;
-  links: { href: string; label: string }[];
+  links: { href: string; label: string; icon?: ReactNode }[];
   user?: { displayName: string } | null;
+  // Opt-in only — pages that don't pass this render exactly as before.
+  // When true, the inline nav hides below sm: and a fixed bottom icon tab
+  // bar takes over on mobile instead.
+  mobileTabBar?: boolean;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -178,43 +185,70 @@ export function NavBar({
   }, []);
 
   return (
-    <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-          <Image
-            src="/beaurity-imagen.png"
-            alt="Beaurity"
-            width={512}
-            height={512}
-            className="-my-2 h-8 w-8 sm:h-9 sm:w-9"
-          />
-          <span className="wordmark whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] sm:text-[20px]">
-            Beaurity
-          </span>
-          <span className="hidden h-4 w-px bg-[var(--color-divider)] sm:block" />
-          <span className="hidden text-xs font-normal text-[var(--color-text-secondary)] sm:inline">
-            {title}
-          </span>
-        </Link>
-        <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-[var(--color-text)]/80">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="transition-colors hover:text-[var(--color-pink)]"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-3 text-[13px] text-[var(--color-text-secondary)]">
-          <form action={logoutAction}>
-            <button className="whitespace-nowrap rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
-              Sign out
-            </button>
-          </form>
+    <>
+      <header className={`glass-nav sticky top-0 z-50 ${scrolled ? "glass-nav-scrolled" : ""}`}>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+          <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+            <Image
+              src="/beaurity-imagen.png"
+              alt="Beaurity"
+              width={512}
+              height={512}
+              className="-my-2 h-8 w-8 sm:h-9 sm:w-9"
+            />
+            <span className="wordmark whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] sm:text-[20px]">
+              Beaurity
+            </span>
+            <span className="hidden h-4 w-px bg-[var(--color-divider)] sm:block" />
+            <span className="hidden text-xs font-normal text-[var(--color-text-secondary)] sm:inline">
+              {title}
+            </span>
+          </Link>
+          <nav
+            className={`${mobileTabBar ? "hidden sm:flex" : "flex"} flex-wrap gap-x-5 gap-y-1 text-[13px] text-[var(--color-text)]/80`}
+          >
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="transition-colors hover:text-[var(--color-pink)]"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="ml-auto flex shrink-0 items-center gap-3 text-[13px] text-[var(--color-text-secondary)]">
+            <form action={logoutAction}>
+              <button className="whitespace-nowrap rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {mobileTabBar && (
+        <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
+          {links.map((l) => {
+            // Exact match for the shortest (index) link so it doesn't stay
+            // "active" on every sub-route; prefix match for the rest.
+            const isIndexLink = l.href.length === Math.min(...links.map((x) => x.href.length));
+            const active = isIndexLink ? pathname === l.href : pathname.startsWith(l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
+                  active ? "text-[var(--color-pink)]" : "text-[var(--color-text-secondary)]"
+                }`}
+              >
+                {l.icon}
+                <span className="truncate">{l.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+    </>
   );
 }
