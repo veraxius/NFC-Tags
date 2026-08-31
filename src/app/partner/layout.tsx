@@ -11,6 +11,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
     <div className="flex min-h-screen">
       <Sidebar
         title="Partner Dashboard"
+        homeHref="/partner"
         links={[
           { href: "/partner", label: "Overview", icon: <IconHome /> },
           { href: "/partner/doings", label: "Earthy Doings", icon: <IconLeaf /> },

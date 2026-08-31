@@ -6,18 +6,20 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 
-// Left sidebar navigation for Partner only — Ops and Journey keep the
-// top NavBar (components/ui.tsx) unchanged. Sits as a compact icon rail
-// by default and expands on hover (overlaying the content, not pushing
-// it), collapsing back the instant the cursor leaves. On mobile it hands
-// off to a fixed bottom icon tab bar, same pattern as NavBar's
-// mobileTabBar.
+// Left sidebar navigation, shared by Partner, Ops, and Journey (each
+// passes its own homeHref/title/links — no cross-area behavior changes).
+// Sits as a compact icon rail by default and expands on hover (overlaying
+// the content, not pushing it), collapsing back the instant the cursor
+// leaves. On mobile it hands off to a fixed, horizontally-scrollable
+// bottom icon tab bar.
 
 export function Sidebar({
   title,
+  homeHref,
   links,
 }: {
   title: string;
+  homeHref: string;
   links: { href: string; label: string; icon: ReactNode }[];
 }) {
   const pathname = usePathname();
@@ -36,7 +38,7 @@ export function Sidebar({
           expanded ? "w-[232px] shadow-2xl" : "w-[76px]"
         }`}
       >
-        <Link href="/partner" className="flex shrink-0 items-center gap-2.5 overflow-hidden px-4 py-4">
+        <Link href={homeHref} className="flex shrink-0 items-center gap-2.5 overflow-hidden px-4 py-4">
           <Image
             src="/beaurity-imagen.png"
             alt="Beaurity"
@@ -95,19 +97,22 @@ export function Sidebar({
       </aside>
 
       {/* Mobile bottom tab bar — same pattern as NavBar's mobileTabBar */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
+      {/* Horizontally scrollable, not equally divided — safe for both a
+          short list (Partner) and a long one (Ops' 12 sections) without
+          squeezing tabs illegibly thin. */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
         {links.map((l) => {
           const active = isActive(l.href);
           return (
             <Link
               key={l.href}
               href={l.href}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
+              className={`flex min-w-[64px] flex-none flex-col items-center gap-0.5 px-2 py-2 text-[10px] font-medium ${
                 active ? "text-[var(--color-pink)]" : "text-[var(--color-text-secondary)]"
               }`}
             >
               {l.icon}
-              <span className="truncate">{l.label}</span>
+              <span className="whitespace-nowrap">{l.label}</span>
             </Link>
           );
         })}

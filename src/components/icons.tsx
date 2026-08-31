@@ -99,6 +99,81 @@ export function IconChevronLeft(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconCard(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2.2" />
+      <path d="M2.5 9.5h19" />
+      <path d="M6 14h4" />
+    </Icon>
+  );
+}
+
+export function IconLock(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+      <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5" />
+    </Icon>
+  );
+}
+
+export function IconBuilding(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="3" width="12" height="18" rx="1" />
+      <path d="M16 9h4v12h-4M7.5 7h1M11.5 7h1M7.5 11h1M11.5 11h1M7.5 15h1M11.5 15h1" />
+    </Icon>
+  );
+}
+
+export function IconShield(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.5 19 6v6c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V6l7-2.5Z" />
+      <path d="m9 12 2 2 4-4" />
+    </Icon>
+  );
+}
+
+export function IconFlag(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M5 3v18" />
+      <path d="M5 4.5c2-1 4.5-1 6.5.5s4.5 1.5 6.5.5v9c-2 1-4.5 1-6.5-.5s-4.5-1.5-6.5-.5Z" />
+    </Icon>
+  );
+}
+
+export function IconChart(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M4 20V4M4 20h16" />
+      <rect x="7" y="12" width="2.5" height="6" />
+      <rect x="12" y="8" width="2.5" height="10" />
+      <rect x="17" y="14" width="2.5" height="4" />
+    </Icon>
+  );
+}
+
+export function IconClock(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </Icon>
+  );
+}
+
+export function IconSettings(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.7 7.7 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.7 7.7 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.9 7.9 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8c.75.66 1.63 1.17 2.6 1.5l.5 2.5h4l.5-2.5a7.7 7.7 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z" />
+    </Icon>
+  );
+}
+
 export function IconGeneral(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

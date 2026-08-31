@@ -1,22 +1,23 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import { NavBar } from "@/components/ui";
+import { Sidebar } from "@/components/Sidebar";
+import { IconHome, IconCard, IconLock } from "@/components/icons";
 
 export default async function JourneyLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
   if (!user) redirect("/login?next=/journey");
   return (
-    <>
-      <NavBar
+    <div className="flex min-h-screen">
+      <Sidebar
         title="My Journey"
-        user={user}
+        homeHref="/journey"
         links={[
-          { href: "/journey", label: "Timeline" },
-          { href: "/journey/devices", label: "My JourneyPorts" },
-          { href: "/journey/privacy", label: "Privacy" },
+          { href: "/journey", label: "Timeline", icon: <IconHome /> },
+          { href: "/journey/devices", label: "My JourneyPorts", icon: <IconCard /> },
+          { href: "/journey/privacy", label: "Privacy", icon: <IconLock /> },
         ]}
       />
-      <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
-    </>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
+    </div>
   );
 }
