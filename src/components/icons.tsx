@@ -180,7 +180,7 @@ export function IconSettings(props: SVGProps<SVGSVGElement>) {
 // icon itself shows what clicking it will do. Always brand pink, regardless
 // of theme context.
 export function IconSidebarToggle({ open, ...props }: SVGProps<SVGSVGElement> & { open: boolean }) {
-  const dividerX = open ? 7.5 : 5.5;
+  const dividerX = open ? 10 : 4;
   return (
     <svg width="16" height="14" viewBox="0 0 20 16" fill="none" {...props}>
       <rect x="1" y="1" width="18" height="14" rx="3" stroke="var(--color-pink)" strokeWidth="1.4" />
