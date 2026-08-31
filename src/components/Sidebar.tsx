@@ -5,12 +5,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
-import { IconChevronLeft } from "@/components/icons";
 
 // Left sidebar navigation for Partner only — Ops and Journey keep the
-// top NavBar (components/ui.tsx) unchanged. Collapses to an icon rail on
-// desktop (smooth width transition) and hands off to a fixed bottom icon
-// tab bar on mobile, same pattern as NavBar's mobileTabBar.
+// top NavBar (components/ui.tsx) unchanged. Sits as a compact icon rail
+// by default and expands on hover (overlaying the content, not pushing
+// it), collapsing back the instant the cursor leaves. On mobile it hands
+// off to a fixed bottom icon tab bar, same pattern as NavBar's
+// mobileTabBar.
 
 export function Sidebar({
   title,
@@ -20,7 +21,7 @@ export function Sidebar({
   links: { href: string; label: string; icon: ReactNode }[];
 }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const shortestHref = Math.min(...links.map((l) => l.href.length));
 
   const isActive = (href: string) =>
@@ -29,8 +30,10 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width] duration-300 ease-out sm:flex ${
-          collapsed ? "w-[76px]" : "w-[232px]"
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
+        className={`fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width,box-shadow] duration-300 ease-out sm:flex ${
+          expanded ? "w-[232px] shadow-2xl" : "w-[76px]"
         }`}
       >
         <Link href="/partner" className="flex shrink-0 items-center gap-2.5 overflow-hidden px-4 py-4">
@@ -42,25 +45,27 @@ export function Sidebar({
             className="h-8 w-8 shrink-0"
           />
           <span
-            className={`wordmark whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] transition-opacity duration-200 ${
-              collapsed ? "w-0 opacity-0" : "opacity-100"
+            className={`wordmark overflow-hidden whitespace-nowrap text-[18px] leading-none text-[var(--color-text)] transition-opacity duration-200 ${
+              expanded ? "opacity-100" : "w-0 opacity-0"
             }`}
           >
             Beaurity
           </span>
         </Link>
-        {!collapsed && (
-          <p className="px-4 pb-3 text-xs text-[var(--color-text-secondary)]">{title}</p>
+        {expanded && (
+          <p className="overflow-hidden whitespace-nowrap px-4 pb-3 text-xs text-[var(--color-text-secondary)]">
+            {title}
+          </p>
         )}
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
+        <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-3 py-2">
           {links.map((l) => {
             const active = isActive(l.href);
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                title={collapsed ? l.label : undefined}
+                title={!expanded ? l.label : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? "bg-[var(--color-pink-soft)] text-[var(--color-pink-ink)]"
@@ -69,8 +74,8 @@ export function Sidebar({
               >
                 <span className="shrink-0">{l.icon}</span>
                 <span
-                  className={`whitespace-nowrap transition-opacity duration-200 ${
-                    collapsed ? "w-0 opacity-0" : "opacity-100"
+                  className={`overflow-hidden whitespace-nowrap transition-opacity duration-200 ${
+                    expanded ? "opacity-100" : "w-0 opacity-0"
                   }`}
                 >
                   {l.label}
@@ -80,20 +85,10 @@ export function Sidebar({
           })}
         </nav>
 
-        <div className="shrink-0 space-y-2 border-t border-[var(--color-divider)] p-3">
-          <button
-            onClick={() => setCollapsed((v) => !v)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-black/[0.04]"
-          >
-            <IconChevronLeft className={`shrink-0 transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`} />
-            <span className={`whitespace-nowrap transition-opacity duration-200 ${collapsed ? "w-0 opacity-0" : "opacity-100"}`}>
-              Collapse
-            </span>
-          </button>
+        <div className="shrink-0 border-t border-[var(--color-divider)] p-3">
           <form action={logoutAction}>
             <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-black/10 px-3 py-1.5 text-xs text-[var(--color-text)] transition-colors hover:bg-black/[0.04]">
-              {collapsed ? "⎋" : "Sign out"}
+              {expanded ? "Sign out" : "⎋"}
             </button>
           </form>
         </div>
@@ -118,14 +113,10 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Spacer so page content sits to the right of the fixed sidebar,
-          with the same smooth transition as the sidebar's own width. */}
-      <div
-        className={`hidden shrink-0 transition-[width] duration-300 ease-out sm:block ${
-          collapsed ? "w-[76px]" : "w-[232px]"
-        }`}
-        aria-hidden
-      />
+      {/* Spacer so page content sits to the right of the sidebar's resting
+          (collapsed) width — the hover-expand overlays the content instead
+          of pushing it, so this never changes size. */}
+      <div className="hidden w-[76px] shrink-0 sm:block" aria-hidden />
     </>
   );
 }
