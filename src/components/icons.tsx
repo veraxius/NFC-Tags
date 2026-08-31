@@ -174,6 +174,22 @@ export function IconSettings(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Minimalist sidebar-toggle glyph (ElevenLabs-style): a small window frame
+// with a divider representing the sidebar panel. The divider's position and
+// the left panel's fill width shift between the open/closed states, so the
+// icon itself shows what clicking it will do. Always brand pink, regardless
+// of theme context.
+export function IconSidebarToggle({ open, ...props }: SVGProps<SVGSVGElement> & { open: boolean }) {
+  const dividerX = open ? 7.5 : 5.5;
+  return (
+    <svg width="16" height="14" viewBox="0 0 20 16" fill="none" {...props}>
+      <rect x="1" y="1" width="18" height="14" rx="3" stroke="var(--color-pink)" strokeWidth="1.4" />
+      <path d={`M${dividerX} 1v14`} stroke="var(--color-pink)" strokeWidth="1.4" />
+      <rect x="2" y="2" width={dividerX - 2.5} height="12" rx="1.4" fill="var(--color-pink)" />
+    </svg>
+  );
+}
+
 export function IconGeneral(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

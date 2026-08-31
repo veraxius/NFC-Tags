@@ -5,13 +5,19 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
+import { IconSidebarToggle } from "@/components/icons";
 
 // Left sidebar navigation, shared by Partner, Ops, and Journey (each
 // passes its own homeHref/title/links — no cross-area behavior changes).
-// Sits as a compact icon rail by default and expands on hover (overlaying
-// the content, not pushing it), collapsing back the instant the cursor
-// leaves. On mobile it hands off to a fixed, horizontally-scrollable
-// bottom icon tab bar.
+// Fixed and open by default; a small toggle button sitting just outside
+// the sidebar's top-right edge collapses it to an icon rail, and the
+// choice sticks until toggled again (no hover behavior). The button
+// slides with the sidebar's edge as it resizes, and its own icon shows
+// the current open/closed state. On mobile it hands off to a fixed,
+// horizontally-scrollable bottom icon tab bar.
+
+const WIDTH_OPEN = 232;
+const WIDTH_CLOSED = 76;
 
 export function Sidebar({
   title,
@@ -23,20 +29,19 @@ export function Sidebar({
   links: { href: string; label: string; icon: ReactNode }[];
 }) {
   const pathname = usePathname();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const shortestHref = Math.min(...links.map((l) => l.href.length));
 
   const isActive = (href: string) =>
     href.length === shortestHref ? pathname === href : pathname.startsWith(href);
 
+  const width = expanded ? WIDTH_OPEN : WIDTH_CLOSED;
+
   return (
     <>
       <aside
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
-        className={`fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width,box-shadow] duration-300 ease-out sm:flex ${
-          expanded ? "w-[232px] shadow-2xl" : "w-[76px]"
-        }`}
+        className="fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width] duration-300 ease-out sm:flex"
+        style={{ width }}
       >
         <Link href={homeHref} className="flex shrink-0 items-center gap-2.5 overflow-hidden px-4 py-4">
           <Image
@@ -96,10 +101,22 @@ export function Sidebar({
         </div>
       </aside>
 
-      {/* Mobile bottom tab bar — same pattern as NavBar's mobileTabBar */}
-      {/* Horizontally scrollable, not equally divided — safe for both a
-          short list (Partner) and a long one (Ops' 12 sections) without
-          squeezing tabs illegibly thin. */}
+      {/* Toggle button — fixed just outside the sidebar's top-right edge,
+          sliding along with it. Same vertical position always; horizontal
+          position tracks the sidebar's current width. */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+        aria-pressed={expanded}
+        className="fixed top-5 z-50 hidden h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-[var(--color-divider)] bg-white shadow-sm transition-[left] duration-300 ease-out hover:border-[var(--color-pink)] sm:flex"
+        style={{ left: width }}
+      >
+        <IconSidebarToggle open={expanded} />
+      </button>
+
+      {/* Mobile bottom tab bar — horizontally scrollable, not equally
+          divided — safe for both a short list (Partner) and a long one
+          (Ops' 12 sections) without squeezing tabs illegibly thin. */}
       <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
         {links.map((l) => {
           const active = isActive(l.href);
@@ -118,10 +135,14 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Spacer so page content sits to the right of the sidebar's resting
-          (collapsed) width — the hover-expand overlays the content instead
-          of pushing it, so this never changes size. */}
-      <div className="hidden w-[76px] shrink-0 sm:block" aria-hidden />
+      {/* Spacer so page content sits to the right of the sidebar — tracks
+          the same persistent state, so collapsing genuinely reflows the
+          page (this is a real toggle now, not a hover peek). */}
+      <div
+        className="hidden shrink-0 transition-[width] duration-300 ease-out sm:block"
+        style={{ width }}
+        aria-hidden
+      />
     </>
   );
 }
