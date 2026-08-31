@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, isBeaurityAdmin } from "@/lib/auth";
-import { NavBar } from "@/components/ui";
+import { Sidebar } from "@/components/Sidebar";
 import { IconHome, IconLeaf, IconCheck, IconUsers, IconDollar } from "@/components/icons";
 
 export default async function PartnerLayout({ children }: { children: React.ReactNode }) {
@@ -8,11 +8,9 @@ export default async function PartnerLayout({ children }: { children: React.Reac
   if (!user) redirect("/login?next=/partner");
   if (user.partnerRoles.length === 0 && !isBeaurityAdmin(user)) redirect("/journey");
   return (
-    <>
-      <NavBar
+    <div className="flex min-h-screen">
+      <Sidebar
         title="Partner Dashboard"
-        user={user}
-        mobileTabBar
         links={[
           { href: "/partner", label: "Overview", icon: <IconHome /> },
           { href: "/partner/doings", label: "Earthy Doings", icon: <IconLeaf /> },
@@ -21,7 +19,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
           { href: "/partner/finance", label: "Finance", icon: <IconDollar /> },
         ]}
       />
-      <main className="mx-auto max-w-6xl px-4 py-8 pb-24 sm:pb-8">{children}</main>
-    </>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
+    </div>
   );
 }

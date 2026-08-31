@@ -91,6 +91,14 @@ export function IconBook(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconChevronLeft(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="m15 5-7 7 7 7" />
+    </Icon>
+  );
+}
+
 export function IconGeneral(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

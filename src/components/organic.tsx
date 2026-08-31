@@ -227,18 +227,25 @@ export function ImpactRing({
 
   return (
     <div className="flex items-center gap-4">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-bg-alt)" strokeWidth={stroke} />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+        <g className="-rotate-90" style={{ transformOrigin: "center" }}>
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-bg-alt)" strokeWidth={stroke} />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth={stroke}
+            strokeDasharray={c}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+          />
+        </g>
+        <path
+          d="M12 20s-7-4.3-9.3-8.7C1.3 8 3 4.8 6.4 4.5c2-.2 3.6 1 5.6 3 2-2 3.6-3.2 5.6-3 3.4.3 5.1 3.5 3.7 6.8C19 15.7 12 20 12 20Z"
+          fill={color}
+          transform={`translate(${size / 2 - 12}, ${size / 2 - 12})`}
         />
       </svg>
       <div>
