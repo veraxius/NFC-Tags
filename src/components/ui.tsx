@@ -4,16 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
+import { DIMENSION_LABELS } from "@/lib/dimensions";
+
+export { DIMENSION_LABELS };
 
 // Color roles below follow the Beaurity Brand Color Palette Guidelines
 // (v1.0, May 2025). Pink is reserved for primary actions/links only, so it
 // never appears on a status pill — that keeps "this is clickable" visually
 // distinct from "this is a status."
-export const DIMENSION_LABELS: Record<string, string> = {
-  SELF_SUSTAINABILITY: "Self-Sustainability",
-  EMOTIONAL_PROSPERITY: "Emotional Prosperity",
-  ENVIRONMENTAL_EQUITY: "Environmental Equity",
-};
 
 // Self-Sustainability -> Pink (confidence, empowerment, independence)
 // Emotional Prosperity -> Peach Blossom (warmth, kindness, connection)

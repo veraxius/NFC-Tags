@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { Kpi, Card, DIMENSION_LABELS } from "@/components/ui";
+import { Kpi, Card } from "@/components/ui";
+import { DIMENSION_LABELS } from "@/lib/dimensions";
 
 export const dynamic = "force-dynamic";
 

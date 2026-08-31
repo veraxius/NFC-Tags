@@ -15,6 +15,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
           { href: "/partner", label: "Overview" },
           { href: "/partner/doings", label: "Earthy Doings" },
           { href: "/partner/verifications", label: "Confirmations" },
+          { href: "/partner/people", label: "People" },
           { href: "/partner/finance", label: "Finance" },
         ]}
       />
