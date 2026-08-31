@@ -20,7 +20,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
           { href: "/partner/finance", label: "Finance", icon: <IconDollar /> },
         ]}
       />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
     </div>
   );
 }

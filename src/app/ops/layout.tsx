@@ -40,7 +40,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
           { href: "/ops/system", label: "System", icon: <IconSettings /> },
         ]}
       />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
     </div>
   );
 }

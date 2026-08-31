@@ -17,7 +17,7 @@ export default async function JourneyLayout({ children }: { children: React.Reac
           { href: "/journey/privacy", label: "Privacy", icon: <IconLock /> },
         ]}
       />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-3xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>
     </div>
   );
 }
