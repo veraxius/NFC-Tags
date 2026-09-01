@@ -7,7 +7,7 @@ export default async function JourneyLayout({ children }: { children: React.Reac
   const user = await getSessionUser();
   if (!user) redirect("/login?next=/journey");
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" data-app-shell>
       <Sidebar
         title="My Journey"
         homeHref="/journey"

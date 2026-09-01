@@ -8,7 +8,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
   if (!user) redirect("/login?next=/partner");
   if (user.partnerRoles.length === 0 && !isBeaurityAdmin(user)) redirect("/journey");
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" data-app-shell>
       <Sidebar
         title="Partner Dashboard"
         homeHref="/partner"

@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 
-// Warmer building blocks for the member (Journey) and Partner Dashboard
-// surfaces — the parts of the app an NGO coordinator or a member actually
-// lives in. Deliberately separate from components/ui.tsx: Operations stays
-// exactly as it is, because that screen is Beaurity's own internal tool and
-// its density is appropriate there. Nothing here is imported by /ops/*.
+// Warmer building blocks for the member (Journey), Partner, and Ops
+// Dashboard surfaces — shared visual language (ring/segmented-bar/trend-line)
+// across all three authenticated areas. Deliberately separate from
+// components/ui.tsx, which still backs Ops' denser table/detail screens.
 
 // ---------- Plain-language status ----------
 // Same color system as the rest of the app (Beaurity brand tokens), but the

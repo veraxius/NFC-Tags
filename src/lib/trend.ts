@@ -14,3 +14,19 @@ export function monthBuckets(dates: Date[], months = 6): { label: string; value:
   }
   return buckets;
 }
+
+// Same idea, bucketed by calendar day instead of month — for shorter,
+// higher-frequency trend lines (e.g. operational activity over 2 weeks).
+export function dayBuckets(dates: Date[], days = 14): { label: string; value: number }[] {
+  const now = new Date();
+  const buckets: { label: string; value: number }[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const label = d.toLocaleDateString("en-US", { day: "numeric", month: "numeric" });
+    const value = dates.filter(
+      (x) => x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth() && x.getDate() === d.getDate()
+    ).length;
+    buckets.push({ label, value });
+  }
+  return buckets;
+}

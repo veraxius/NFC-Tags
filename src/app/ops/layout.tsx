@@ -21,7 +21,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login?next=/ops");
   if (!isBeaurityAdmin(user)) redirect("/");
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" data-app-shell>
       <Sidebar
         title="Beaurity Operations"
         homeHref="/ops"
