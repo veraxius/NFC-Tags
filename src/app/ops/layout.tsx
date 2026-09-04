@@ -14,6 +14,7 @@ import {
   IconChart,
   IconClock,
   IconSettings,
+  IconLock,
 } from "@/components/icons";
 
 export default async function OpsLayout({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
           { href: "/ops/reports", label: "Reports", icon: <IconChart /> },
           { href: "/ops/audit", label: "Audit", icon: <IconClock /> },
           { href: "/ops/system", label: "System", icon: <IconSettings /> },
+          { href: "/settings/security", label: "Security", icon: <IconLock /> },
         ]}
       />
       <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-8 pb-24 sm:pb-8">{children}</main>

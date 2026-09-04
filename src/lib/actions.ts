@@ -6,6 +6,7 @@ import { db } from "./db";
 import {
   requireUser,
   isBeaurityAdmin,
+  isPartnerAdmin,
   canActForPartner,
   partnerRole,
   destroySession,
@@ -23,6 +24,7 @@ import {
   disputePublicId,
 } from "./ids";
 import { audit } from "./audit";
+import { notifyN8n } from "./webhooks";
 import {
   recordParticipation,
   completeParticipation,
@@ -189,6 +191,73 @@ export async function recordExpenseAction(formData: FormData) {
   redirect("/partner/finance");
 }
 
+// Add an existing member as staff (operator or administrator) for this
+// organization. Deliberately doesn't create accounts — the target person
+// must already have a JourneyPort account (same "Journey ID or email"
+// convention as assigning a device); this keeps the schema's non-nullable
+// PartnerUser.userId honest instead of inventing a pending-invite state.
+export async function addPartnerStaffAction(formData: FormData) {
+  const session = await requireUser();
+  const partnerId = String(formData.get("partnerId"));
+  if (!isPartnerAdmin(session, partnerId)) throw new Error("Forbidden");
+
+  const email = String(formData.get("email")).toLowerCase().trim();
+  const role = String(formData.get("role"));
+  if (!["operator", "administrator"].includes(role)) throw new Error("Invalid role");
+
+  const target = await db.user.findUnique({ where: { email } });
+  if (!target) {
+    redirect(`/partner/team?error=NO_ACCOUNT&email=${encodeURIComponent(email)}`);
+  }
+
+  const existing = await db.partnerUser.findUnique({
+    where: { partnerId_userId: { partnerId, userId: target.id } },
+  });
+  const partnerUser = existing
+    ? await db.partnerUser.update({ where: { id: existing.id }, data: { role, status: "active" } })
+    : await db.partnerUser.create({ data: { partnerId, userId: target.id, role, status: "active" } });
+
+  await audit({
+    actorType: actorTypeFor(session, partnerId),
+    actorId: session.id,
+    action: existing ? "partner_user.role_changed" : "partner_user.added",
+    objectType: "partner_user",
+    objectId: partnerUser.id,
+    newState: { userId: target.id, role, status: "active" },
+  });
+
+  const partner = await db.partner.findUniqueOrThrow({ where: { id: partnerId } });
+  await notifyN8n("partner.staff_added", {
+    partnerName: partner.name,
+    staffEmail: target.email,
+    staffName: target.displayName ?? `${target.firstName} ${target.lastName}`,
+    role,
+    isNew: !existing,
+  });
+
+  revalidatePath("/partner/team");
+  redirect("/partner/team");
+}
+
+export async function setPartnerStaffStatusAction(partnerUserId: string, status: "active" | "suspended") {
+  const session = await requireUser();
+  const partnerUser = await db.partnerUser.findUniqueOrThrow({ where: { id: partnerUserId } });
+  if (!isPartnerAdmin(session, partnerUser.partnerId)) throw new Error("Forbidden");
+
+  await db.partnerUser.update({ where: { id: partnerUserId }, data: { status } });
+  await audit({
+    actorType: actorTypeFor(session, partnerUser.partnerId),
+    actorId: session.id,
+    action: `partner_user.${status}`,
+    objectType: "partner_user",
+    objectId: partnerUserId,
+    previousState: { status: partnerUser.status },
+    newState: { status },
+  });
+
+  revalidatePath("/partner/team");
+}
+
 // ---- Ops actions ----
 
 export async function addDeviceInventoryAction(formData: FormData) {
@@ -231,6 +300,19 @@ export async function setDeviceStatusAction(deviceId: string, status: string, re
     objectType: "journeyport_device", objectId: deviceId,
     previousState: { status: device.status }, newState: { status }, reason,
   });
+
+  if (["lost", "stolen"].includes(status)) {
+    const owner = device.userId ? await db.user.findUnique({ where: { id: device.userId } }) : null;
+    await notifyN8n("device.lost", {
+      publicDeviceId: device.publicDeviceId,
+      deviceType: device.deviceType,
+      previousStatus: device.status,
+      newStatus: status,
+      ownerName: owner?.displayName ?? (owner ? `${owner.firstName} ${owner.lastName}` : "Unassigned"),
+      reason,
+    });
+  }
+
   revalidatePath("/ops/devices");
   revalidatePath("/journey");
 }
@@ -309,6 +391,22 @@ export async function setPartnerStatusAction(partnerId: string, status: string) 
     action: `partner.${status}`, objectType: "partner", objectId: partnerId,
     previousState: { status: partner.status }, newState: { status },
   });
+
+  if (status === "approved" && partner.status !== "approved") {
+    const admin = await db.partnerUser.findFirst({
+      where: { partnerId, role: "administrator" },
+      include: { user: true },
+    });
+    await notifyN8n("partner.approved", {
+      publicId: partner.publicId,
+      name: partner.name,
+      country: partner.country,
+      approvedAt: new Date().toISOString(),
+      adminEmail: admin?.user.email ?? null,
+      adminName: admin?.user.displayName ?? null,
+    });
+  }
+
   revalidatePath("/ops/partners");
 }
 
@@ -335,6 +433,16 @@ export async function openDisputeAction(formData: FormData) {
     action: "dispute.opened", objectType: "dispute", objectId: dispute.id,
     newState: { milestoneId, reason: dispute.reason },
   });
+
+  const doing = await db.earthyDoing.findUnique({ where: { id: milestone.earthyDoingId } });
+  await notifyN8n("dispute.opened", {
+    disputeId: dispute.publicId,
+    memberName: session.displayName,
+    earthyDoingTitle: doing?.title ?? null,
+    reason: dispute.reason,
+    description: dispute.description,
+  });
+
   revalidatePath("/journey");
   redirect("/journey");
 }
@@ -414,6 +522,16 @@ export async function resolveDisputeAction(disputeId: string, outcome: "verified
     action: "dispute.resolved", objectType: "dispute", objectId: disputeId,
     newState: { outcome, resolution },
   });
+
+  const member = await db.user.findUnique({ where: { id: dispute.openedBy } });
+  await notifyN8n("dispute.resolved", {
+    disputeId: dispute.publicId,
+    memberEmail: member?.email,
+    memberName: member?.displayName ?? `${member?.firstName} ${member?.lastName}`,
+    outcome,
+    resolution,
+  });
+
   revalidatePath("/ops/disputes");
 }
 

@@ -30,6 +30,12 @@ model User {
   // global role: member | beaurity_admin | super_admin (partner roles live in PartnerUser)
   platformRole String @default("member") @map("platform_role")
 
+  // Optional TOTP-based 2FA. twoFactorSecret is only meaningful once
+  // twoFactorEnabled is true — a secret can exist mid-enrollment (generated,
+  // not yet confirmed with a code) without turning 2FA on.
+  twoFactorSecret  String?  @map("two_factor_secret")
+  twoFactorEnabled Boolean  @default(false) @map("two_factor_enabled")
+
   journeyIdentity    JourneyIdentity?
   devices            JourneyPortDevice[]
   partnerUsers       PartnerUser[]

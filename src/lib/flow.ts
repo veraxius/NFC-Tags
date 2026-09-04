@@ -2,6 +2,7 @@ import { db } from "./db";
 import { audit } from "./audit";
 import { requestAimAssessment } from "./aim";
 import { participationPublicId, milestonePublicId } from "./ids";
+import { notifyN8n } from "./webhooks";
 
 // Core transaction flow (Architecture doc §12 / TRS §36 state machine):
 // TAP → participation(detected) → complete → verification(pending)
@@ -70,6 +71,33 @@ export async function recordParticipation(params: {
     objectId: participation.id,
     newState: { status: "detected", earthyDoingId: doing.id },
   });
+
+  const member = await db.user.findUnique({ where: { id: params.userId } });
+  await notifyN8n("participation.checked_in", {
+    participationId: participation.publicId,
+    memberName: member?.displayName ?? `${member?.firstName} ${member?.lastName}`,
+    earthyDoingTitle: doing.title,
+    partnerId: doing.partnerId,
+    checkInAt: participation.checkInAt.toISOString(),
+  });
+
+  if (doing.capacity != null) {
+    const newCount = await db.participation.count({
+      where: { earthyDoingId: doing.id, status: { notIn: ["cancelled", "invalid"] } },
+    });
+    if (newCount >= doing.capacity) {
+      const admin = await db.partnerUser.findFirst({
+        where: { partnerId: doing.partnerId, role: "administrator" },
+        include: { user: true },
+      });
+      await notifyN8n("doing.at_capacity", {
+        earthyDoingTitle: doing.title,
+        partnerId: doing.partnerId,
+        adminEmail: admin?.user.email ?? null,
+        capacity: doing.capacity,
+      });
+    }
+  }
 
   return { participation, duplicate: false };
 }
@@ -216,6 +244,18 @@ export async function approveVerification(params: {
     newState: { status: milestone.status },
   });
 
+  if (credible) {
+    const member = await db.user.findUnique({ where: { id: v.participation.userId } });
+    const doing = await db.earthyDoing.findUnique({ where: { id: v.participation.earthyDoingId } });
+    await notifyN8n("milestone.verified", {
+      milestoneId: milestone.publicId,
+      memberEmail: member?.email,
+      memberName: member?.displayName ?? `${member?.firstName} ${member?.lastName}`,
+      earthyDoingTitle: doing?.title,
+      verifiedAt: milestone.verifiedAt?.toISOString(),
+    });
+  }
+
   // Architecture doc §3 (Layer 3) — in-platform notification. The MVP does
   // not send email; TRS §3 keeps external channels out of scope.
   await db.notification.create({
@@ -327,7 +367,10 @@ export async function rejectVerification(params: {
   reasonCode: string;
   notes?: string;
 }) {
-  const v = await db.verification.findUniqueOrThrow({ where: { id: params.verificationId } });
+  const v = await db.verification.findUniqueOrThrow({
+    where: { id: params.verificationId },
+    include: { participation: true },
+  });
   if (!["pending", "review"].includes(v.status)) {
     throw new FlowError("INVALID_STATE", `Verification cannot be rejected from status '${v.status}'.`);
   }
@@ -349,6 +392,18 @@ export async function rejectVerification(params: {
     previousState: { status: v.status },
     newState: { status: "rejected", reasonCode: params.reasonCode },
   });
+
+  const member = await db.user.findUnique({ where: { id: v.participation.userId } });
+  const doing = await db.earthyDoing.findUnique({ where: { id: v.participation.earthyDoingId } });
+  await notifyN8n("verification.rejected", {
+    verificationId: v.id,
+    memberEmail: member?.email,
+    memberName: member?.displayName ?? `${member?.firstName} ${member?.lastName}`,
+    earthyDoingTitle: doing?.title,
+    reasonCode: params.reasonCode,
+    notes: params.notes ?? null,
+  });
+
   return updated;
 }
 

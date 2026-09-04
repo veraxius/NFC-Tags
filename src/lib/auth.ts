@@ -5,6 +5,7 @@ import { db } from "./db";
 
 const SESSION_COOKIE = "jp_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 8; // 8h — short-lived per security requirements
+const MFA_CHALLENGE_TTL_SECONDS = 5 * 60; // just long enough to type a 6-digit code
 
 function secret(): Uint8Array {
   const s = process.env.AUTH_SECRET;
@@ -47,6 +48,28 @@ export async function createSession(userId: string): Promise<void> {
 export async function destroySession(): Promise<void> {
   const store = await cookies();
   store.delete(SESSION_COOKIE);
+}
+
+// Optional 2FA (TOTP) — a short-lived, single-purpose token issued after a
+// correct password when the account has 2FA enabled. It carries only the
+// pending user id, is never set as a cookie, and can't be used to do
+// anything but complete the 2FA challenge — a real session still requires
+// createSession() after the code checks out.
+export async function createMfaChallenge(userId: string): Promise<string> {
+  return new SignJWT({ mfa: userId })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${MFA_CHALLENGE_TTL_SECONDS}s`)
+    .sign(secret());
+}
+
+export async function verifyMfaChallenge(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, secret());
+    return typeof payload.mfa === "string" ? payload.mfa : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -110,6 +133,14 @@ export function canActForPartner(u: SessionUser, partnerId: string): boolean {
 
 export function isPartnerAdmin(u: SessionUser, partnerId: string): boolean {
   return isBeaurityAdmin(u) || partnerRole(u, partnerId) === "administrator";
+}
+
+// Whether this account is admin-tier anywhere — Ops staff, or an
+// administrator of at least one partner organization. Used to gate optional
+// 2FA enrollment to the accounts that actually hold elevated access,
+// without needing a dedicated flag on the user record.
+export function isAdminAnywhere(u: SessionUser): boolean {
+  return isBeaurityAdmin(u) || u.partnerRoles.some((r) => r.role === "administrator");
 }
 
 // Audit actor type for a session (TRS 22 actor_type enum). When a partner

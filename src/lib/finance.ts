@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { audit } from "./audit";
+import { notifyN8n } from "./webhooks";
 import { SessionUser, isPartnerAdmin, actorTypeFor } from "./auth";
 import { donationPublicId, expensePublicId } from "./ids";
 
@@ -104,6 +105,17 @@ export async function recordDonation(params: {
     newState: { amount: params.amount, donorType: params.donorType, restricted: donation.restricted },
   });
 
+  const partner = await db.partner.findUnique({ where: { id: params.partnerId } });
+  await notifyN8n("donation.recorded", {
+    publicId: donation.publicId,
+    partnerName: partner?.name ?? null,
+    donorName: donation.donorName ?? "Anonymous",
+    donorType: donation.donorType,
+    amount: params.amount,
+    receivedAt: donation.receivedAt.toISOString(),
+    restricted: donation.restricted,
+  });
+
   return donation;
 }
 
@@ -156,4 +168,57 @@ export async function recordExpense(params: {
   });
 
   return expense;
+}
+
+export type MovementRow = {
+  id: string;
+  date: Date;
+  type: "donation" | "expense";
+  label: string;
+  detail: string;
+  amount: number;
+  recordedBy: string;
+};
+
+// Shared by the Finance page and its CSV export, so both always agree on
+// exactly what "the movements for this period" means.
+export async function getFinanceMovements(partnerId: string, since: Date | null): Promise<MovementRow[]> {
+  const dateWhereDonation = since ? { gte: since } : undefined;
+  const dateWhereExpense = since ? { gte: since } : undefined;
+
+  const [donations, expenses] = await Promise.all([
+    db.donation.findMany({
+      where: { partnerId, ...(dateWhereDonation ? { receivedAt: dateWhereDonation } : {}) },
+      orderBy: { receivedAt: "desc" },
+      include: { recorder: true },
+    }),
+    db.expense.findMany({
+      where: { partnerId, ...(dateWhereExpense ? { spentAt: dateWhereExpense } : {}) },
+      orderBy: { spentAt: "desc" },
+      include: { recorder: true },
+    }),
+  ]);
+
+  const movements: MovementRow[] = [
+    ...donations.map((d) => ({
+      id: d.id,
+      date: d.receivedAt,
+      type: "donation" as const,
+      label: d.donorName ?? "Anonymous donor",
+      detail: DONOR_TYPE_LABELS[d.donorType] ?? d.donorType,
+      amount: Number(d.amount),
+      recordedBy: d.recorder.displayName ?? d.recorder.firstName,
+    })),
+    ...expenses.map((e) => ({
+      id: e.id,
+      date: e.spentAt,
+      type: "expense" as const,
+      label: e.description,
+      detail: FUNCTIONAL_CATEGORY_LABELS[e.functionalCategory] ?? e.functionalCategory,
+      amount: -Number(e.amount),
+      recordedBy: e.recorder.displayName ?? e.recorder.firstName,
+    })),
+  ];
+
+  return movements.sort((a, b) => b.date.getTime() - a.date.getTime());
 }

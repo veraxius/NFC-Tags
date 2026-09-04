@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+import QRCode from "qrcode";
 import { db } from "@/lib/db";
 import { Table, Badge, Card } from "@/components/ui";
 import {
@@ -20,6 +22,19 @@ export default async function OpsDevices({
     ? JSON.parse(created)
     : [];
 
+  // The raw token (and therefore the tap URL) is only ever visible right
+  // now, at issuance — same reason the QR backup can only be generated
+  // here too. Once this page reloads, only the hash remains in the DB.
+  const host = (await headers()).get("host") ?? "localhost:3000";
+  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  const createdWithQr = await Promise.all(
+    createdTokens.map(async (t) => {
+      const url = `${proto}://${host}/t/${t.token}`;
+      const qrSvg = await QRCode.toString(url, { type: "svg", margin: 1, width: 120 });
+      return { ...t, url, qrSvg };
+    })
+  );
+
   const devices = await db.journeyPortDevice.findMany({
     include: { user: { include: { journeyIdentity: true } } },
     orderBy: { createdAt: "desc" },
@@ -29,18 +44,26 @@ export default async function OpsDevices({
     <div className="space-y-5">
       <h1 className="text-2xl font-bold text-[var(--color-text)]">JourneyPort Device Center</h1>
 
-      {createdTokens.length > 0 && (
+      {createdWithQr.length > 0 && (
         <Card title="⚠ New NFC tokens — shown only once (write these to the physical chips)">
-          <ul className="space-y-1 font-mono text-xs">
-            {createdTokens.map((t) => (
-              <li key={t.deviceId} className="rounded bg-[var(--color-bg-alt)] px-2 py-1.5">
-                <span className="font-semibold">{t.deviceId}</span> → /t/{t.token}
+          <ul className="space-y-3">
+            {createdWithQr.map((t) => (
+              <li key={t.deviceId} className="flex items-center gap-3 rounded bg-[var(--color-bg-alt)] p-2.5">
+                <div
+                  className="shrink-0 rounded bg-white p-1"
+                  dangerouslySetInnerHTML={{ __html: t.qrSvg }}
+                />
+                <div className="min-w-0 font-mono text-xs">
+                  <div className="font-semibold">{t.deviceId}</div>
+                  <div className="truncate text-[var(--color-text-secondary)]">{t.url}</div>
+                </div>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-            The platform stores only a hash of each token. Program each NFC chip
-            with the full URL (https://&lt;host&gt;/t/&lt;token&gt;).
+          <p className="mt-3 text-xs text-[var(--color-text-secondary)]">
+            The platform stores only a hash of each token. Program each NFC chip with the full URL — and consider
+            printing the QR code alongside it as a backup: any phone whose camera or NFC reader struggles can scan
+            the QR instead and land on the exact same tap page.
           </p>
         </Card>
       )}

@@ -40,7 +40,7 @@ export function Sidebar({
   return (
     <>
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width] duration-300 ease-out sm:flex"
+        className="fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden border-r border-[var(--color-divider)] bg-white/90 backdrop-blur transition-[width] duration-300 ease-out sm:flex print:hidden"
         style={{ width }}
       >
         <Link href={homeHref} className="flex shrink-0 items-center gap-2.5 overflow-hidden px-4 py-4">
@@ -108,7 +108,7 @@ export function Sidebar({
         onClick={() => setExpanded((v) => !v)}
         aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
         aria-pressed={expanded}
-        className="fixed top-5 z-50 hidden h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-[var(--color-divider)] bg-white shadow-sm transition-[left] duration-300 ease-out hover:border-[var(--color-pink)] sm:flex"
+        className="fixed top-5 z-50 hidden h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-[var(--color-divider)] bg-white shadow-sm transition-[left] duration-300 ease-out hover:border-[var(--color-pink)] sm:flex print:hidden"
         style={{ left: width }}
       >
         <IconSidebarToggle open={expanded} />
@@ -117,7 +117,7 @@ export function Sidebar({
       {/* Mobile bottom tab bar — horizontally scrollable, not equally
           divided — safe for both a short list (Partner) and a long one
           (Ops' 12 sections) without squeezing tabs illegibly thin. */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-[var(--color-divider)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden print:hidden">
         {links.map((l) => {
           const active = isActive(l.href);
           return (
@@ -139,7 +139,7 @@ export function Sidebar({
           the same persistent state, so collapsing genuinely reflows the
           page (this is a real toggle now, not a hover peek). */}
       <div
-        className="hidden shrink-0 transition-[width] duration-300 ease-out sm:block"
+        className="hidden shrink-0 transition-[width] duration-300 ease-out sm:block print:hidden"
         style={{ width }}
         aria-hidden
       />

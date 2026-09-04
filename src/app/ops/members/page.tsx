@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { Table, Badge } from "@/components/ui";
-import type { Prisma } from "@prisma/client";
+import { buildMemberWhere } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
 
@@ -19,24 +19,7 @@ export default async function OpsMembers({
   }>;
 }) {
   const sp = await searchParams;
-
-  const where: Prisma.UserWhereInput = { platformRole: "member" };
-  if (sp.status) where.status = sp.status;
-  if (sp.since) {
-    const days = Number(sp.since);
-    if (Number.isFinite(days)) {
-      where.createdAt = { gte: new Date(Date.now() - days * 864e5) };
-    }
-  }
-  if (sp.partner) {
-    where.participations = { some: { partner: { publicId: sp.partner } } };
-  }
-  if (sp.device) {
-    where.devices =
-      sp.device === "none" ? { none: {} } : { some: { status: sp.device } };
-  }
-  if (sp.milestones === "with") where.milestones = { some: { status: "verified" } };
-  if (sp.milestones === "without") where.milestones = { none: { status: "verified" } };
+  const where = buildMemberWhere(sp);
 
   const [members, partners] = await Promise.all([
     db.user.findMany({
@@ -59,7 +42,17 @@ export default async function OpsMembers({
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">Members</h1>
-        <span className="text-[13px] text-[var(--color-text-secondary)]">{members.length} shown</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[13px] text-[var(--color-text-secondary)]">{members.length} shown</span>
+          <a
+            href={`/api/v1/ops/members/export?${new URLSearchParams(
+              Object.entries(sp).filter(([, v]) => v) as [string, string][]
+            ).toString()}`}
+            className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium text-[var(--color-text)] transition-colors hover:bg-black/[0.04]"
+          >
+            Export CSV
+          </a>
+        </div>
       </div>
 
       <form method="get" className="glass flex flex-wrap items-end gap-3 p-4">

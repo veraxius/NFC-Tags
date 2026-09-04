@@ -7,8 +7,10 @@ import {
   FUNCTIONAL_CATEGORY_LABELS,
   DONOR_TYPES,
   DONOR_TYPE_LABELS,
+  getFinanceMovements,
 } from "@/lib/finance";
 import { recordDonationAction, recordExpenseAction } from "@/lib/actions";
+import { PrintButton } from "@/components/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -90,26 +92,7 @@ export default async function PartnerFinance({
   }
   const byProgram = [...groups.values()].sort((a, b) => (b.donations + b.expenses) - (a.donations + a.expenses));
 
-  const movements = [
-    ...donations.map((d) => ({
-      id: d.id,
-      date: d.receivedAt,
-      type: "donation" as const,
-      label: d.donorName ?? "Anonymous donor",
-      detail: DONOR_TYPE_LABELS[d.donorType] ?? d.donorType,
-      amount: Number(d.amount),
-      recordedBy: d.recorder.displayName ?? d.recorder.firstName,
-    })),
-    ...expenses.map((e) => ({
-      id: e.id,
-      date: e.spentAt,
-      type: "expense" as const,
-      label: e.description,
-      detail: FUNCTIONAL_CATEGORY_LABELS[e.functionalCategory] ?? e.functionalCategory,
-      amount: -Number(e.amount),
-      recordedBy: e.recorder.displayName ?? e.recorder.firstName,
-    })),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+  const movements = await getFinanceMovements(partner.id, since);
 
   const inputClass =
     "w-full rounded-2xl border border-[var(--color-warmgray)] px-3 py-2 text-sm focus:border-[var(--color-pink)] focus:outline-none";
@@ -205,6 +188,15 @@ export default async function PartnerFinance({
       </Card>
 
       <Card title="Movements">
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-2 print:hidden">
+          <a
+            href={`/api/v1/partner/finance/export?partnerId=${partner.id}&period=${period}`}
+            className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium text-[var(--color-text)] transition-colors hover:bg-black/[0.04]"
+          >
+            Export CSV
+          </a>
+          <PrintButton />
+        </div>
         <Table headers={["Date", "Type", "Description", "Detail", "Amount", "Recorded by"]}>
           {movements.length === 0 ? (
             <tr>
