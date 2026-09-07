@@ -2,12 +2,15 @@ import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
 import { createEarthyDoingAction } from "@/lib/actions";
 import { OrganicCard, Headline } from "@/components/organic";
+import { listGoalsForPartner } from "@/lib/goals";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewDoing() {
   const user = await requireUser();
   const partner = await resolvePartnerFor(user);
+  const goals = await listGoalsForPartner(partner.id);
+  const openGoals = goals.filter((g) => g.goal.status === "active");
   const today = new Date().toISOString().slice(0, 10);
   const inputClass =
     "w-full rounded-2xl border border-[var(--color-warmgray)] px-3 py-2 focus:border-[var(--color-pink)] focus:outline-none";
@@ -44,6 +47,22 @@ export default async function NewDoing() {
               <input name="capacity" type="number" min={1} className={inputClass} />
             </div>
           </div>
+          {openGoals.length > 0 && (
+            <div>
+              <label className={labelClass}>Counts toward a goal? (optional)</label>
+              <select name="goalId" defaultValue="" className={inputClass}>
+                <option value="">Not tied to a goal</option>
+                {openGoals.map(({ goal }) => (
+                  <option key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+                Anyone who taps in here shows up ready to log against that goal.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Starts</label>

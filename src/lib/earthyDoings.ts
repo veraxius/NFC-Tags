@@ -68,6 +68,7 @@ export async function createEarthyDoing(params: {
   capacity?: number | null;
   dimensions: string[];
   verificationPolicyId?: string | null;
+  goalId?: string | null;
   status?: string;
 }) {
   assertCanManage(params.partnerId, params.session);
@@ -106,6 +107,7 @@ export async function createEarthyDoing(params: {
       locationId: params.locationId ?? null,
       capacity: params.capacity ?? null,
       verificationPolicyId: policyId,
+      goalId: params.goalId ?? null,
       createdBy: params.session.id,
       classifications: { create: params.dimensions.map((d) => ({ dimension: d })) },
     },
@@ -137,6 +139,7 @@ export async function updateEarthyDoing(params: {
     locationId?: string | null;
     programId?: string | null;
     dimensions?: string[];
+    goalId?: string | null;
   };
 }) {
   const doing = await resolveEarthyDoing(params.idOrPublicId);

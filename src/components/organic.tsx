@@ -293,6 +293,52 @@ export function SegmentedBar({ segments }: { segments: BarSegment[] }) {
   );
 }
 
+// ---------- Goal progress ----------
+// A single target filling up toward 100% — "clean 20km of beach", "collect
+// 2 tonnes of plastic". Deliberately plainer than SegmentedBar (one bar,
+// one number) because a goal is one thing to hit, not a breakdown.
+
+export function GoalProgress({
+  title,
+  currentValue,
+  targetValue,
+  unit,
+  pct,
+  color = "var(--color-pink)",
+  subtitle,
+}: {
+  title: string;
+  currentValue: number;
+  targetValue: number;
+  unit: string;
+  pct: number;
+  color?: string;
+  subtitle?: string;
+}) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <p className="font-semibold text-[var(--color-text)]">{title}</p>
+          {subtitle && <p className="text-xs text-[var(--color-text-secondary)]">{subtitle}</p>}
+        </div>
+        <p className="shrink-0 text-sm font-semibold" style={{ color }}>
+          {Math.round(pct)}%
+        </p>
+      </div>
+      <div className="mt-2.5 h-3 w-full overflow-hidden rounded-full bg-[var(--color-bg-alt)]">
+        <div
+          className="h-full rounded-full transition-[width] duration-500 ease-out"
+          style={{ width: `${Math.max(pct, currentValue > 0 ? 2 : 0)}%`, background: color }}
+        />
+      </div>
+      <p className="mt-1.5 text-xs text-[var(--color-text-secondary)]">
+        {currentValue.toLocaleString()} / {targetValue.toLocaleString()} {unit}
+      </p>
+    </div>
+  );
+}
+
 // ---------- Trend line ----------
 // Small hand-drawn line + soft-filled area chart, no charting dependency.
 // Not bezier-smoothed — a straight-segment polyline, close to the mockup's

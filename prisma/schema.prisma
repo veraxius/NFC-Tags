@@ -50,6 +50,8 @@ model User {
   notifications      Notification[]
   passwordTokens     PasswordResetToken[]
   emailTokens        EmailVerificationToken[]
+  goalContributions         GoalContribution[] @relation("GoalContributionUser")
+  goalContributionsRecorded GoalContribution[] @relation("GoalContributionRecorder")
 
   @@map("users")
 }
@@ -178,6 +180,7 @@ model Partner {
   verifications  Verification[]
   donations      Donation[]
   expenses       Expense[]
+  goals          Goal[]
 
   @@map("partners")
 }
@@ -240,6 +243,52 @@ model Program {
   @@map("programs")
 }
 
+// GOALS — an organization-level target ("clean 20km of beach", "collect 2
+// tonnes of plastic") that fills up from real, on-site contributions logged
+// against people who actually checked in via NFC — not a number anyone can
+// type in from nowhere. Not tied to a single Earthy Doing: a campaign like
+// this can span several cleanup events over time, all feeding one total.
+model Goal {
+  id          String    @id @default(uuid())
+  publicId    String    @unique @map("public_id") // e.g. GOAL-A1B2C3
+  partnerId   String    @map("partner_id")
+  title       String
+  description String?
+  unit        String // free-text metric label, e.g. "km", "kg"
+  targetValue Decimal   @db.Decimal(12, 2) @map("target_value")
+  status      String    @default("active") // active | completed | archived
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+
+  partner       Partner            @relation(fields: [partnerId], references: [id])
+  contributions GoalContribution[]
+  earthyDoings  EarthyDoing[]
+
+  @@map("goals")
+}
+
+// One entry per person's on-site contribution toward a goal, tied to the
+// specific check-in (Participation) that put them there — so "who did what"
+// always traces back to a real NFC tap, never a free-floating number.
+model GoalContribution {
+  id              String   @id @default(uuid())
+  goalId          String   @map("goal_id")
+  userId          String   @map("user_id")
+  participationId String   @map("participation_id")
+  amount          Decimal  @db.Decimal(12, 2)
+  recordedBy      String   @map("recorded_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  goal          Goal          @relation(fields: [goalId], references: [id])
+  user          User          @relation("GoalContributionUser", fields: [userId], references: [id])
+  participation Participation @relation(fields: [participationId], references: [id])
+  recorder      User          @relation("GoalContributionRecorder", fields: [recordedBy], references: [id])
+
+  @@map("goal_contributions")
+}
+
 // TRS 13 / TRS 37 VERIFICATION POLICIES — the verification model must stay
 // configurable rather than hard-coded (Architecture doc §11).
 model VerificationPolicy {
@@ -275,6 +324,10 @@ model EarthyDoing {
   locationId           String?  @map("location_id")
   capacity             Int?
   verificationPolicyId String?  @map("verification_policy_id")
+  // Which Goal this activity's on-site contributions count toward, if any —
+  // this is what lets an NFC check-in here resolve to the right objective
+  // instead of an admin having to guess from a list of everything recent.
+  goalId               String?  @map("goal_id")
   createdBy            String   @map("created_by")
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
@@ -283,6 +336,7 @@ model EarthyDoing {
   program            Program?                   @relation(fields: [programId], references: [id])
   location           Location?                  @relation(fields: [locationId], references: [id])
   verificationPolicy VerificationPolicy?        @relation(fields: [verificationPolicyId], references: [id])
+  goal               Goal?                      @relation(fields: [goalId], references: [id])
   classifications    TriSilienceClassification[]
   participations     Participation[]
   milestones         JourneyMilestone[]
@@ -322,12 +376,13 @@ model Participation {
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  earthyDoing  EarthyDoing        @relation(fields: [earthyDoingId], references: [id])
-  user         User               @relation(fields: [userId], references: [id])
-  device       JourneyPortDevice? @relation(fields: [deviceId], references: [id])
-  partner      Partner            @relation(fields: [partnerId], references: [id])
-  verification Verification?
-  milestone    JourneyMilestone?
+  earthyDoing      EarthyDoing        @relation(fields: [earthyDoingId], references: [id])
+  user             User               @relation(fields: [userId], references: [id])
+  device           JourneyPortDevice? @relation(fields: [deviceId], references: [id])
+  partner          Partner            @relation(fields: [partnerId], references: [id])
+  verification     Verification?
+  milestone        JourneyMilestone?
+  goalContributions GoalContribution[]
 
   @@unique([earthyDoingId, userId]) // duplicate protection (US-003)
   @@map("participations")

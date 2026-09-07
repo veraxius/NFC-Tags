@@ -2,8 +2,9 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { DimensionBadge, Card } from "@/components/ui";
-import { OrganicCard, StatusPill, Headline, SegmentedBar, type BarSegment } from "@/components/organic";
+import { OrganicCard, StatusPill, Headline, SegmentedBar, GoalProgress, type BarSegment } from "@/components/organic";
 import { DIMENSION_LABELS } from "@/lib/dimensions";
+import { listActiveGoalsForMember } from "@/lib/goals";
 
 const DIMENSION_COLORS: Record<string, string> = {
   SELF_SUSTAINABILITY: "var(--color-pink)",
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default async function JourneyTimeline() {
   const user = await requireUser();
-  const [milestones, pending] = await Promise.all([
+  const [milestones, pending, activeGoals] = await Promise.all([
     db.journeyMilestone.findMany({
       where: { userId: user.id },
       orderBy: { earnedAt: "desc" },
@@ -29,6 +30,7 @@ export default async function JourneyTimeline() {
       include: { earthyDoing: { include: { partner: true, classifications: true } } },
       orderBy: { checkInAt: "desc" },
     }),
+    listActiveGoalsForMember(user.id),
   ]);
 
   const fmt = (d: Date) =>
@@ -61,6 +63,29 @@ export default async function JourneyTimeline() {
             <SegmentedBar segments={impactSegments} />
           </Card>
         </div>
+      )}
+
+      {activeGoals.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+            Organization goals
+          </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {activeGoals.map((g) => (
+              <OrganicCard key={g.goal.id} className="p-5">
+                <GoalProgress
+                  title={g.goal.title}
+                  subtitle={g.partnerName}
+                  currentValue={g.currentValue}
+                  targetValue={g.targetValue}
+                  unit={g.goal.unit}
+                  pct={g.pct}
+                  color="var(--color-mint)"
+                />
+              </OrganicCard>
+            ))}
+          </div>
+        </section>
       )}
 
       {currentlyAt && (

@@ -146,11 +146,27 @@ export async function createEarthyDoingAction(formData: FormData) {
     endAt: new Date(String(formData.get("endAt"))),
     capacity: formData.get("capacity") ? Number(formData.get("capacity")) : null,
     dimensions: formData.getAll("dimensions").map(String),
+    goalId: formData.get("goalId") ? String(formData.get("goalId")) : null,
     status: "published",
   });
 
   revalidatePath("/partner");
   redirect("/partner");
+}
+
+// Retroactively link (or unlink) an Earthy Doing to the goal its on-site
+// contributions should count toward — for activities created before a goal
+// existed, or ones the admin simply forgot to tag at creation time.
+export async function linkGoalAction(formData: FormData) {
+  const session = await requireUser();
+  const doingId = String(formData.get("doingId"));
+  const { updateEarthyDoing } = await import("./earthyDoings");
+  await updateEarthyDoing({
+    session,
+    idOrPublicId: doingId,
+    data: { goalId: formData.get("goalId") ? String(formData.get("goalId")) : null },
+  });
+  revalidatePath(`/partner/doings/${doingId}`);
 }
 
 export async function recordDonationAction(formData: FormData) {
@@ -256,6 +272,34 @@ export async function setPartnerStaffStatusAction(partnerUserId: string, status:
   });
 
   revalidatePath("/partner/team");
+}
+
+export async function createGoalAction(formData: FormData) {
+  const session = await requireUser();
+  const { createGoal } = await import("./goals");
+  const goal = await createGoal({
+    session,
+    partnerId: String(formData.get("partnerId")),
+    title: String(formData.get("title")),
+    description: formData.get("description") ? String(formData.get("description")) : null,
+    unit: String(formData.get("unit")),
+    targetValue: Number(formData.get("targetValue")),
+  });
+  revalidatePath("/partner/goals");
+  redirect(`/partner/goals/${goal.id}`);
+}
+
+export async function recordContributionAction(formData: FormData) {
+  const session = await requireUser();
+  const { recordContribution } = await import("./goals");
+  const goalId = String(formData.get("goalId"));
+  await recordContribution({
+    session,
+    goalId,
+    participationId: String(formData.get("participationId")),
+    amount: Number(formData.get("amount")),
+  });
+  revalidatePath(`/partner/goals/${goalId}`);
 }
 
 // ---- Ops actions ----

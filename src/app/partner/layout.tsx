@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, isBeaurityAdmin, isAdminAnywhere } from "@/lib/auth";
 import { Sidebar } from "@/components/Sidebar";
-import { IconHome, IconLeaf, IconCheck, IconUsers, IconDollar, IconLock, IconBuilding } from "@/components/icons";
+import { IconHome, IconLeaf, IconCheck, IconUsers, IconDollar, IconLock, IconBuilding, IconFlag } from "@/components/icons";
 
 export default async function PartnerLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
@@ -9,6 +9,7 @@ export default async function PartnerLayout({ children }: { children: React.Reac
   if (user.partnerRoles.length === 0 && !isBeaurityAdmin(user)) redirect("/journey");
   const links = [
     { href: "/partner", label: "Overview", icon: <IconHome /> },
+    { href: "/partner/goals", label: "Goals", icon: <IconFlag /> },
     { href: "/partner/doings", label: "Earthy Doings", icon: <IconLeaf /> },
     { href: "/partner/verifications", label: "Confirmations", icon: <IconCheck /> },
     { href: "/partner/people", label: "People", icon: <IconUsers /> },
