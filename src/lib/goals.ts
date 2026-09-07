@@ -26,12 +26,22 @@ export async function createGoal(params: {
   description?: string | null;
   unit: string;
   targetValue: number;
+  earthyDoingId?: string | null;
 }) {
   if (!isPartnerAdmin(params.session, params.partnerId)) {
     throw new GoalError("FORBIDDEN", "Only a partner administrator (or Beaurity) can create goals.", 403);
   }
   if (!(params.targetValue > 0)) {
     throw new GoalError("INVALID_TARGET", "Target must be greater than zero.");
+  }
+
+  // Tying the goal to an activity right away (optional) is what lets the
+  // field screen skip the "which Earthy Doing" picker entirely from the
+  // very first contribution — the same link built retroactively from an
+  // Earthy Doing's own "Counts toward" section, just set up in one step.
+  if (params.earthyDoingId) {
+    const doing = await db.earthyDoing.findFirst({ where: { id: params.earthyDoingId, partnerId: params.partnerId } });
+    if (!doing) throw new GoalError("EARTHY_DOING_NOT_FOUND", "That Earthy Doing doesn't belong to this organization.", 404);
   }
 
   const goal = await db.goal.create({
@@ -43,6 +53,7 @@ export async function createGoal(params: {
       unit: params.unit,
       targetValue: params.targetValue,
       createdBy: params.session.id,
+      earthyDoings: params.earthyDoingId ? { connect: { id: params.earthyDoingId } } : undefined,
     },
   });
 
@@ -52,7 +63,7 @@ export async function createGoal(params: {
     action: "goal.created",
     objectType: "goal",
     objectId: goal.id,
-    newState: { title: goal.title, unit: goal.unit, targetValue: params.targetValue },
+    newState: { title: goal.title, unit: goal.unit, targetValue: params.targetValue, earthyDoingId: params.earthyDoingId ?? null },
   });
 
   return goal;
@@ -114,6 +125,18 @@ export async function listPresentPeople(earthyDoingId: string) {
   return db.participation.findMany({
     where: { earthyDoingId, status: { notIn: ["cancelled", "invalid"] } },
     include: { user: true },
+    orderBy: { checkInAt: "desc" },
+  });
+}
+
+// Same as above, but across every activity tied to a goal at once — so the
+// field screen never makes an admin pick "which activity" by hand when the
+// goal already knows which ones count toward it.
+export async function listPresentPeopleForDoings(earthyDoingIds: string[]) {
+  if (earthyDoingIds.length === 0) return [];
+  return db.participation.findMany({
+    where: { earthyDoingId: { in: earthyDoingIds }, status: { notIn: ["cancelled", "invalid"] } },
+    include: { user: true, earthyDoing: true },
     orderBy: { checkInAt: "desc" },
   });
 }

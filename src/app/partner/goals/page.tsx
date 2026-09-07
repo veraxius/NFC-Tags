@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser, isPartnerAdmin } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
 import { listGoalsForPartner } from "@/lib/goals";
+import { db } from "@/lib/db";
 import { OrganicCard, GoalProgress, Headline } from "@/components/organic";
 import { Card } from "@/components/ui";
 import { createGoalAction } from "@/lib/actions";
@@ -15,7 +16,12 @@ export default async function PartnerGoals() {
   const user = await requireUser();
   const partner = await resolvePartnerFor(user);
   const canManage = isPartnerAdmin(user, partner.id);
-  const goals = await listGoalsForPartner(partner.id);
+  const [goals, doings] = await Promise.all([
+    listGoalsForPartner(partner.id),
+    canManage
+      ? db.earthyDoing.findMany({ where: { partnerId: partner.id }, orderBy: { startAt: "desc" }, take: 50 })
+      : Promise.resolve([]),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -99,6 +105,21 @@ export default async function PartnerGoals() {
                 className="w-64 rounded-lg border border-[var(--color-warmgray)] px-3 py-2 text-sm"
               />
             </div>
+            {doings.length > 0 && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">
+                  Which Earthy Doing is this for? (optional)
+                </label>
+                <select name="earthyDoingId" defaultValue="" className="w-56 rounded-lg border border-[var(--color-warmgray)] px-3 py-2 text-sm">
+                  <option value="">Not tied to one yet</option>
+                  {doings.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.title} — {d.startAt.toLocaleDateString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <button className="rounded-lg bg-[var(--color-pink)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-pink-hover)]">
               Create goal
             </button>

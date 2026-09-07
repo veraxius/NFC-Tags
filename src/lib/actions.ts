@@ -284,6 +284,7 @@ export async function createGoalAction(formData: FormData) {
     description: formData.get("description") ? String(formData.get("description")) : null,
     unit: String(formData.get("unit")),
     targetValue: Number(formData.get("targetValue")),
+    earthyDoingId: formData.get("earthyDoingId") ? String(formData.get("earthyDoingId")) : null,
   });
   revalidatePath("/partner/goals");
   redirect(`/partner/goals/${goal.id}`);

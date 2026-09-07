@@ -2,9 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser, isPartnerAdmin, canActForPartner } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getGoalProgress, listPresentPeople, listContributions, listEarthyDoingsForGoal } from "@/lib/goals";
+import {
+  getGoalProgress,
+  listPresentPeople,
+  listPresentPeopleForDoings,
+  listContributions,
+  listEarthyDoingsForGoal,
+} from "@/lib/goals";
 import { OrganicCard, GoalProgress, Headline } from "@/components/organic";
 import { Table } from "@/components/ui";
+import { AutoSubmitSelect } from "@/components/AutoSubmitSelect";
 import { recordContributionAction } from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
@@ -26,27 +33,35 @@ export default async function GoalDetail({
   if (!canActForPartner(user, goal.partnerId)) redirect("/partner/goals");
   const canManage = isPartnerAdmin(user, goal.partnerId);
 
-  // Activities actually tied to this goal come first — the normal case, and
-  // exactly what makes the field screen safe to use without hunting through
-  // everything the organization has ever run. Only when nothing is linked
-  // yet do we fall back to the partner's recent activities, so the screen
-  // is never simply empty.
+  // Activities actually tied to this goal drive the roster directly — no
+  // picking required, since the goal already knows which ones count. Only
+  // when nothing is linked yet do we fall back to a manual picker over the
+  // partner's recent activities, because then there's genuinely no way to
+  // know which one the admin means.
   const linkedDoings = await listEarthyDoingsForGoal(goal.id);
-  const doings =
-    linkedDoings.length > 0
-      ? linkedDoings
-      : await db.earthyDoing.findMany({
-          where: { partnerId: goal.partnerId },
-          orderBy: { startAt: "desc" },
-          take: 50,
-        });
-
   const { doingId } = await searchParams;
-  const selectedDoingId = doingId ?? doings[0]?.id;
-  const [present, contributions] = await Promise.all([
-    selectedDoingId ? listPresentPeople(selectedDoingId) : Promise.resolve([]),
-    listContributions(goal.id),
-  ]);
+
+  let present: Awaited<ReturnType<typeof listPresentPeopleForDoings>>;
+  let fallbackDoings: Awaited<ReturnType<typeof listEarthyDoingsForGoal>> = [];
+  let selectedFallbackDoingId: string | undefined;
+
+  if (linkedDoings.length > 0) {
+    present = await listPresentPeopleForDoings(linkedDoings.map((d) => d.id));
+  } else {
+    fallbackDoings = await db.earthyDoing.findMany({
+      where: { partnerId: goal.partnerId },
+      orderBy: { startAt: "desc" },
+      take: 50,
+    });
+    selectedFallbackDoingId = doingId ?? fallbackDoings[0]?.id;
+    const selectedFallbackDoing = fallbackDoings.find((d) => d.id === selectedFallbackDoingId);
+    present =
+      selectedFallbackDoing && selectedFallbackDoingId
+        ? (await listPresentPeople(selectedFallbackDoingId)).map((p) => ({ ...p, earthyDoing: selectedFallbackDoing }))
+        : [];
+  }
+
+  const contributions = await listContributions(goal.id);
 
   // How much each present person has already put toward this goal, so the
   // admin isn't guessing whether someone was already logged.
@@ -102,35 +117,44 @@ export default async function GoalDetail({
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
             Who's checked in
           </h3>
-          {linkedDoings.length === 0 && (
-            <p className="mb-3 rounded-xl bg-[var(--color-gold-soft)] px-3 py-2 text-xs text-[var(--color-gold-ink)]">
-              No activity is tagged to this goal yet — showing every recent one instead. Open an
-              Earthy Doing and set "Counts toward" so this list stays exact.
+          {linkedDoings.length === 0 ? (
+            <>
+              <p className="mb-3 rounded-xl bg-[var(--color-gold-soft)] px-3 py-2 text-xs text-[var(--color-gold-ink)]">
+                No activity is tagged to this goal yet — pick which recent one you mean below. Open
+                an Earthy Doing and set "Counts toward" so this shows up automatically next time.
+              </p>
+              <form method="get" className="mb-4">
+                <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">
+                  Earthy Doing
+                </label>
+                <AutoSubmitSelect
+                  name="doingId"
+                  defaultValue={selectedFallbackDoingId}
+                  className="w-full max-w-sm rounded-lg border border-[var(--color-warmgray)] px-3 py-2.5 text-sm"
+                >
+                  {fallbackDoings.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.title} — {d.startAt.toLocaleDateString()}
+                    </option>
+                  ))}
+                </AutoSubmitSelect>
+                <noscript>
+                  <button className="ml-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-medium hover:bg-black/[0.04]">
+                    Switch
+                  </button>
+                </noscript>
+              </form>
+            </>
+          ) : (
+            <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
+              Everyone checked in across {linkedDoings.length === 1 ? "this activity" : "these activities"} —
+              tap their JourneyPort, they show up here automatically.
             </p>
           )}
-          <form method="get" className="mb-4">
-            <label className="mb-1 block text-xs font-medium text-[var(--color-text-secondary)]">
-              Earthy Doing
-            </label>
-            <select
-              name="doingId"
-              defaultValue={selectedDoingId}
-              className="w-full max-w-sm rounded-lg border border-[var(--color-warmgray)] px-3 py-2.5 text-sm"
-            >
-              {doings.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.title} — {d.startAt.toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-            <button className="ml-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-medium hover:bg-black/[0.04]">
-              Switch
-            </button>
-          </form>
 
           {present.length === 0 ? (
             <p className="text-sm text-[var(--color-text-secondary)]">
-              No one has checked in to this Earthy Doing yet.
+              No one has checked in yet.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -145,6 +169,9 @@ export default async function GoalDetail({
                       <p className="font-medium text-[var(--color-text)]">
                         {p.user.displayName ?? `${p.user.firstName} ${p.user.lastName}`}
                       </p>
+                      {linkedDoings.length > 1 && (
+                        <p className="text-xs text-[var(--color-text-secondary)]">{p.earthyDoing.title}</p>
+                      )}
                       {already > 0 && (
                         <p className="text-xs text-[var(--color-mint-ink)]">
                           Already logged: {already.toLocaleString()} {goal.unit}
