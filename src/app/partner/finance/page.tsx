@@ -11,6 +11,7 @@ import {
 } from "@/lib/finance";
 import { recordDonationAction, recordExpenseAction } from "@/lib/actions";
 import { PrintButton } from "@/components/PrintButton";
+import { AutoSubmitSelect } from "@/components/AutoSubmitSelect";
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +110,7 @@ export default async function PartnerFinance({
           </p>
         </div>
         <form method="get">
-          <select
+          <AutoSubmitSelect
             name="period"
             defaultValue={period}
             className="rounded-[10px] border border-black/10 bg-white/70 px-3 py-1.5 text-[13px]"
@@ -119,8 +120,10 @@ export default async function PartnerFinance({
             <option value="90">Last 90 days</option>
             <option value="365">Last 12 months</option>
             <option value="all">All time</option>
-          </select>
-          <button className="btn-primary ml-2 !px-4 !py-1.5 !text-[13px]">Apply</button>
+          </AutoSubmitSelect>
+          <noscript>
+            <button className="btn-primary ml-2 !px-4 !py-1.5 !text-[13px]">Apply</button>
+          </noscript>
         </form>
       </div>
 

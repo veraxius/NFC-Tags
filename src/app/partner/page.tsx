@@ -15,6 +15,7 @@ import {
   type BarSegment,
 } from "@/components/organic";
 import { IconGlobe, IconUsers, IconBook, IconHeart, IconGeneral } from "@/components/icons";
+import { AutoSubmitSelect } from "@/components/AutoSubmitSelect";
 import type { ComponentType } from "react";
 
 export const dynamic = "force-dynamic";
@@ -186,7 +187,7 @@ export default async function PartnerOverview({
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <form method="get" className="flex flex-wrap items-center gap-2">
-            <select
+            <AutoSubmitSelect
               name="period"
               defaultValue={period}
               className="rounded-[10px] border border-black/10 bg-white/70 px-3 py-1.5 text-[13px]"
@@ -195,8 +196,10 @@ export default async function PartnerOverview({
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
               <option value="365">Last 12 months</option>
-            </select>
-            <button className="btn-primary !px-4 !py-1.5 !text-[13px]">Apply</button>
+            </AutoSubmitSelect>
+            <noscript>
+              <button className="btn-primary !px-4 !py-1.5 !text-[13px]">Apply</button>
+            </noscript>
           </form>
           <Link
             href="/partner/doings/new"

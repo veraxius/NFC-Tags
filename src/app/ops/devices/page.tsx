@@ -25,8 +25,14 @@ export default async function OpsDevices({
   // The raw token (and therefore the tap URL) is only ever visible right
   // now, at issuance — same reason the QR backup can only be generated
   // here too. Once this page reloads, only the hash remains in the DB.
-  const host = (await headers()).get("host") ?? "localhost:3000";
-  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  //
+  // Behind Railway's proxy (and most reverse proxies), the raw `host`
+  // header is the container's own internal address, not the public domain
+  // — `x-forwarded-host`/`x-forwarded-proto` are what actually carry what
+  // the visitor typed in their browser, so those take priority.
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host") ?? "localhost:3000";
+  const proto = hdrs.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https" : "http");
   const createdWithQr = await Promise.all(
     createdTokens.map(async (t) => {
       const url = `${proto}://${host}/t/${t.token}`;
