@@ -15,6 +15,7 @@ import {
   IconClock,
   IconSettings,
   IconLock,
+  IconPin,
 } from "@/components/icons";
 
 export default async function OpsLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
           { href: "/ops/members", label: "Members", icon: <IconUsers /> },
           { href: "/ops/partners", label: "Partners", icon: <IconBuilding /> },
           { href: "/ops/doings", label: "Earthy Doings", icon: <IconLeaf /> },
+          { href: "/ops/map", label: "Map", icon: <IconPin /> },
           { href: "/ops/verifications", label: "Verifications", icon: <IconCheck /> },
           { href: "/ops/devices", label: "JourneyPorts", icon: <IconCard /> },
           { href: "/ops/aim", label: "AIM Trust", icon: <IconShield /> },

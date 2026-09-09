@@ -134,6 +134,25 @@ export async function createEarthyDoingAction(formData: FormData) {
   const partnerId = String(formData.get("partnerId"));
   const { createEarthyDoing } = await import("./earthyDoings");
 
+  // The LocationPicker only emits lat/lng once a place has actually been
+  // chosen on the map — no coordinates means the admin skipped it, and the
+  // Earthy Doing is created without a location, same as before this existed.
+  let locationId: string | null = null;
+  const lat = formData.get("locationLat");
+  const lng = formData.get("locationLng");
+  if (lat && lng) {
+    const { createLocation } = await import("./locations");
+    const location = await createLocation({
+      partnerId,
+      name: String(formData.get("locationName") || "Untitled location"),
+      address: formData.get("locationAddress") ? String(formData.get("locationAddress")) : null,
+      latitude: Number(lat),
+      longitude: Number(lng),
+      timezone: String(formData.get("locationTimezone") || "UTC"),
+    });
+    locationId = location.id;
+  }
+
   // Shares the same validation, policy assignment and audit trail as
   // POST /api/v1/earthy-doings — the dashboard is not a second code path.
   await createEarthyDoing({
@@ -147,6 +166,7 @@ export async function createEarthyDoingAction(formData: FormData) {
     capacity: formData.get("capacity") ? Number(formData.get("capacity")) : null,
     dimensions: formData.getAll("dimensions").map(String),
     goalId: formData.get("goalId") ? String(formData.get("goalId")) : null,
+    locationId,
     status: "published",
   });
 
@@ -612,4 +632,40 @@ export async function setConsentAction(consentType: string, granted: boolean) {
     newState: { consentType, granted },
   });
   revalidatePath("/journey/privacy");
+}
+
+export async function updateAvatarAction(formData: FormData) {
+  const session = await requireUser();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("Choose an image to upload.");
+  }
+  const position = formData.get("position") ? String(formData.get("position")) : null;
+  const { updateAvatar } = await import("./profile");
+  await updateAvatar({ session, file, position });
+  revalidatePath(`/profile/${session.id}`);
+}
+
+// Starts (or reuses) the conversation with `otherUserId` and drops the first
+// message in one step — the "Send message" button on someone's profile is a
+// single form, not a "create conversation, then separately compose" flow.
+export async function sendMessageAction(formData: FormData) {
+  const session = await requireUser();
+  const otherUserId = String(formData.get("otherUserId"));
+  const body = String(formData.get("body") ?? "");
+  const { sendMessage } = await import("./messages");
+  const { conversation } = await sendMessage({ session, otherUserId, body });
+  revalidatePath("/messages");
+  redirect(`/messages/${conversation.publicId}`);
+}
+
+export async function replyMessageAction(formData: FormData) {
+  const session = await requireUser();
+  const conversationId = String(formData.get("conversationId"));
+  const otherUserId = String(formData.get("otherUserId"));
+  const body = String(formData.get("body") ?? "");
+  const { sendMessage } = await import("./messages");
+  await sendMessage({ session, otherUserId, body });
+  revalidatePath(`/messages/${conversationId}`);
+  revalidatePath("/messages");
 }

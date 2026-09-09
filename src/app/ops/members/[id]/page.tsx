@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
 import { audit } from "@/lib/audit";
 import { Badge, Card, Table, DimensionBadge } from "@/components/ui";
+import { Avatar } from "@/components/Avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -96,10 +97,17 @@ export default async function MemberDetail({
           ‹ Members
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
+          <Avatar src={member.avatarUrl} position={member.avatarPosition} name={member.displayName ?? member.firstName} size={48} />
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
             {member.displayName ?? `${member.firstName} ${member.lastName}`}
           </h1>
           <Badge status={member.status} />
+          <Link
+            href={`/profile/${member.id}`}
+            className="ml-auto rounded-full bg-[var(--color-pink)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]"
+          >
+            Send message
+          </Link>
         </div>
         <p className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">
           {member.journeyIdentity?.publicId}

@@ -39,6 +39,69 @@ export async function resolveEarthyDoing(idOrPublicId: string) {
   return doing;
 }
 
+// Statuses a member or another organization should ever be able to browse
+// into — "draft" is unpublished work-in-progress, never shown outside the
+// partner that owns it. Ops/superadmin bypass this entirely (they already
+// see everything via /ops/doings).
+export const PUBLICLY_VISIBLE_STATUSES = ["published", "active", "paused", "completed", "cancelled"];
+
+// Every Earthy Doing currently on the platform that's fit to browse — the
+// shared "what's happening" list behind /journey/explore and /partner/explore.
+// Capped at 10 on screen by design (the field-facing point of this list is
+// "what's live right now", not a full archive) — `q` is how people reach
+// anything older or further down than that.
+export async function listAllEarthyDoings(q?: string) {
+  return db.earthyDoing.findMany({
+    where: {
+      status: { in: PUBLICLY_VISIBLE_STATUSES },
+      ...(q ? { title: { contains: q, mode: "insensitive" } } : {}),
+    },
+    include: {
+      partner: true,
+      classifications: true,
+      location: true,
+      _count: { select: { participations: true } },
+    },
+    orderBy: { startAt: "desc" },
+    take: 10,
+  });
+}
+
+// The map's own feed — every publicly-browsable Earthy Doing with a
+// location on file, no cap. The 10-item limit on listAllEarthyDoings is
+// about keeping the named list short and scannable; the map is the "how
+// many pins are actually live right now" view and shouldn't hide any of
+// them.
+export async function listEarthyDoingsForMap() {
+  return db.earthyDoing.findMany({
+    where: {
+      status: { in: PUBLICLY_VISIBLE_STATUSES },
+      location: { latitude: { not: null }, longitude: { not: null } },
+    },
+    include: { partner: true, location: true },
+    orderBy: { startAt: "desc" },
+  });
+}
+
+// Full detail behind a click-through: the activity, where it happens, and
+// who's shown up — the same shape regardless of which area (member, partner,
+// ops) is asking, since it's read-only information either way.
+export async function getEarthyDoingDetail(idOrPublicId: string) {
+  const doing = await db.earthyDoing.findFirst({
+    where: { OR: [{ id: idOrPublicId }, { publicId: idOrPublicId }] },
+    include: { partner: true, location: true, classifications: true, goal: true },
+  });
+  if (!doing) return null;
+
+  const participations = await db.participation.findMany({
+    where: { earthyDoingId: doing.id },
+    include: { user: { include: { journeyIdentity: true } }, verification: true },
+    orderBy: { checkInAt: "desc" },
+  });
+
+  return { doing, participations };
+}
+
 export function assertCanManage(partnerId: string, session: SessionUser): void {
   if (!canActForPartner(session, partnerId)) {
     throw new EarthyDoingError(

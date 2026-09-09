@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { Table, Badge, DimensionBadge } from "@/components/ui";
 import { transitionEarthyDoingAction } from "@/lib/actions";
@@ -49,7 +50,9 @@ export default async function OpsDoings() {
           return (
             <tr key={d.id}>
               <td className="px-4 py-2.5">
-                <p className="font-medium text-[var(--color-text)]">{d.title}</p>
+                <Link href={`/ops/doings/${d.id}`} className="font-medium text-[var(--color-pink)] hover:underline">
+                  {d.title}
+                </Link>
                 <p className="font-mono text-xs text-[var(--color-text-secondary)]">{d.publicId}</p>
               </td>
               <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">{d.partner.name}</td>

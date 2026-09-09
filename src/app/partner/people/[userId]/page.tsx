@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { resolvePartnerFor } from "@/lib/partner";
 import { db } from "@/lib/db";
 import { Card, Table, Badge, Kpi, DimensionBadge } from "@/components/ui";
+import { Avatar } from "@/components/Avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -48,13 +49,22 @@ export default async function PartnerPersonDetail({
           ‹ People
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
-            {person.displayName ?? `${person.firstName} ${person.lastName}`}
-          </h1>
+          <Avatar src={person.avatarUrl} position={person.avatarPosition} name={person.displayName ?? person.firstName} size={48} />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+              {person.displayName ?? `${person.firstName} ${person.lastName}`}
+            </h1>
+            <p className="font-mono text-xs text-[var(--color-text-secondary)]">
+              {person.journeyIdentity?.publicId}
+            </p>
+          </div>
+          <Link
+            href={`/profile/${person.id}`}
+            className="ml-auto rounded-full bg-[var(--color-pink)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-pink-hover)]"
+          >
+            Send message
+          </Link>
         </div>
-        <p className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">
-          {person.journeyIdentity?.publicId}
-        </p>
         <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
           Activity shown here is limited to what this person has done with {partner.name}.
         </p>

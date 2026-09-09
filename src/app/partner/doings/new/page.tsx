@@ -3,6 +3,7 @@ import { resolvePartnerFor } from "@/lib/partner";
 import { createEarthyDoingAction } from "@/lib/actions";
 import { OrganicCard, Headline } from "@/components/organic";
 import { listGoalsForPartner } from "@/lib/goals";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +64,10 @@ export default async function NewDoing() {
               </p>
             </div>
           )}
+          <div>
+            <label className={labelClass}>Where does this happen? (optional)</label>
+            <LocationPicker namePrefix="location" />
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Starts</label>

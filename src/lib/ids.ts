@@ -38,6 +38,7 @@ export const verificationPolicyPublicId = () => `VPOL-${randomCode(6)}`;
 export const donationPublicId = () => `DON-${randomCode(6)}`;
 export const expensePublicId = () => `EXP-${randomCode(6)}`;
 export const goalPublicId = () => `GOAL-${randomCode(6)}`;
+export const conversationPublicId = () => `CONV-${randomCode(6)}`;
 
 // Single-use tokens for password reset / email verification (TRS 27).
 // Same rule as NFC tokens: only the hash is ever stored.

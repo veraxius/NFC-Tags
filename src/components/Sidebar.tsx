@@ -26,7 +26,7 @@ export function Sidebar({
 }: {
   title: string;
   homeHref: string;
-  links: { href: string; label: string; icon: ReactNode }[];
+  links: { href: string; label: string; icon: ReactNode; badge?: number }[];
 }) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(true);
@@ -79,7 +79,14 @@ export function Sidebar({
                     : "text-[var(--color-text-secondary)] hover:bg-black/[0.04] hover:text-[var(--color-text)]"
                 }`}
               >
-                <span className="shrink-0">{l.icon}</span>
+                <span className="relative shrink-0">
+                  {l.icon}
+                  {!!l.badge && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-pink)] px-1 text-[10px] font-semibold leading-none text-white">
+                      {l.badge > 9 ? "9+" : l.badge}
+                    </span>
+                  )}
+                </span>
                 <span
                   className={`overflow-hidden whitespace-nowrap transition-opacity duration-200 ${
                     expanded ? "opacity-100" : "w-0 opacity-0"
@@ -128,7 +135,14 @@ export function Sidebar({
                 active ? "text-[var(--color-pink)]" : "text-[var(--color-text-secondary)]"
               }`}
             >
-              {l.icon}
+              <span className="relative">
+                {l.icon}
+                {!!l.badge && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--color-pink)] px-1 text-[9px] font-semibold leading-none text-white">
+                    {l.badge > 9 ? "9+" : l.badge}
+                  </span>
+                )}
+              </span>
               <span className="whitespace-nowrap">{l.label}</span>
             </Link>
           );
